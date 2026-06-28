@@ -18,12 +18,12 @@
 <div id="root"></div>
 <script type="text/babel">
 
-const TURSO_URL = "https://command-center-jengrovdahl.aws-us-east-2.turso.io";
+const TURSO_URL   = "https://command-center-jengrovdahl.aws-us-east-2.turso.io";
 const TURSO_TOKEN = "eyJhbGciOiJFZERTQSIsInR5cCI6IkpXVCJ9.eyJhIjoicnciLCJpYXQiOjE3ODI2ODkyNDgsImlkIjoiMDE5ZjEwOGUtYTgwMS03MTc3LWFmMWItNGU0ZGFkYzI4MzRiIiwicmlkIjoiMjE3MzY3NTMtYmJiNC00ZTUwLWE3OTQtNWY2YjA0NGIzZWM0In0.B9k-4DukPhCUQ9AcwEu04yG42imxMmml_ib1AbmV_iq5EqqIcoI2rKPO_GELSConUyh_D6DQzzgmUpt1-LFhCw";
 
 const ORGS = {
-  bpwt:          { label: "BPWT",                color: "#7C3AED", light: "#EDE9FE", text: "#5B21B6" },
-  blossom_thyme: { label: "Blossom Thyme",        color: "#16A34A", light: "#DCFCE7", text: "#15803D" },
+  bpwt:          { label:"BPWT",           color:"#7C3AED", light:"#EDE9FE", text:"#5B21B6" },
+  blossom_thyme: { label:"Blossom Thyme",  color:"#16A34A", light:"#DCFCE7", text:"#15803D" },
 };
 
 const CATEGORIES = {
@@ -31,37 +31,75 @@ const CATEGORIES = {
   blossom_thyme: ["Market Logistics","Vendors","Marketing","Finances","Volunteers","Events"],
 };
 
-const SEED = [
-  // ── BPWT Fast Starts ──
-  {org:"bpwt",category:"Fast Starts",title:"President Fast Start — Jen",notes:"Submit to state president. Set 3 goals, write intro letter, list board members.",due_date:"2026-07-15",assigned_to:"Jen"},
-  {org:"bpwt",category:"Fast Starts",title:"Programming VP Fast Start — Cindy",notes:"Submit to ivp@mnwt.org. Hold LPM orientation, set 3 goals, list all LPMs.",due_date:"2026-08-01",assigned_to:"Cindy"},
-  {org:"bpwt",category:"Fast Starts",title:"Membership VP Fast Start",notes:"Submit growth plan, plan a Tri 1 membership event, describe year plan. Due July 15.",due_date:"2026-07-15",assigned_to:""},
-  {org:"bpwt",category:"Fast Starts",title:"Living & Learning LPM Fast Start",notes:"Submit to chapter president + district. Goals, write DPM intro, prelim trimester report. https://tinyurl.com/SPMFastStart",due_date:"2026-07-15",assigned_to:""},
-  {org:"bpwt",category:"Fast Starts",title:"Community Connections LPM Fast Start — Brandy",notes:"Attend orientation, set goals, write DPM intro, submit prelim trimester report.",due_date:"2026-08-01",assigned_to:"Brandy"},
-  {org:"bpwt",category:"Fast Starts",title:"Women's Wellness LPM Fast Start — Ann",notes:"Attend orientation, set goals, write DPM intro, submit prelim trimester report.",due_date:"2026-08-01",assigned_to:"Ann"},
-  {org:"bpwt",category:"Fast Starts",title:"Youth of Today LPM Fast Start",notes:"Attend orientation, set goals, write DPM intro, submit prelim trimester report.",due_date:"2026-08-01",assigned_to:""},
-  {org:"bpwt",category:"Fast Starts",title:"Records & Recognition LPM Fast Start",notes:"Attend orientation, set goals, write DPM intro, submit prelim trimester report.",due_date:"2026-08-01",assigned_to:""},
-  {org:"bpwt",category:"Fast Starts",title:"Public Relations LPM Fast Start",notes:"Attend orientation, set goals, write DPM intro, submit prelim trimester report.",due_date:"2026-08-01",assigned_to:""},
-  {org:"bpwt",category:"Fast Starts",title:"NEWSLET LPM Fast Start",notes:"Attend orientation, set goals, write DPM intro, submit prelim trimester report.",due_date:"2026-08-01",assigned_to:""},
-  // ── BPWT Membership ──
-  {org:"bpwt",category:"Membership",title:"Update chapter growth plan for 2026–27",notes:"May base was 10, goal 13. Adjust Tri 1/2/3 NMA targets. Share with board.",due_date:null,assigned_to:"Jen"},
-  {org:"bpwt",category:"Membership",title:"Plan Tri 1 membership event",notes:"Required as part of MVP Fast Start. Ideas: Passport Night, speaker event, certificate night.",due_date:"2026-08-31",assigned_to:""},
-  {org:"bpwt",category:"Membership",title:"Submit New Member Adds by July 1",notes:"Monthly NMA deadline. Use Add/Change form + dues check to Chapter Service Center.",due_date:"2026-07-01",assigned_to:""},
-  {org:"bpwt",category:"Membership",title:"Submit New Member Adds by Aug 1",notes:"Monthly NMA deadline.",due_date:"2026-08-01",assigned_to:""},
-  {org:"bpwt",category:"Membership",title:"Contact Tri 1 members up for renewal",notes:"Personal ask to renew is a must. Send early bird renewals postmarked by July 15.",due_date:"2026-07-15",assigned_to:""},
-  {org:"bpwt",category:"Membership",title:"Keep up Membership Monday Facebook posts",notes:"Mon = Membership Monday. Maintain the weekly FB post schedule.",due_date:null,assigned_to:"Jen"},
-  // ── BPWT Chapter President ──
-  {org:"bpwt",category:"Chapter President",title:"Attend President / State Delegate retreat — Aug 8, Monticello",notes:"Announced at district Tri 1 meeting. Confirm attendance.",due_date:"2026-08-08",assigned_to:"Jen"},
-  {org:"bpwt",category:"Chapter President",title:"Attend District Summer Social — Aug 8 @ 12:30, Vintage Escapes Winery, Kilkenny MN",notes:"DD Theresa's unity-building event. Same day as retreat — confirm logistics.",due_date:"2026-08-08",assigned_to:"Jen"},
-  {org:"bpwt",category:"Chapter President",title:"Submit LL Outstanding Program Manager nomination",notes:"Nominate any member who did great LL work. Email LL@MNWT.ORG. https://tinyurl.com/OPMnomination",due_date:"2026-09-02",assigned_to:"Jen"},
-  {org:"bpwt",category:"Chapter President",title:"Journal into Growth — submit journal entries",notes:"LL SPM Carolyn's initiative. Email/text photo of weekly completed journal entries.",due_date:"2026-09-17",assigned_to:""},
-  // ── BPWT District Secretary ──
-  {org:"bpwt",category:"District Secretary",title:"Fix 'Anne Thorson' → 'Ann Thorson' in Tri 3 2025–26 minutes",notes:"Motion passed at Tri 1 meeting contingent on this correction. File corrected copy.",due_date:null,assigned_to:"Jen"},
-  {org:"bpwt",category:"District Secretary",title:"Watch for District Plan of Action from Theresa DD",notes:"Expected next month. Includes bylaws/policies and growth plan. Distribute to chapter.",due_date:null,assigned_to:"Jen"},
-  {org:"bpwt",category:"District Secretary",title:"Support Brandy with District Bylaw & Policy review",notes:"Brandy Mausbach leading. Coming months — coordinate scheduling/comms.",due_date:null,assigned_to:"Jen"},
-  // ── BPWT Convention ──
-  {org:"bpwt",category:"Convention",title:"Connect with Tevyan (Burnsville) to begin convention planning",notes:"District voted to bid for MNWT Annual Convention 2027 in Burnsville, May 21–23. Tevyan submitting bid + contacting Jen as co-chair.",due_date:null,assigned_to:"Jen"},
-  {org:"bpwt",category:"Convention",title:"Share Super SHEroes theme doc with Tevyan",notes:"Full doc already in Drive. Theme: Super SHEroes — MNWT Annual Convention 2027.",due_date:null,assigned_to:"Jen"},
+const BPWT_SEED = [
+  {category:"Fast Starts",title:"President Fast Start — Jen",notes:"Submit to state president. Set 3 goals, write intro letter, list board members.",due_date:"2026-07-15",assigned_to:"Jen"},
+  {category:"Fast Starts",title:"Programming VP Fast Start — Cindy",notes:"Submit to ivp@mnwt.org. Hold LPM orientation, set 3 goals, list all LPMs.",due_date:"2026-08-01",assigned_to:"Cindy"},
+  {category:"Fast Starts",title:"Membership VP Fast Start",notes:"Submit growth plan, plan a Tri 1 membership event, describe year plan.",due_date:"2026-07-15",assigned_to:""},
+  {category:"Fast Starts",title:"Living & Learning LPM Fast Start",notes:"Submit to chapter president + district. Goals, DPM intro letter, prelim trimester report. https://tinyurl.com/SPMFastStart",due_date:"2026-07-15",assigned_to:""},
+  {category:"Fast Starts",title:"Community Connections LPM Fast Start — Brandy",notes:"Attend orientation, set goals, write DPM intro, submit prelim trimester report.",due_date:"2026-08-01",assigned_to:"Brandy"},
+  {category:"Fast Starts",title:"Women's Wellness LPM Fast Start — Ann",notes:"Attend orientation, set goals, write DPM intro, submit prelim trimester report.",due_date:"2026-08-01",assigned_to:"Ann"},
+  {category:"Fast Starts",title:"Youth of Today LPM Fast Start",notes:"Attend orientation, set goals, write DPM intro, submit prelim trimester report.",due_date:"2026-08-01",assigned_to:""},
+  {category:"Fast Starts",title:"Records & Recognition LPM Fast Start",notes:"Attend orientation, set goals, write DPM intro, submit prelim trimester report.",due_date:"2026-08-01",assigned_to:""},
+  {category:"Fast Starts",title:"Public Relations LPM Fast Start",notes:"Attend orientation, set goals, write DPM intro, submit prelim trimester report.",due_date:"2026-08-01",assigned_to:""},
+  {category:"Fast Starts",title:"NEWSLET LPM Fast Start",notes:"Attend orientation, set goals, write DPM intro, submit prelim trimester report.",due_date:"2026-08-01",assigned_to:""},
+  {category:"Membership",title:"Update chapter growth plan for 2026–27",notes:"May base was 10, goal 13. Adjust Tri 1/2/3 NMA targets and share with board.",due_date:null,assigned_to:"Jen"},
+  {category:"Membership",title:"Plan Tri 1 membership event",notes:"Required as part of MVP Fast Start. Ideas: Passport Night, speaker event, certificate night.",due_date:"2026-08-31",assigned_to:""},
+  {category:"Membership",title:"Submit New Member Adds by July 1",notes:"Monthly NMA deadline. Add/Change form + dues check to Chapter Service Center.",due_date:"2026-07-01",assigned_to:""},
+  {category:"Membership",title:"Submit New Member Adds by Aug 1",notes:"Monthly NMA deadline.",due_date:"2026-08-01",assigned_to:""},
+  {category:"Membership",title:"Contact Tri 1 members up for renewal",notes:"Personal ask is a must. Send early bird renewals postmarked by July 15.",due_date:"2026-07-15",assigned_to:""},
+  {category:"Membership",title:"Keep up Membership Monday Facebook posts",notes:"Mon = Membership Monday. Maintain the weekly FB post schedule.",due_date:null,assigned_to:"Jen"},
+  {category:"Chapter President",title:"Attend President / State Delegate retreat — Aug 8, Monticello",notes:"Announced at district Tri 1 meeting. Confirm attendance.",due_date:"2026-08-08",assigned_to:"Jen"},
+  {category:"Chapter President",title:"Attend District Summer Social — Aug 8, Vintage Escapes Winery, Kilkenny MN",notes:"DD Theresa's unity-building event. Same day as retreat — confirm logistics.",due_date:"2026-08-08",assigned_to:"Jen"},
+  {category:"Chapter President",title:"Submit LL Outstanding Program Manager nomination",notes:"Nominate any member who did great LL work. Email LL@MNWT.ORG. https://tinyurl.com/OPMnomination",due_date:"2026-09-02",assigned_to:"Jen"},
+  {category:"Chapter President",title:"Journal into Growth — submit journal entries",notes:"LL SPM Carolyn's initiative. Email/text photo of weekly completed journal entries.",due_date:"2026-09-17",assigned_to:""},
+  {category:"District Secretary",title:"Fix 'Anne Thorson' → 'Ann Thorson' in Tri 3 2025–26 minutes",notes:"Motion passed at Tri 1 meeting contingent on this correction. File corrected copy.",due_date:null,assigned_to:"Jen"},
+  {category:"District Secretary",title:"Watch for District Plan of Action from Theresa DD",notes:"Expected next month. Includes bylaws/policies and growth plan. Distribute to chapter.",due_date:null,assigned_to:"Jen"},
+  {category:"District Secretary",title:"Support Brandy with District Bylaw & Policy review",notes:"Brandy Mausbach leading. Coming months — coordinate scheduling/comms.",due_date:null,assigned_to:"Jen"},
+  {category:"Convention",title:"Connect with Tevyan (Burnsville) to begin convention planning",notes:"District voted to bid for MNWT Annual Convention 2027 in Burnsville, May 21–23. Tevyan submitting bid + contacting Jen as co-chair.",due_date:null,assigned_to:"Jen"},
+  {category:"Convention",title:"Share Super SHEroes theme doc with Tevyan",notes:"Full doc already in Drive. Theme: Super SHEroes — MNWT Annual Convention 2027.",due_date:null,assigned_to:"Jen"},
+];
+
+const BT_SEED = [
+  // Market Logistics
+  {category:"Market Logistics",title:"Confirm market location, layout, and site map",notes:"Pin down exact footprint, parking, vendor entrance, and power access. Sketch a booth map.",due_date:"2026-07-10",assigned_to:"Jen"},
+  {category:"Market Logistics",title:"Set full season market dates and hours",notes:"Publish a firm calendar so vendors can commit. Lock in start/end times and any holiday adjustments.",due_date:null,assigned_to:"Jen"},
+  {category:"Market Logistics",title:"Secure permit and city approval from Blooming Prairie",notes:"Check with city hall. Confirm zoning, noise, signage, and temporary food sale rules.",due_date:null,assigned_to:"Jen"},
+  {category:"Market Logistics",title:"Inventory tables, tents, and signage — order what's missing",notes:"Know what the market owns vs. what vendors bring. Order entrance banner or directional signs if needed.",due_date:null,assigned_to:"Jen"},
+  {category:"Market Logistics",title:"Set up rain/cancellation communication plan",notes:"Decide: text chain, Facebook post, or email blast? Who sends it and how fast? Vendors and shoppers both need it.",due_date:null,assigned_to:"Jen"},
+  {category:"Market Logistics",title:"Source a PA system or portable speaker for announcements",notes:"Even a Bluetooth speaker helps for opening announcements, raffle calls, and demos.",due_date:null,assigned_to:"Jen"},
+  {category:"Market Logistics",title:"Create market day checklist (setup through teardown)",notes:"Arrival time, cone placement, table layout, opening announcement, closing sweep. Takes the guesswork out.",due_date:null,assigned_to:"Jen"},
+  // Vendors
+  {category:"Vendors",title:"Recruit vendors for the season — target 15+",notes:"Reach out to past vendors first, then open applications. Prioritize diversity: produce, baked goods, crafts, plants, protein, honey.",due_date:null,assigned_to:"Jen"},
+  {category:"Vendors",title:"Create and send vendor application and contract",notes:"Include: booth fee, size, rules, cancellation policy, MN cottage food compliance acknowledgment, insurance requirement.",due_date:null,assigned_to:"Jen"},
+  {category:"Vendors",title:"Collect vendor booth fees and track payment status",notes:"Track who has paid. Set a deadline 2 weeks before first market. No pay = no spot.",due_date:null,assigned_to:"Jen"},
+  {category:"Vendors",title:"Build vendor contact list with booth assignments",notes:"Spreadsheet: name, business, product category, phone, email, booth #, paid status.",due_date:null,assigned_to:"Jen"},
+  {category:"Vendors",title:"Confirm Hen House & Co booth spot and setup needs",notes:"You're a vendor too! Lock in your own booth size, power needs, and product lineup.",due_date:null,assigned_to:"Jen"},
+  {category:"Vendors",title:"Set category caps to prevent too much overlap",notes:"E.g. max 2 jam makers, max 3 bakers. Keeps it fair and diverse for shoppers.",due_date:null,assigned_to:"Jen"},
+  {category:"Vendors",title:"Send season info packet to all confirmed vendors",notes:"Dates, times, site map, setup/teardown rules, payment policies, market rules, emergency contacts.",due_date:null,assigned_to:"Jen"},
+  // Marketing
+  {category:"Marketing",title:"Create Blossom Thyme Farmers Market Facebook page",notes:"Public page for event posts, vendor spotlights, and shopper updates. Separate from personal and BPWT pages.",due_date:null,assigned_to:"Jen"},
+  {category:"Marketing",title:"Design and print market signage and road signs",notes:"At minimum: entrance banner, directional signs from main road. Canva → Staples or online printer.",due_date:null,assigned_to:"Jen"},
+  {category:"Marketing",title:"Submit market dates to local community calendars",notes:"Blooming Prairie city newsletter, Mower County events pages, Austin/Owatonna Facebook groups.",due_date:null,assigned_to:"Jen"},
+  {category:"Marketing",title:"Plan a weekly vendor spotlight series",notes:"One vendor per week leading up to and during the season. Drives their audience to the market page.",due_date:null,assigned_to:"Jen"},
+  {category:"Marketing",title:"Set up a simple market website or landing page",notes:"Even a single page with dates, location, vendor list, and contact form builds credibility.",due_date:null,assigned_to:"Jen"},
+  {category:"Marketing",title:"Create a Facebook Event for opening day",notes:"Invite everyone. Boost it for $10–20 to reach Mower County. Make it feel like an occasion.",due_date:null,assigned_to:"Jen"},
+  // Finances
+  {category:"Finances",title:"Open a dedicated bank account for market funds",notes:"Keep market money completely separate from Hen House & Co. Even a free checking account works.",due_date:null,assigned_to:"Jen"},
+  {category:"Finances",title:"Set vendor booth fee structure",notes:"Flat rate per market? Season pass discount? Sliding scale for new vendors? Decide and stick to it.",due_date:null,assigned_to:"Jen"},
+  {category:"Finances",title:"Track income and expenses in a simple ledger",notes:"Booth fees in, expenses out (permits, signage, supplies, marketing). Know your margin by end of season.",due_date:null,assigned_to:"Jen"},
+  {category:"Finances",title:"Research whether market needs its own LLC or EIN",notes:"Blossom Thyme is separate from Hen House & Co LLC. Talk to your accountant about the right structure.",due_date:null,assigned_to:"Jen"},
+  {category:"Finances",title:"Build a season startup budget",notes:"Permits, signage, marketing, supplies. Know your number before you spend it.",due_date:null,assigned_to:"Jen"},
+  // Volunteers
+  {category:"Volunteers",title:"Recruit 2–3 market day volunteers per date",notes:"Setup crew, info table host, breakdown help. BPWT members are a natural pipeline — great service hours too!",due_date:null,assigned_to:"Jen"},
+  {category:"Volunteers",title:"Create a volunteer sign-up schedule",notes:"Google Sheet or SignUpGenius. Assign roles: setup, greeter, social media photographer, breakdown.",due_date:null,assigned_to:"Jen"},
+  {category:"Volunteers",title:"Brief volunteers on market rules and their roles",notes:"15-minute pre-market huddle or a simple one-pager they can reference on market day.",due_date:null,assigned_to:"Jen"},
+  {category:"Volunteers",title:"Thank volunteers after each market",notes:"Handwritten note, a little product from your booth, or a public shoutout on the market page. Retention matters.",due_date:null,assigned_to:"Jen"},
+  // Events
+  {category:"Events",title:"Plan an opening day special activity",notes:"A demo, raffle, kids activity, or live music — something that makes the first market feel like an occasion worth coming back for.",due_date:null,assigned_to:"Jen"},
+  {category:"Events",title:"Schedule a mid-season featured event",notes:"Cooking demo, local musician, kids craft table, or a cause tie-in. Keeps shopper interest from fading in August.",due_date:null,assigned_to:"Jen"},
+  {category:"Events",title:"Tie in a BPWT Make a Difference Day project",notes:"From past chapter minutes this was already on the radar. Market day + community service project = great press for both orgs.",due_date:null,assigned_to:"Jen"},
+  {category:"Events",title:"Set up a raffle or prize drawing to build shopper email list",notes:"Simple entry form, local prize basket. Email list becomes your biggest marketing asset for year two.",due_date:null,assigned_to:"Jen"},
+  {category:"Events",title:"Plan a season-closing vendor appreciation moment",notes:"Thank vendors publicly, give out a 'Vendor of the Season' nod, get photos for next year's marketing push.",due_date:null,assigned_to:"Jen"},
 ];
 
 // ── Turso helpers ──
@@ -70,7 +108,7 @@ async function tursoQuery(sql, args=[]) {
     method:"POST",
     headers:{ Authorization:`Bearer ${TURSO_TOKEN}`, "Content-Type":"application/json" },
     body: JSON.stringify({ requests:[
-      { type:"execute", stmt:{ sql, args: args.map(v => v===null ? {type:"null"} : {type:"text",value:String(v)}) } },
+      { type:"execute", stmt:{ sql, args: args.map(v => v===null?{type:"null"}:{type:"text",value:String(v)}) } },
       { type:"close" }
     ]})
   });
@@ -89,6 +127,20 @@ function toObjects(result) {
   });
 }
 
+async function countByOrg(org) {
+  const r = await tursoQuery(`SELECT COUNT(*) as cnt FROM command_center_items WHERE org='${org}'`);
+  return parseInt(r?.rows?.[0]?.[0]?.value??"0");
+}
+
+async function seedOrg(org, items) {
+  for (const item of items) {
+    await tursoQuery(
+      "INSERT INTO command_center_items (org,category,title,notes,due_date,assigned_to,completed) VALUES (?,?,?,?,?,?,0)",
+      [org, item.category, item.title, item.notes||null, item.due_date||null, item.assigned_to||null]
+    );
+  }
+}
+
 async function initDB() {
   await tursoQuery(`CREATE TABLE IF NOT EXISTS command_center_items (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -101,45 +153,38 @@ async function initDB() {
     completed INTEGER DEFAULT 0,
     created_at TEXT DEFAULT (datetime('now'))
   )`);
-  const r = await tursoQuery("SELECT COUNT(*) as cnt FROM command_center_items");
-  const cnt = parseInt(r?.rows?.[0]?.[0]?.value??"0");
-  if (cnt===0) {
-    for (const item of SEED) {
-      await tursoQuery(
-        "INSERT INTO command_center_items (org,category,title,notes,due_date,assigned_to,completed) VALUES (?,?,?,?,?,?,0)",
-        [item.org,item.category,item.title,item.notes||null,item.due_date||null,item.assigned_to||null]
-      );
-    }
-  }
+  const bpwtCnt = await countByOrg("bpwt");
+  if (bpwtCnt===0) await seedOrg("bpwt", BPWT_SEED);
+  const btCnt = await countByOrg("blossom_thyme");
+  if (btCnt===0) await seedOrg("blossom_thyme", BT_SEED);
 }
 
 // ── Date helpers ──
 function fmtDate(d) {
   if (!d) return null;
-  const dt = new Date(d+"T12:00:00");
-  return dt.toLocaleDateString("en-US",{month:"short",day:"numeric"});
+  return new Date(d+"T12:00:00").toLocaleDateString("en-US",{month:"short",day:"numeric"});
 }
 function isOverdue(d) { return d && new Date(d+"T23:59:59") < new Date(); }
-function isSoon(d)    { if(!d) return false; const diff=new Date(d+"T23:59:59")-new Date(); return diff>0 && diff<1000*60*60*24*7; }
+function isSoon(d)    { if(!d) return false; const diff=new Date(d+"T23:59:59")-new Date(); return diff>0&&diff<1000*60*60*24*7; }
 function isDone(v)    { return v==="1"||v===1; }
 
-// ── Main App ──
+// ── App ──
 function App() {
-  const [org, setOrg]   = React.useState("bpwt");
-  const [items, setItems] = React.useState([]);
+  const [org, setOrg]         = React.useState("bpwt");
+  const [items, setItems]     = React.useState([]);
   const [loading, setLoading] = React.useState(true);
   const [error, setError]     = React.useState(null);
   const [collapsed, setCollapsed] = React.useState({});
-  const [filter, setFilter]       = React.useState("open");
-  const [modal, setModal] = React.useState(null); // null | {mode:"add"|"edit", item?}
-  const [form, setForm]   = React.useState({});
-  const [saving, setSaving] = React.useState(false);
+  const [filter, setFilter]   = React.useState("open");
+  const [modal, setModal]     = React.useState(null);
+  const [form, setForm]       = React.useState({});
+  const [saving, setSaving]   = React.useState(false);
 
   const load = React.useCallback(async () => {
     try {
       setLoading(true);
       await initDB();
-      const r = await tursoQuery("SELECT * FROM command_center_items ORDER BY completed ASC, due_date ASC NULLS LAST, created_at ASC");
+      const r = await tursoQuery("SELECT * FROM command_center_items ORDER BY completed ASC, due_date ASC, created_at ASC");
       setItems(toObjects(r));
       setError(null);
     } catch(e) { setError(e.message); }
@@ -164,7 +209,6 @@ function App() {
   const urgentCnt = orgItems.filter(i=>!isDone(i.completed)&&(isOverdue(i.due_date)||isSoon(i.due_date))).length;
   const oc = ORGS[org];
 
-  // toggle complete
   const toggleDone = async (item) => {
     const nv = isDone(item.completed)?0:1;
     setItems(prev=>prev.map(i=>i.id===item.id?{...i,completed:nv}:i));
@@ -212,7 +256,7 @@ function App() {
   return (
     <div style={{minHeight:"100vh",background:"#F8F7F4",paddingBottom:80}}>
 
-      {/* ── HEADER ── */}
+      {/* HEADER */}
       <div style={{background:"#1C1917",position:"sticky",top:0,zIndex:20}}>
         <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"16px 16px 0"}}>
           <div>
@@ -221,7 +265,6 @@ function App() {
           </div>
           <button onClick={openAdd} style={{background:oc.color,color:"#fff",border:"none",borderRadius:10,padding:"9px 18px",fontSize:14,fontWeight:700,cursor:"pointer"}}>+ Add</button>
         </div>
-        {/* org tabs */}
         <div style={{display:"flex",gap:2,padding:"12px 16px 0"}}>
           {Object.entries(ORGS).map(([key,o])=>(
             <button key={key} onClick={()=>setOrg(key)} style={{
@@ -234,7 +277,7 @@ function App() {
         </div>
       </div>
 
-      {/* ── STATS BAR ── */}
+      {/* STATS BAR */}
       <div style={{background:oc.color,padding:"10px 16px",display:"flex",alignItems:"center",gap:24}}>
         {[["Open",openCnt],["Done",doneCnt],["Urgent",urgentCnt]].map(([lbl,val])=>(
           <div key={lbl} style={{textAlign:"center"}}>
@@ -243,7 +286,7 @@ function App() {
           </div>
         ))}
         <div style={{flex:1}}/>
-        <div style={{display:"flex",gap:4"}}>
+        <div style={{display:"flex",gap:4}}>
           {["all","open","done"].map(f=>(
             <button key={f} onClick={()=>setFilter(f)} style={{
               padding:"5px 12px",borderRadius:99,border:"none",cursor:"pointer",fontSize:12,fontWeight:600,
@@ -254,20 +297,18 @@ function App() {
         </div>
       </div>
 
-      {/* ── CONTENT ── */}
+      {/* CONTENT */}
       <div style={{padding:"14px 14px 0"}}>
         {loading && <p style={{textAlign:"center",color:"#78716C",padding:60,fontSize:15}}>Loading…</p>}
         {error   && <div style={{background:"#FEF2F2",borderRadius:10,padding:16,color:"#DC2626",fontSize:14,margin:"8px 0"}}>⚠ {error}</div>}
 
         {!loading && !error && Object.entries(grouped).map(([cat,catItems])=>{
-          const isOpen = collapsed[cat]!==true;
-          const catOpen    = catItems.filter(i=>!isDone(i.completed)).length;
-          const catDone    = catItems.filter(i=> isDone(i.completed)).length;
-          const hasUrgent  = catItems.some(i=>!isDone(i.completed)&&(isOverdue(i.due_date)||isSoon(i.due_date)));
-
+          const isOpen   = collapsed[cat]!==true;
+          const catOpen  = catItems.filter(i=>!isDone(i.completed)).length;
+          const catDone  = catItems.filter(i=> isDone(i.completed)).length;
+          const hasUrgent= catItems.some(i=>!isDone(i.completed)&&(isOverdue(i.due_date)||isSoon(i.due_date)));
           return (
             <div key={cat} style={{marginBottom:10,background:"#fff",borderRadius:14,overflow:"hidden",border:"0.5px solid #E7E5E4",boxShadow:"0 1px 3px rgba(0,0,0,0.04)"}}>
-              {/* category header */}
               <button onClick={()=>setCollapsed(p=>({...p,[cat]:!p[cat]}))} style={{
                 width:"100%",background:"none",border:"none",cursor:"pointer",
                 padding:"14px 16px",display:"flex",alignItems:"center",gap:10,textAlign:"left"
@@ -275,9 +316,7 @@ function App() {
                 <span style={{fontSize:14,fontWeight:700,color:"#1C1917",flex:1}}>{cat}</span>
                 {hasUrgent && <span style={{fontSize:10,background:"#FEF2F2",color:"#DC2626",padding:"2px 8px",borderRadius:99,fontWeight:800}}>URGENT</span>}
                 <span style={{fontSize:12,color:"#A8A29E"}}>
-                  {catOpen>0?`${catOpen} open`:""}
-                  {catOpen>0&&catDone>0?" · ":""}
-                  {catDone>0?`${catDone} done`:""}
+                  {catOpen>0?`${catOpen} open`:""}{catOpen>0&&catDone>0?" · ":""}{catDone>0?`${catDone} done`:""}
                 </span>
                 <span style={{color:"#C4B5A0",fontSize:14,fontWeight:700}}>{isOpen?"▾":"▸"}</span>
               </button>
@@ -288,50 +327,40 @@ function App() {
                     <p style={{color:"#C4B5A0",fontSize:13,padding:"12px 16px",margin:0,fontStyle:"italic"}}>Nothing here yet.</p>
                   )}
                   {catItems.map((item,idx)=>{
-                    const done    = isDone(item.completed);
-                    const overdue = !done && isOverdue(item.due_date);
-                    const soon    = !done && isSoon(item.due_date);
+                    const done   = isDone(item.completed);
+                    const overdue= !done&&isOverdue(item.due_date);
+                    const soon   = !done&&isSoon(item.due_date);
                     return (
                       <div key={item.id} style={{
                         display:"flex",alignItems:"flex-start",gap:12,padding:"13px 16px",
                         borderTop:idx>0?"0.5px solid #F5F5F4":"none",
-                        background:done?"#FAFAF9":"#fff",
-                        transition:"background 0.2s"
+                        background:done?"#FAFAF9":"#fff"
                       }}>
-                        {/* checkbox */}
                         <button onClick={()=>toggleDone(item)} style={{
                           width:22,height:22,borderRadius:6,flexShrink:0,marginTop:1,cursor:"pointer",
                           border:`2px solid ${done?oc.color:"#D6D3D1"}`,
                           background:done?oc.color:"transparent",
                           display:"flex",alignItems:"center",justifyContent:"center",transition:"all 0.15s"
                         }}>
-                          {done && <span style={{color:"#fff",fontSize:12,fontWeight:900,lineHeight:1}}>✓</span>}
+                          {done&&<span style={{color:"#fff",fontSize:12,fontWeight:900,lineHeight:1}}>✓</span>}
                         </button>
-
-                        {/* body */}
                         <div style={{flex:1,minWidth:0}}>
                           <p style={{margin:0,fontSize:14,fontWeight:600,color:done?"#A8A29E":"#1C1917",textDecoration:done?"line-through":"none",lineHeight:1.4}}>{item.title}</p>
-                          {item.notes && !done && <p style={{margin:"4px 0 0",fontSize:12,color:"#78716C",lineHeight:1.5}}>{item.notes}</p>}
+                          {item.notes&&!done&&<p style={{margin:"4px 0 0",fontSize:12,color:"#78716C",lineHeight:1.5}}>{item.notes}</p>}
                           <div style={{display:"flex",gap:8,marginTop:6,flexWrap:"wrap",alignItems:"center"}}>
-                            {item.due_date && (
+                            {item.due_date&&(
                               <span style={{
                                 fontSize:11,fontWeight:700,padding:"2px 8px",borderRadius:99,
                                 background:overdue?"#FEF2F2":soon?"#FFFBEB":"#F5F5F4",
                                 color:overdue?"#DC2626":soon?"#D97706":"#78716C"
-                              }}>
-                                {overdue?"⚠ ":soon?"⏰ ":""}{fmtDate(item.due_date)}
-                              </span>
+                              }}>{overdue?"⚠ ":soon?"⏰ ":""}{fmtDate(item.due_date)}</span>
                             )}
-                            {item.assigned_to && (
-                              <span style={{fontSize:11,color:"#A8A29E",fontWeight:500}}>→ {item.assigned_to}</span>
-                            )}
+                            {item.assigned_to&&<span style={{fontSize:11,color:"#A8A29E",fontWeight:500}}>→ {item.assigned_to}</span>}
                           </div>
                         </div>
-
-                        {/* actions */}
                         <div style={{display:"flex",gap:2,flexShrink:0}}>
-                          <button onClick={()=>openEdit(item)} title="Edit" style={{background:"none",border:"none",cursor:"pointer",padding:"4px 6px",borderRadius:6,color:"#A8A29E",fontSize:15}}>✏️</button>
-                          <button onClick={()=>deleteItem(item.id)} title="Delete" style={{background:"none",border:"none",cursor:"pointer",padding:"4px 6px",borderRadius:6,color:"#A8A29E",fontSize:15}}>🗑</button>
+                          <button onClick={()=>openEdit(item)} style={{background:"none",border:"none",cursor:"pointer",padding:"4px 6px",borderRadius:6,color:"#A8A29E",fontSize:15}}>✏️</button>
+                          <button onClick={()=>deleteItem(item.id)} style={{background:"none",border:"none",cursor:"pointer",padding:"4px 6px",borderRadius:6,color:"#A8A29E",fontSize:15}}>🗑</button>
                         </div>
                       </div>
                     );
@@ -343,17 +372,15 @@ function App() {
         })}
       </div>
 
-      {/* ── MODAL ── */}
-      {modal && (
+      {/* MODAL */}
+      {modal&&(
         <div style={{position:"fixed",inset:0,background:"rgba(0,0,0,0.55)",zIndex:50,display:"flex",alignItems:"flex-end"}} onClick={e=>e.target===e.currentTarget&&closeModal()}>
           <div style={{background:"#fff",borderRadius:"22px 22px 0 0",width:"100%",maxHeight:"92vh",overflow:"auto",padding:"24px 20px 40px"}}>
             <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:22}}>
               <h2 style={{margin:0,fontSize:18,fontWeight:800,color:"#1C1917"}}>{modal.mode==="edit"?"Edit item":"New item"}</h2>
               <button onClick={closeModal} style={{background:"#F5F5F4",border:"none",borderRadius:8,padding:"6px 14px",cursor:"pointer",fontSize:14,color:"#78716C",fontWeight:600}}>Cancel</button>
             </div>
-
             <div style={{display:"flex",flexDirection:"column",gap:16}}>
-              {/* org */}
               <div>
                 <label style={{fontSize:11,fontWeight:700,color:"#78716C",display:"block",marginBottom:7,textTransform:"uppercase",letterSpacing:"0.06em"}}>Organization</label>
                 <div style={{display:"flex",gap:8}}>
@@ -367,40 +394,31 @@ function App() {
                   ))}
                 </div>
               </div>
-
-              {/* category */}
               <div>
                 <label style={{fontSize:11,fontWeight:700,color:"#78716C",display:"block",marginBottom:7,textTransform:"uppercase",letterSpacing:"0.06em"}}>Category</label>
                 <select value={form.category} onChange={e=>setForm(f=>({...f,category:e.target.value}))}
-                  style={{width:"100%",padding:"11px 14px",borderRadius:10,border:"1.5px solid #E7E5E4",fontSize:14,color:"#1C1917",background:"#fff",appearance:"auto"}}>
+                  style={{width:"100%",padding:"11px 14px",borderRadius:10,border:"1.5px solid #E7E5E4",fontSize:14,color:"#1C1917",background:"#fff"}}>
                   {formCats.map(c=><option key={c}>{c}</option>)}
                 </select>
               </div>
-
-              {/* title */}
               <div>
                 <label style={{fontSize:11,fontWeight:700,color:"#78716C",display:"block",marginBottom:7,textTransform:"uppercase",letterSpacing:"0.06em"}}>Title *</label>
                 <input value={form.title} onChange={e=>setForm(f=>({...f,title:e.target.value}))}
                   placeholder="What needs to happen?"
                   style={{width:"100%",padding:"11px 14px",borderRadius:10,border:"1.5px solid #E7E5E4",fontSize:14,color:"#1C1917"}}/>
               </div>
-
-              {/* notes */}
               <div>
                 <label style={{fontSize:11,fontWeight:700,color:"#78716C",display:"block",marginBottom:7,textTransform:"uppercase",letterSpacing:"0.06em"}}>Notes</label>
                 <textarea value={form.notes} onChange={e=>setForm(f=>({...f,notes:e.target.value}))}
                   placeholder="Details, links, context…" rows={3}
                   style={{width:"100%",padding:"11px 14px",borderRadius:10,border:"1.5px solid #E7E5E4",fontSize:14,color:"#1C1917",resize:"vertical"}}/>
               </div>
-
               <div style={{display:"flex",gap:12}}>
-                {/* due date */}
                 <div style={{flex:1}}>
                   <label style={{fontSize:11,fontWeight:700,color:"#78716C",display:"block",marginBottom:7,textTransform:"uppercase",letterSpacing:"0.06em"}}>Due date</label>
                   <input type="date" value={form.due_date} onChange={e=>setForm(f=>({...f,due_date:e.target.value}))}
                     style={{width:"100%",padding:"11px 14px",borderRadius:10,border:"1.5px solid #E7E5E4",fontSize:14,color:"#1C1917"}}/>
                 </div>
-                {/* assigned to */}
                 <div style={{flex:1}}>
                   <label style={{fontSize:11,fontWeight:700,color:"#78716C",display:"block",marginBottom:7,textTransform:"uppercase",letterSpacing:"0.06em"}}>Assigned to</label>
                   <input value={form.assigned_to} onChange={e=>setForm(f=>({...f,assigned_to:e.target.value}))}
@@ -408,11 +426,10 @@ function App() {
                     style={{width:"100%",padding:"11px 14px",borderRadius:10,border:"1.5px solid #E7E5E4",fontSize:14,color:"#1C1917"}}/>
                 </div>
               </div>
-
               <button onClick={saveItem} disabled={saving||!form.title.trim()} style={{
                 background:ORGS[form.org||org].color,color:"#fff",border:"none",borderRadius:12,
                 padding:"15px",fontSize:15,fontWeight:800,cursor:"pointer",marginTop:4,
-                opacity:saving||!form.title.trim()?0.5:1,transition:"opacity 0.15s"
+                opacity:saving||!form.title.trim()?0.5:1
               }}>
                 {saving?"Saving…":modal.mode==="edit"?"Save changes":"Add item"}
               </button>
