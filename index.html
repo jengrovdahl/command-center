@@ -11,6 +11,12 @@
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #F8F7F4; min-height: 100vh; }
   input, select, textarea, button { font-family: inherit; }
+  .inline-date { border: none; background: transparent; font-size: 11px; font-weight: 700; color: inherit; padding: 0; margin: 0; width: 100%; cursor: pointer; }
+  .inline-date:focus { outline: none; }
+  .inline-text { border: none; border-bottom: 1.5px solid #D6D3D1; background: transparent; font-size: 11px; font-weight: 500; color: #78716C; padding: 1px 2px; width: 90px; cursor: text; }
+  .inline-text:focus { outline: none; border-bottom-color: #7C3AED; }
+  .inline-title { border: none; background: transparent; font-size: 14px; font-weight: 600; padding: 0; width: 100%; cursor: text; line-height: 1.4; }
+  .inline-title:focus { outline: none; border-bottom: 1.5px solid #D6D3D1; }
   ::-webkit-scrollbar { width: 4px; } ::-webkit-scrollbar-track { background: transparent; } ::-webkit-scrollbar-thumb { background: #D6D3D1; border-radius: 2px; }
 </style>
 </head>
@@ -31,7 +37,6 @@ const CATEGORIES = {
   blossom_thyme: ["Market Logistics","Vendors","Marketing","Finances","Volunteers","Events"],
 };
 
-// known people for quick-pick when completing
 const PEOPLE = {
   bpwt:          ["Jen","Brandy","Cindy","Ann","Lorissa","Ashley","Tracy","Emily","Maude"],
   blossom_thyme: ["Jen"],
@@ -80,26 +85,26 @@ const BT_SEED = [
   {category:"Vendors",title:"Confirm Hen House & Co booth spot and setup needs",notes:"You're a vendor too! Lock in your own booth size, power needs, and product lineup.",due_date:null,assigned_to:"Jen"},
   {category:"Vendors",title:"Set category caps to prevent too much overlap",notes:"E.g. max 2 jam makers, max 3 bakers. Keeps it fair and diverse for shoppers.",due_date:null,assigned_to:"Jen"},
   {category:"Vendors",title:"Send season info packet to all confirmed vendors",notes:"Dates, times, site map, setup/teardown rules, payment policies, market rules, emergency contacts.",due_date:null,assigned_to:"Jen"},
-  {category:"Marketing",title:"Create Blossom Thyme Farmers Market Facebook page",notes:"Public page for event posts, vendor spotlights, and shopper updates. Separate from personal and BPWT pages.",due_date:null,assigned_to:"Jen"},
+  {category:"Marketing",title:"Create Blossom Thyme Farmers Market Facebook page",notes:"Public page for event posts, vendor spotlights, and shopper updates.",due_date:null,assigned_to:"Jen"},
   {category:"Marketing",title:"Design and print market signage and road signs",notes:"At minimum: entrance banner, directional signs from main road. Canva → Staples or online printer.",due_date:null,assigned_to:"Jen"},
   {category:"Marketing",title:"Submit market dates to local community calendars",notes:"Blooming Prairie city newsletter, Mower County events pages, Austin/Owatonna Facebook groups.",due_date:null,assigned_to:"Jen"},
   {category:"Marketing",title:"Plan a weekly vendor spotlight series",notes:"One vendor per week leading up to and during the season. Drives their audience to the market page.",due_date:null,assigned_to:"Jen"},
   {category:"Marketing",title:"Set up a simple market website or landing page",notes:"Even a single page with dates, location, vendor list, and contact form builds credibility.",due_date:null,assigned_to:"Jen"},
-  {category:"Marketing",title:"Create a Facebook Event for opening day",notes:"Invite everyone. Boost it for $10–20 to reach Mower County. Make it feel like an occasion.",due_date:null,assigned_to:"Jen"},
-  {category:"Finances",title:"Open a dedicated bank account for market funds",notes:"Keep market money completely separate from Hen House & Co. Even a free checking account works.",due_date:null,assigned_to:"Jen"},
-  {category:"Finances",title:"Set vendor booth fee structure",notes:"Flat rate per market? Season pass discount? Sliding scale for new vendors? Decide and stick to it.",due_date:null,assigned_to:"Jen"},
-  {category:"Finances",title:"Track income and expenses in a simple ledger",notes:"Booth fees in, expenses out (permits, signage, supplies, marketing). Know your margin by end of season.",due_date:null,assigned_to:"Jen"},
-  {category:"Finances",title:"Research whether market needs its own LLC or EIN",notes:"Blossom Thyme is separate from Hen House & Co LLC. Talk to your accountant about the right structure.",due_date:null,assigned_to:"Jen"},
+  {category:"Marketing",title:"Create a Facebook Event for opening day",notes:"Invite everyone. Boost it for $10–20 to reach Mower County.",due_date:null,assigned_to:"Jen"},
+  {category:"Finances",title:"Open a dedicated bank account for market funds",notes:"Keep market money completely separate from Hen House & Co.",due_date:null,assigned_to:"Jen"},
+  {category:"Finances",title:"Set vendor booth fee structure",notes:"Flat rate per market? Season pass discount? Sliding scale for new vendors?",due_date:null,assigned_to:"Jen"},
+  {category:"Finances",title:"Track income and expenses in a simple ledger",notes:"Booth fees in, expenses out. Know your margin by end of season.",due_date:null,assigned_to:"Jen"},
+  {category:"Finances",title:"Research whether market needs its own LLC or EIN",notes:"Blossom Thyme is separate from Hen House & Co LLC. Talk to your accountant.",due_date:null,assigned_to:"Jen"},
   {category:"Finances",title:"Build a season startup budget",notes:"Permits, signage, marketing, supplies. Know your number before you spend it.",due_date:null,assigned_to:"Jen"},
-  {category:"Volunteers",title:"Recruit 2–3 market day volunteers per date",notes:"Setup crew, info table host, breakdown help. BPWT members are a natural pipeline — great service hours too!",due_date:null,assigned_to:"Jen"},
-  {category:"Volunteers",title:"Create a volunteer sign-up schedule",notes:"Google Sheet or SignUpGenius. Assign roles: setup, greeter, social media photographer, breakdown.",due_date:null,assigned_to:"Jen"},
-  {category:"Volunteers",title:"Brief volunteers on market rules and their roles",notes:"15-minute pre-market huddle or a simple one-pager they can reference on market day.",due_date:null,assigned_to:"Jen"},
-  {category:"Volunteers",title:"Thank volunteers after each market",notes:"Handwritten note, a little product from your booth, or a public shoutout on the market page.",due_date:null,assigned_to:"Jen"},
-  {category:"Events",title:"Plan an opening day special activity",notes:"A demo, raffle, kids activity, or live music — something that makes the first market feel like an occasion.",due_date:null,assigned_to:"Jen"},
-  {category:"Events",title:"Schedule a mid-season featured event",notes:"Cooking demo, local musician, kids craft table, or a cause tie-in. Keeps shopper interest from fading in August.",due_date:null,assigned_to:"Jen"},
-  {category:"Events",title:"Tie in a BPWT Make a Difference Day project",notes:"From past chapter minutes this was already on the radar. Market day + community service = great press for both orgs.",due_date:null,assigned_to:"Jen"},
-  {category:"Events",title:"Set up a raffle or prize drawing to build shopper email list",notes:"Simple entry form, local prize basket. Email list becomes your biggest marketing asset for year two.",due_date:null,assigned_to:"Jen"},
-  {category:"Events",title:"Plan a season-closing vendor appreciation moment",notes:"Thank vendors publicly, give out a 'Vendor of the Season' nod, get photos for next year's marketing push.",due_date:null,assigned_to:"Jen"},
+  {category:"Volunteers",title:"Recruit 2–3 market day volunteers per date",notes:"Setup crew, info table host, breakdown help. BPWT members are a natural pipeline!",due_date:null,assigned_to:"Jen"},
+  {category:"Volunteers",title:"Create a volunteer sign-up schedule",notes:"Google Sheet or SignUpGenius. Assign roles: setup, greeter, photographer, breakdown.",due_date:null,assigned_to:"Jen"},
+  {category:"Volunteers",title:"Brief volunteers on market rules and their roles",notes:"15-minute pre-market huddle or a simple one-pager.",due_date:null,assigned_to:"Jen"},
+  {category:"Volunteers",title:"Thank volunteers after each market",notes:"Handwritten note, a little product from your booth, or a public shoutout.",due_date:null,assigned_to:"Jen"},
+  {category:"Events",title:"Plan an opening day special activity",notes:"A demo, raffle, kids activity, or live music — make the first market feel like an occasion.",due_date:null,assigned_to:"Jen"},
+  {category:"Events",title:"Schedule a mid-season featured event",notes:"Cooking demo, local musician, kids craft table, or a cause tie-in.",due_date:null,assigned_to:"Jen"},
+  {category:"Events",title:"Tie in a BPWT Make a Difference Day project",notes:"Market day + community service = great press for both orgs.",due_date:null,assigned_to:"Jen"},
+  {category:"Events",title:"Set up a raffle or prize drawing to build shopper email list",notes:"Simple entry form, local prize basket. Email list is your biggest asset for year two.",due_date:null,assigned_to:"Jen"},
+  {category:"Events",title:"Plan a season-closing vendor appreciation moment",notes:"Thank vendors publicly, give out a 'Vendor of the Season' nod, get photos for next year.",due_date:null,assigned_to:"Jen"},
 ];
 
 // ── Turso ──
@@ -120,50 +125,133 @@ async function tursoQuery(sql, args=[]) {
 function toObjects(result) {
   if (!result?.rows) return [];
   const cols = result.cols.map(c=>c.name);
-  return result.rows.map(row => {
-    const o={};
-    cols.forEach((c,i)=>{ o[c]=row[i]?.value??null; });
-    return o;
-  });
+  return result.rows.map(row => { const o={}; cols.forEach((c,i)=>{ o[c]=row[i]?.value??null; }); return o; });
 }
 
 async function initDB() {
   await tursoQuery(`CREATE TABLE IF NOT EXISTS command_center_items (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    org TEXT NOT NULL,
-    category TEXT NOT NULL,
-    title TEXT NOT NULL,
-    notes TEXT,
-    due_date TEXT,
-    assigned_to TEXT,
-    completed INTEGER DEFAULT 0,
-    completed_by TEXT,
-    completed_at TEXT,
+    org TEXT NOT NULL, category TEXT NOT NULL, title TEXT NOT NULL,
+    notes TEXT, due_date TEXT, assigned_to TEXT,
+    completed INTEGER DEFAULT 0, completed_by TEXT, completed_at TEXT,
     created_at TEXT DEFAULT (datetime('now'))
   )`);
-  // add columns if upgrading from older schema
   try { await tursoQuery("ALTER TABLE command_center_items ADD COLUMN completed_by TEXT"); } catch(e){}
   try { await tursoQuery("ALTER TABLE command_center_items ADD COLUMN completed_at TEXT"); } catch(e){}
-
-  const bpwtCnt = parseInt((await tursoQuery("SELECT COUNT(*) FROM command_center_items WHERE org='bpwt'"))?.rows?.[0]?.[0]?.value??"0");
-  if (bpwtCnt===0) { for (const i of BPWT_SEED) await tursoQuery("INSERT INTO command_center_items (org,category,title,notes,due_date,assigned_to,completed) VALUES (?,?,?,?,?,?,0)",["bpwt",i.category,i.title,i.notes||null,i.due_date||null,i.assigned_to||null]); }
-  const btCnt = parseInt((await tursoQuery("SELECT COUNT(*) FROM command_center_items WHERE org='blossom_thyme'"))?.rows?.[0]?.[0]?.value??"0");
-  if (btCnt===0)   { for (const i of BT_SEED)   await tursoQuery("INSERT INTO command_center_items (org,category,title,notes,due_date,assigned_to,completed) VALUES (?,?,?,?,?,?,0)",["blossom_thyme",i.category,i.title,i.notes||null,i.due_date||null,i.assigned_to||null]); }
+  const bc = parseInt((await tursoQuery("SELECT COUNT(*) FROM command_center_items WHERE org='bpwt'"))?.rows?.[0]?.[0]?.value??"0");
+  if (bc===0) for (const i of BPWT_SEED) await tursoQuery("INSERT INTO command_center_items (org,category,title,notes,due_date,assigned_to,completed) VALUES (?,?,?,?,?,?,0)",["bpwt",i.category,i.title,i.notes||null,i.due_date||null,i.assigned_to||null]);
+  const tc = parseInt((await tursoQuery("SELECT COUNT(*) FROM command_center_items WHERE org='blossom_thyme'"))?.rows?.[0]?.[0]?.value??"0");
+  if (tc===0) for (const i of BT_SEED) await tursoQuery("INSERT INTO command_center_items (org,category,title,notes,due_date,assigned_to,completed) VALUES (?,?,?,?,?,?,0)",["blossom_thyme",i.category,i.title,i.notes||null,i.due_date||null,i.assigned_to||null]);
 }
 
 // ── Helpers ──
-function fmtDate(d) {
-  if (!d) return null;
-  return new Date(d+"T12:00:00").toLocaleDateString("en-US",{month:"short",day:"numeric"});
+function fmtDate(d)     { if(!d) return null; return new Date(d+"T12:00:00").toLocaleDateString("en-US",{month:"short",day:"numeric"}); }
+function fmtDateTime(d) { if(!d) return null; return new Date(d).toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric"}); }
+function isOverdue(d)   { return d && new Date(d+"T23:59:59") < new Date(); }
+function isSoon(d)      { if(!d) return false; const diff=new Date(d+"T23:59:59")-new Date(); return diff>0&&diff<1000*60*60*24*7; }
+function isDone(v)      { return v==="1"||v===1; }
+function nowISO()       { return new Date().toISOString(); }
+
+// ── Inline editable field ──
+function InlineDate({ value, onChange, color }) {
+  const [editing, setEditing] = React.useState(false);
+  const [local, setLocal]     = React.useState(value||"");
+  const overdue = isOverdue(value);
+  const soon    = isSoon(value);
+
+  const commit = () => { setEditing(false); if (local !== (value||"")) onChange(local||null); };
+
+  if (editing) return (
+    <input type="date" className="inline-date" value={local}
+      onChange={e=>setLocal(e.target.value)}
+      onBlur={commit}
+      onKeyDown={e=>e.key==="Enter"&&commit()}
+      autoFocus
+      style={{
+        fontSize:11,fontWeight:700,padding:"2px 8px",borderRadius:99,width:"130px",
+        background:overdue?"#FEF2F2":soon?"#FFFBEB":"#F5F5F4",
+        color:overdue?"#DC2626":soon?"#D97706":"#78716C",
+        border:`1.5px solid ${color}`,cursor:"text"
+      }}/>
+  );
+
+  return (
+    <span onClick={()=>{ setLocal(value||""); setEditing(true); }} style={{
+      fontSize:11,fontWeight:700,padding:"2px 8px",borderRadius:99,cursor:"pointer",display:"inline-flex",alignItems:"center",gap:3,
+      background:overdue?"#FEF2F2":soon?"#FFFBEB":value?"#F5F5F4":"#F5F5F4",
+      color:overdue?"#DC2626":soon?"#D97706":value?"#78716C":"#C4B5A0",
+      border:`1px dashed ${value?"transparent":"#D6D3D1"}`
+    }}>
+      {overdue?"⚠ ":soon?"⏰ ":""}{value ? fmtDate(value) : "Add date"}
+    </span>
+  );
 }
-function fmtDateTime(d) {
-  if (!d) return null;
-  return new Date(d).toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric"});
+
+function InlineAssignee({ value, org, onChange, color }) {
+  const [editing, setEditing] = React.useState(false);
+  const [local, setLocal]     = React.useState(value||"");
+  const people = PEOPLE[org]||[];
+
+  const commit = (val) => {
+    const v = val !== undefined ? val : local;
+    setEditing(false);
+    if (v !== (value||"")) onChange(v||null);
+  };
+
+  if (editing) return (
+    <div style={{display:"flex",flexDirection:"column",gap:4}}>
+      <div style={{display:"flex",flexWrap:"wrap",gap:4}}>
+        {people.map(p=>(
+          <button key={p} onMouseDown={()=>commit(p)} style={{
+            padding:"3px 10px",borderRadius:99,border:"none",cursor:"pointer",fontSize:11,fontWeight:600,
+            background:local===p?color:"#F5F5F4",
+            color:local===p?"#fff":"#78716C"
+          }}>{p}</button>
+        ))}
+      </div>
+      <input className="inline-text" value={local}
+        onChange={e=>setLocal(e.target.value)}
+        onBlur={()=>commit()}
+        onKeyDown={e=>e.key==="Enter"&&commit()}
+        placeholder="Other name…"
+        autoFocus
+        style={{width:120,fontSize:12}}/>
+    </div>
+  );
+
+  return (
+    <span onClick={()=>{ setLocal(value||""); setEditing(true); }} style={{
+      fontSize:11,fontWeight:500,cursor:"pointer",display:"inline-flex",alignItems:"center",gap:3,
+      color:value?"#78716C":"#C4B5A0",
+      borderBottom:`1px dashed ${value?"transparent":"#D6D3D1"}`,
+      paddingBottom:1
+    }}>
+      {value ? `→ ${value}` : "Assign…"}
+    </span>
+  );
 }
-function isOverdue(d) { return d && new Date(d+"T23:59:59") < new Date(); }
-function isSoon(d)    { if(!d) return false; const diff=new Date(d+"T23:59:59")-new Date(); return diff>0&&diff<1000*60*60*24*7; }
-function isDone(v)    { return v==="1"||v===1; }
-function nowISO()     { return new Date().toISOString(); }
+
+function InlineTitle({ value, done, onChange }) {
+  const [editing, setEditing] = React.useState(false);
+  const [local, setLocal]     = React.useState(value);
+  const commit = () => { setEditing(false); if (local.trim() && local !== value) onChange(local.trim()); else setLocal(value); };
+  if (editing) return (
+    <input className="inline-title" value={local}
+      onChange={e=>setLocal(e.target.value)}
+      onBlur={commit}
+      onKeyDown={e=>{ if(e.key==="Enter") commit(); if(e.key==="Escape"){ setLocal(value); setEditing(false); } }}
+      autoFocus
+      style={{color:"#1C1917"}}/>
+  );
+  return (
+    <p onClick={()=>!done&&setEditing(true)} style={{
+      margin:0,fontSize:14,fontWeight:600,lineHeight:1.4,
+      color:done?"#A8A29E":"#1C1917",
+      textDecoration:done?"line-through":"none",
+      cursor:done?"default":"text"
+    }}>{value}</p>
+  );
+}
 
 // ── App ──
 function App() {
@@ -173,7 +261,7 @@ function App() {
   const [error, setError]         = React.useState(null);
   const [collapsed, setCollapsed] = React.useState({});
   const [filter, setFilter]       = React.useState("open");
-  const [modal, setModal]         = React.useState(null); // {mode:"add"|"edit"|"complete", item?}
+  const [modal, setModal]         = React.useState(null);
   const [form, setForm]           = React.useState({});
   const [saving, setSaving]       = React.useState(false);
   const [completeBy, setCompleteBy] = React.useState("");
@@ -191,57 +279,31 @@ function App() {
 
   React.useEffect(()=>{ load(); },[load]);
 
-  const orgItems = items.filter(i=>i.org===org);
-  const filtered = filter==="all"  ? orgItems
-                 : filter==="open" ? orgItems.filter(i=>!isDone(i.completed))
-                 :                   orgItems.filter(i=> isDone(i.completed));
-
-  const cats = CATEGORIES[org];
-  const grouped = {};
-  cats.forEach(c=>{ grouped[c]=filtered.filter(i=>i.category===c); });
-  const extra = filtered.filter(i=>!cats.includes(i.category));
-  if (extra.length) grouped["Other"]=extra;
-
-  const openCnt   = orgItems.filter(i=>!isDone(i.completed)).length;
-  const doneCnt   = orgItems.filter(i=> isDone(i.completed)).length;
-  const urgentCnt = orgItems.filter(i=>!isDone(i.completed)&&(isOverdue(i.due_date)||isSoon(i.due_date))).length;
-  const oc = ORGS[org];
-
-  // ── Check off: if uncompleted → show "who did this?" mini modal; if already done → undo instantly
-  const handleCheck = (item) => {
-    if (isDone(item.completed)) {
-      // undo — clear completion info
-      uncomplete(item);
-    } else {
-      // open quick "who completed this?" prompt
-      setCompleteBy(item.assigned_to||"");
-      setModal({mode:"complete", item});
-    }
+  // ── Inline field savers ──
+  const saveField = async (id, field, value) => {
+    setItems(prev=>prev.map(i=>i.id===id?{...i,[field]:value}:i));
+    await tursoQuery(`UPDATE command_center_items SET ${field}=? WHERE id=?`,[value,id]);
   };
 
+  // ── Completion ──
+  const handleCheck = (item) => {
+    if (isDone(item.completed)) { uncomplete(item); }
+    else { setCompleteBy(item.assigned_to||""); setModal({mode:"complete",item}); }
+  };
   const uncomplete = async (item) => {
     setItems(prev=>prev.map(i=>i.id===item.id?{...i,completed:0,completed_by:null,completed_at:null}:i));
-    await tursoQuery("UPDATE command_center_items SET completed=0, completed_by=NULL, completed_at=NULL WHERE id=?",[item.id]);
+    await tursoQuery("UPDATE command_center_items SET completed=0,completed_by=NULL,completed_at=NULL WHERE id=?",[item.id]);
   };
-
   const confirmComplete = async () => {
-    const item = modal.item;
-    const by   = completeBy.trim()||null;
-    const at   = nowISO();
+    const item=modal.item, by=completeBy.trim()||null, at=nowISO();
     setItems(prev=>prev.map(i=>i.id===item.id?{...i,completed:1,completed_by:by,completed_at:at}:i));
-    await tursoQuery("UPDATE command_center_items SET completed=1, completed_by=?, completed_at=? WHERE id=?",[by,at,item.id]);
+    await tursoQuery("UPDATE command_center_items SET completed=1,completed_by=?,completed_at=? WHERE id=?",[by,at,item.id]);
     setModal(null);
   };
 
-  // ── Add / Edit ──
-  const openAdd = () => {
-    setForm({org, category:CATEGORIES[org][0], title:"", notes:"", due_date:"", assigned_to:""});
-    setModal({mode:"add"});
-  };
-  const openEdit = (item) => {
-    setForm({org:item.org,category:item.category,title:item.title,notes:item.notes||"",due_date:item.due_date||"",assigned_to:item.assigned_to||""});
-    setModal({mode:"edit",item});
-  };
+  // ── Add / Edit modal ──
+  const openAdd = () => { setForm({org,category:CATEGORIES[org][0],title:"",notes:"",due_date:"",assigned_to:""}); setModal({mode:"add"}); };
+  const openEdit = (item) => { setForm({org:item.org,category:item.category,title:item.title,notes:item.notes||"",due_date:item.due_date||"",assigned_to:item.assigned_to||""}); setModal({mode:"edit",item}); };
   const closeModal = () => setModal(null);
 
   const saveItem = async () => {
@@ -249,15 +311,11 @@ function App() {
     setSaving(true);
     try {
       if (modal.mode==="edit") {
-        await tursoQuery(
-          "UPDATE command_center_items SET org=?,category=?,title=?,notes=?,due_date=?,assigned_to=? WHERE id=?",
-          [form.org,form.category,form.title,form.notes||null,form.due_date||null,form.assigned_to||null,modal.item.id]
-        );
+        await tursoQuery("UPDATE command_center_items SET org=?,category=?,title=?,notes=?,due_date=?,assigned_to=? WHERE id=?",
+          [form.org,form.category,form.title,form.notes||null,form.due_date||null,form.assigned_to||null,modal.item.id]);
       } else {
-        await tursoQuery(
-          "INSERT INTO command_center_items (org,category,title,notes,due_date,assigned_to,completed) VALUES (?,?,?,?,?,?,0)",
-          [form.org,form.category,form.title,form.notes||null,form.due_date||null,form.assigned_to||null]
-        );
+        await tursoQuery("INSERT INTO command_center_items (org,category,title,notes,due_date,assigned_to,completed) VALUES (?,?,?,?,?,?,0)",
+          [form.org,form.category,form.title,form.notes||null,form.due_date||null,form.assigned_to||null]);
       }
       await load(); closeModal();
     } finally { setSaving(false); }
@@ -269,7 +327,19 @@ function App() {
     setItems(prev=>prev.filter(i=>i.id!==id));
   };
 
-  const formCats   = CATEGORIES[form.org||org];
+  const orgItems  = items.filter(i=>i.org===org);
+  const filtered  = filter==="all"?orgItems:filter==="open"?orgItems.filter(i=>!isDone(i.completed)):orgItems.filter(i=>isDone(i.completed));
+  const cats      = CATEGORIES[org];
+  const grouped   = {};
+  cats.forEach(c=>{ grouped[c]=filtered.filter(i=>i.category===c); });
+  const extra = filtered.filter(i=>!cats.includes(i.category));
+  if (extra.length) grouped["Other"]=extra;
+
+  const openCnt   = orgItems.filter(i=>!isDone(i.completed)).length;
+  const doneCnt   = orgItems.filter(i=> isDone(i.completed)).length;
+  const urgentCnt = orgItems.filter(i=>!isDone(i.completed)&&(isOverdue(i.due_date)||isSoon(i.due_date))).length;
+  const oc = ORGS[org];
+  const formCats  = CATEGORIES[form.org||org];
   const quickPeople = PEOPLE[modal?.item?.org||org]||[];
 
   return (
@@ -288,8 +358,7 @@ function App() {
           {Object.entries(ORGS).map(([key,o])=>(
             <button key={key} onClick={()=>setOrg(key)} style={{
               flex:1,padding:"10px 6px",border:"none",cursor:"pointer",fontSize:13,fontWeight:700,
-              background:org===key?o.color:"transparent",
-              color:org===key?"#fff":"#78716C",
+              background:org===key?o.color:"transparent",color:org===key?"#fff":"#78716C",
               borderRadius:"8px 8px 0 0",transition:"all 0.15s"
             }}>{o.label}</button>
           ))}
@@ -342,9 +411,7 @@ function App() {
                 <div style={{borderTop:"0.5px solid #F5F5F4"}}>
                   {catItems.length===0&&<p style={{color:"#C4B5A0",fontSize:13,padding:"12px 16px",margin:0,fontStyle:"italic"}}>Nothing here yet.</p>}
                   {catItems.map((item,idx)=>{
-                    const done   = isDone(item.completed);
-                    const overdue= !done&&isOverdue(item.due_date);
-                    const soon   = !done&&isSoon(item.due_date);
+                    const done = isDone(item.completed);
                     return (
                       <div key={item.id} style={{
                         display:"flex",alignItems:"flex-start",gap:12,padding:"13px 16px",
@@ -352,8 +419,8 @@ function App() {
                         background:done?"#FAFAF9":"#fff"
                       }}>
                         {/* checkbox */}
-                        <button onClick={()=>handleCheck(item)} title={done?"Mark incomplete":"Mark complete"} style={{
-                          width:22,height:22,borderRadius:6,flexShrink:0,marginTop:1,cursor:"pointer",
+                        <button onClick={()=>handleCheck(item)} style={{
+                          width:22,height:22,borderRadius:6,flexShrink:0,marginTop:2,cursor:"pointer",
                           border:`2px solid ${done?oc.color:"#D6D3D1"}`,
                           background:done?oc.color:"transparent",
                           display:"flex",alignItems:"center",justifyContent:"center",transition:"all 0.15s"
@@ -363,37 +430,37 @@ function App() {
 
                         {/* body */}
                         <div style={{flex:1,minWidth:0}}>
-                          <p style={{margin:0,fontSize:14,fontWeight:600,color:done?"#A8A29E":"#1C1917",textDecoration:done?"line-through":"none",lineHeight:1.4}}>{item.title}</p>
-                          {item.notes&&!done&&<p style={{margin:"4px 0 0",fontSize:12,color:"#78716C",lineHeight:1.5}}>{item.notes}</p>}
+                          {/* title — inline editable */}
+                          <InlineTitle value={item.title} done={done}
+                            onChange={v=>saveField(item.id,"title",v)}/>
 
-                          <div style={{display:"flex",gap:8,marginTop:6,flexWrap:"wrap",alignItems:"center"}}>
-                            {/* due date badge */}
-                            {item.due_date&&!done&&(
-                              <span style={{
-                                fontSize:11,fontWeight:700,padding:"2px 8px",borderRadius:99,
-                                background:overdue?"#FEF2F2":soon?"#FFFBEB":"#F5F5F4",
-                                color:overdue?"#DC2626":soon?"#D97706":"#78716C"
-                              }}>{overdue?"⚠ ":soon?"⏰ ":""}{fmtDate(item.due_date)}</span>
-                            )}
-                            {/* assigned to (open items) */}
-                            {item.assigned_to&&!done&&(
-                              <span style={{fontSize:11,color:"#A8A29E",fontWeight:500}}>→ {item.assigned_to}</span>
-                            )}
-                            {/* completion info (done items) */}
-                            {done&&(
-                              <span style={{fontSize:11,color:"#A8A29E",display:"flex",alignItems:"center",gap:4}}>
-                                <span style={{color:oc.color,fontWeight:700}}>✓</span>
-                                {item.completed_by&&<span style={{fontWeight:600,color:"#78716C"}}>{item.completed_by}</span>}
-                                {item.completed_at&&<span>· {fmtDateTime(item.completed_at)}</span>}
-                              </span>
-                            )}
-                          </div>
+                          {/* notes */}
+                          {item.notes&&!done&&<p style={{margin:"4px 0 6px",fontSize:12,color:"#78716C",lineHeight:1.5}}>{item.notes}</p>}
+
+                          {/* inline meta row — always visible */}
+                          {!done&&(
+                            <div style={{display:"flex",gap:10,marginTop:6,flexWrap:"wrap",alignItems:"center"}}>
+                              <InlineDate value={item.due_date} color={oc.color}
+                                onChange={v=>saveField(item.id,"due_date",v)}/>
+                              <InlineAssignee value={item.assigned_to} org={item.org} color={oc.color}
+                                onChange={v=>saveField(item.id,"assigned_to",v)}/>
+                            </div>
+                          )}
+
+                          {/* completion info */}
+                          {done&&(
+                            <div style={{display:"flex",alignItems:"center",gap:6,marginTop:4}}>
+                              <span style={{color:oc.color,fontWeight:700,fontSize:11}}>✓</span>
+                              {item.completed_by&&<span style={{fontSize:11,fontWeight:600,color:"#78716C"}}>{item.completed_by}</span>}
+                              {item.completed_at&&<span style={{fontSize:11,color:"#A8A29E"}}>· {fmtDateTime(item.completed_at)}</span>}
+                            </div>
+                          )}
                         </div>
 
                         {/* actions */}
                         <div style={{display:"flex",gap:2,flexShrink:0}}>
-                          <button onClick={()=>openEdit(item)} style={{background:"none",border:"none",cursor:"pointer",padding:"4px 6px",borderRadius:6,color:"#A8A29E",fontSize:15}}>✏️</button>
-                          <button onClick={()=>deleteItem(item.id)} style={{background:"none",border:"none",cursor:"pointer",padding:"4px 6px",borderRadius:6,color:"#A8A29E",fontSize:15}}>🗑</button>
+                          {!done&&<button onClick={()=>openEdit(item)} title="Edit notes/category" style={{background:"none",border:"none",cursor:"pointer",padding:"4px 6px",borderRadius:6,color:"#D6D3D1",fontSize:13}}>✏️</button>}
+                          <button onClick={()=>deleteItem(item.id)} style={{background:"none",border:"none",cursor:"pointer",padding:"4px 6px",borderRadius:6,color:"#D6D3D1",fontSize:13}}>🗑</button>
                         </div>
                       </div>
                     );
@@ -405,43 +472,35 @@ function App() {
         })}
       </div>
 
-      {/* ── COMPLETE MODAL ── */}
+      {/* COMPLETE MODAL */}
       {modal?.mode==="complete"&&(
         <div style={{position:"fixed",inset:0,background:"rgba(0,0,0,0.55)",zIndex:50,display:"flex",alignItems:"flex-end"}} onClick={e=>e.target===e.currentTarget&&closeModal()}>
           <div style={{background:"#fff",borderRadius:"22px 22px 0 0",width:"100%",padding:"24px 20px 40px"}}>
             <p style={{fontSize:12,color:"#A8A29E",margin:"0 0 4px",textTransform:"uppercase",letterSpacing:"0.08em",fontWeight:700}}>Marking complete</p>
             <p style={{fontSize:15,fontWeight:700,color:"#1C1917",margin:"0 0 20px",lineHeight:1.3}}>{modal.item.title}</p>
-
             <label style={{fontSize:11,fontWeight:700,color:"#78716C",display:"block",marginBottom:8,textTransform:"uppercase",letterSpacing:"0.06em"}}>Who completed this?</label>
-
-            {/* quick pick buttons */}
             <div style={{display:"flex",flexWrap:"wrap",gap:8,marginBottom:12}}>
               {quickPeople.map(p=>(
                 <button key={p} onClick={()=>setCompleteBy(p)} style={{
                   padding:"7px 14px",borderRadius:99,border:"none",cursor:"pointer",fontSize:13,fontWeight:600,
-                  background:completeBy===p?oc.color:oc.light,
-                  color:completeBy===p?"#fff":oc.text,
-                  transition:"all 0.15s"
+                  background:completeBy===p?oc.color:oc.light,color:completeBy===p?"#fff":oc.text
                 }}>{p}</button>
               ))}
             </div>
-
-            {/* or type a name */}
             <input value={completeBy} onChange={e=>setCompleteBy(e.target.value)}
               placeholder="Or type a name (optional)…"
               style={{width:"100%",padding:"11px 14px",borderRadius:10,border:"1.5px solid #E7E5E4",fontSize:14,color:"#1C1917",marginBottom:16}}/>
-
             <div style={{display:"flex",gap:10}}>
               <button onClick={closeModal} style={{flex:1,padding:"13px",borderRadius:12,border:"1.5px solid #E7E5E4",background:"#fff",fontSize:14,fontWeight:700,cursor:"pointer",color:"#78716C"}}>Cancel</button>
               <button onClick={confirmComplete} style={{flex:2,padding:"13px",borderRadius:12,border:"none",background:oc.color,color:"#fff",fontSize:14,fontWeight:800,cursor:"pointer"}}>
-                ✓ Mark complete {completeBy?`— ${completeBy}`:""}
+                ✓ Mark complete{completeBy?` — ${completeBy}`:""}
               </button>
             </div>
           </div>
         </div>
       )}
 
-      {/* ── ADD / EDIT MODAL ── */}
+      {/* ADD / EDIT MODAL — for notes and category only */}
       {(modal?.mode==="add"||modal?.mode==="edit")&&(
         <div style={{position:"fixed",inset:0,background:"rgba(0,0,0,0.55)",zIndex:50,display:"flex",alignItems:"flex-end"}} onClick={e=>e.target===e.currentTarget&&closeModal()}>
           <div style={{background:"#fff",borderRadius:"22px 22px 0 0",width:"100%",maxHeight:"92vh",overflow:"auto",padding:"24px 20px 40px"}}>
@@ -450,6 +509,7 @@ function App() {
               <button onClick={closeModal} style={{background:"#F5F5F4",border:"none",borderRadius:8,padding:"6px 14px",cursor:"pointer",fontSize:14,color:"#78716C",fontWeight:600}}>Cancel</button>
             </div>
             <div style={{display:"flex",flexDirection:"column",gap:16}}>
+              {/* org */}
               <div>
                 <label style={{fontSize:11,fontWeight:700,color:"#78716C",display:"block",marginBottom:7,textTransform:"uppercase",letterSpacing:"0.06em"}}>Organization</label>
                 <div style={{display:"flex",gap:8}}>
@@ -457,12 +517,12 @@ function App() {
                     <button key={key} onClick={()=>setForm(f=>({...f,org:key,category:CATEGORIES[key][0]}))} style={{
                       flex:1,padding:"10px 8px",borderRadius:10,cursor:"pointer",fontSize:13,fontWeight:700,
                       border:`2px solid ${form.org===key?o.color:"#E7E5E4"}`,
-                      background:form.org===key?o.light:"#fff",
-                      color:form.org===key?o.text:"#78716C"
+                      background:form.org===key?o.light:"#fff",color:form.org===key?o.text:"#78716C"
                     }}>{o.label}</button>
                   ))}
                 </div>
               </div>
+              {/* category */}
               <div>
                 <label style={{fontSize:11,fontWeight:700,color:"#78716C",display:"block",marginBottom:7,textTransform:"uppercase",letterSpacing:"0.06em"}}>Category</label>
                 <select value={form.category} onChange={e=>setForm(f=>({...f,category:e.target.value}))}
@@ -470,18 +530,21 @@ function App() {
                   {formCats.map(c=><option key={c}>{c}</option>)}
                 </select>
               </div>
+              {/* title */}
               <div>
                 <label style={{fontSize:11,fontWeight:700,color:"#78716C",display:"block",marginBottom:7,textTransform:"uppercase",letterSpacing:"0.06em"}}>Title *</label>
                 <input value={form.title} onChange={e=>setForm(f=>({...f,title:e.target.value}))}
                   placeholder="What needs to happen?"
                   style={{width:"100%",padding:"11px 14px",borderRadius:10,border:"1.5px solid #E7E5E4",fontSize:14,color:"#1C1917"}}/>
               </div>
+              {/* notes */}
               <div>
                 <label style={{fontSize:11,fontWeight:700,color:"#78716C",display:"block",marginBottom:7,textTransform:"uppercase",letterSpacing:"0.06em"}}>Notes</label>
                 <textarea value={form.notes} onChange={e=>setForm(f=>({...f,notes:e.target.value}))}
                   placeholder="Details, links, context…" rows={3}
                   style={{width:"100%",padding:"11px 14px",borderRadius:10,border:"1.5px solid #E7E5E4",fontSize:14,color:"#1C1917",resize:"vertical"}}/>
               </div>
+              {/* due date + assigned — also in modal for new items */}
               <div style={{display:"flex",gap:12}}>
                 <div style={{flex:1}}>
                   <label style={{fontSize:11,fontWeight:700,color:"#78716C",display:"block",marginBottom:7,textTransform:"uppercase",letterSpacing:"0.06em"}}>Due date</label>
@@ -499,9 +562,7 @@ function App() {
                 background:ORGS[form.org||org].color,color:"#fff",border:"none",borderRadius:12,
                 padding:"15px",fontSize:15,fontWeight:800,cursor:"pointer",marginTop:4,
                 opacity:saving||!form.title.trim()?0.5:1
-              }}>
-                {saving?"Saving…":modal.mode==="edit"?"Save changes":"Add item"}
-              </button>
+              }}>{saving?"Saving…":modal.mode==="edit"?"Save changes":"Add item"}</button>
             </div>
           </div>
         </div>
