@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Command Center</title>
+<script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #F8F7F4; min-height: 100vh; }
+  input, select, textarea, button { font-family: inherit; }
+  ::-webkit-scrollbar { width: 4px; } ::-webkit-scrollbar-track { background: transparent; } ::-webkit-scrollbar-thumb { background: #D6D3D1; border-radius: 2px; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+
+const TURSO_URL = "https://command-center-jengrovdahl.aws-us-east-2.turso.io";
+const TURSO_TOKEN = "eyJhbGciOiJFZERTQSIsInR5cCI6IkpXVCJ9.eyJhIjoicnciLCJpYXQiOjE3ODI2ODkyNDgsImlkIjoiMDE5ZjEwOGUtYTgwMS03MTc3LWFmMWItNGU0ZGFkYzI4MzRiIiwicmlkIjoiMjE3MzY3NTMtYmJiNC00ZTUwLWE3OTQtNWY2YjA0NGIzZWM0In0.B9k-4DukPhCUQ9AcwEu04yG42imxMmml_ib1AbmV_iq5EqqIcoI2rKPO_GELSConUyh_D6DQzzgmUpt1-LFhCw";
+
+const ORGS = {
+  bpwt:          { label: "BPWT",                color: "#7C3AED", light: "#EDE9FE", text: "#5B21B6" },
+  blossom_thyme: { label: "Blossom Thyme",        color: "#16A34A", light: "#DCFCE7", text: "#15803D" },
+};
+
+const CATEGORIES = {
+  bpwt:          ["Fast Starts","Membership","Chapter President","District Secretary","Convention","Future Directions"],
+  blossom_thyme: ["Market Logistics","Vendors","Marketing","Finances","Volunteers","Events"],
+};
+
+const SEED = [
+  // ── BPWT Fast Starts ──
+  {org:"bpwt",category:"Fast Starts",title:"President Fast Start — Jen",notes:"Submit to state president. Set 3 goals, write intro letter, list board members.",due_date:"2026-07-15",assigned_to:"Jen"},
+  {org:"bpwt",category:"Fast Starts",title:"Programming VP Fast Start — Cindy",notes:"Submit to ivp@mnwt.org. Hold LPM orientation, set 3 goals, list all LPMs.",due_date:"2026-08-01",assigned_to:"Cindy"},
+  {org:"bpwt",category:"Fast Starts",title:"Membership VP Fast Start",notes:"Submit growth plan, plan a Tri 1 membership event, describe year plan. Due July 15.",due_date:"2026-07-15",assigned_to:""},
+  {org:"bpwt",category:"Fast Starts",title:"Living & Learning LPM Fast Start",notes:"Submit to chapter president + district. Goals, write DPM intro, prelim trimester report. https://tinyurl.com/SPMFastStart",due_date:"2026-07-15",assigned_to:""},
+  {org:"bpwt",category:"Fast Starts",title:"Community Connections LPM Fast Start — Brandy",notes:"Attend orientation, set goals, write DPM intro, submit prelim trimester report.",due_date:"2026-08-01",assigned_to:"Brandy"},
+  {org:"bpwt",category:"Fast Starts",title:"Women's Wellness LPM Fast Start — Ann",notes:"Attend orientation, set goals, write DPM intro, submit prelim trimester report.",due_date:"2026-08-01",assigned_to:"Ann"},
+  {org:"bpwt",category:"Fast Starts",title:"Youth of Today LPM Fast Start",notes:"Attend orientation, set goals, write DPM intro, submit prelim trimester report.",due_date:"2026-08-01",assigned_to:""},
+  {org:"bpwt",category:"Fast Starts",title:"Records & Recognition LPM Fast Start",notes:"Attend orientation, set goals, write DPM intro, submit prelim trimester report.",due_date:"2026-08-01",assigned_to:""},
+  {org:"bpwt",category:"Fast Starts",title:"Public Relations LPM Fast Start",notes:"Attend orientation, set goals, write DPM intro, submit prelim trimester report.",due_date:"2026-08-01",assigned_to:""},
+  {org:"bpwt",category:"Fast Starts",title:"NEWSLET LPM Fast Start",notes:"Attend orientation, set goals, write DPM intro, submit prelim trimester report.",due_date:"2026-08-01",assigned_to:""},
+  // ── BPWT Membership ──
+  {org:"bpwt",category:"Membership",title:"Update chapter growth plan for 2026–27",notes:"May base was 10, goal 13. Adjust Tri 1/2/3 NMA targets. Share with board.",due_date:null,assigned_to:"Jen"},
+  {org:"bpwt",category:"Membership",title:"Plan Tri 1 membership event",notes:"Required as part of MVP Fast Start. Ideas: Passport Night, speaker event, certificate night.",due_date:"2026-08-31",assigned_to:""},
+  {org:"bpwt",category:"Membership",title:"Submit New Member Adds by July 1",notes:"Monthly NMA deadline. Use Add/Change form + dues check to Chapter Service Center.",due_date:"2026-07-01",assigned_to:""},
+  {org:"bpwt",category:"Membership",title:"Submit New Member Adds by Aug 1",notes:"Monthly NMA deadline.",due_date:"2026-08-01",assigned_to:""},
+  {org:"bpwt",category:"Membership",title:"Contact Tri 1 members up for renewal",notes:"Personal ask to renew is a must. Send early bird renewals postmarked by July 15.",due_date:"2026-07-15",assigned_to:""},
+  {org:"bpwt",category:"Membership",title:"Keep up Membership Monday Facebook posts",notes:"Mon = Membership Monday. Maintain the weekly FB post schedule.",due_date:null,assigned_to:"Jen"},
+  // ── BPWT Chapter President ──
+  {org:"bpwt",category:"Chapter President",title:"Attend President / State Delegate retreat — Aug 8, Monticello",notes:"Announced at district Tri 1 meeting. Confirm attendance.",due_date:"2026-08-08",assigned_to:"Jen"},
+  {org:"bpwt",category:"Chapter President",title:"Attend District Summer Social — Aug 8 @ 12:30, Vintage Escapes Winery, Kilkenny MN",notes:"DD Theresa's unity-building event. Same day as retreat — confirm logistics.",due_date:"2026-08-08",assigned_to:"Jen"},
+  {org:"bpwt",category:"Chapter President",title:"Submit LL Outstanding Program Manager nomination",notes:"Nominate any member who did great LL work. Email LL@MNWT.ORG. https://tinyurl.com/OPMnomination",due_date:"2026-09-02",assigned_to:"Jen"},
+  {org:"bpwt",category:"Chapter President",title:"Journal into Growth — submit journal entries",notes:"LL SPM Carolyn's initiative. Email/text photo of weekly completed journal entries.",due_date:"2026-09-17",assigned_to:""},
+  // ── BPWT District Secretary ──
+  {org:"bpwt",category:"District Secretary",title:"Fix 'Anne Thorson' → 'Ann Thorson' in Tri 3 2025–26 minutes",notes:"Motion passed at Tri 1 meeting contingent on this correction. File corrected copy.",due_date:null,assigned_to:"Jen"},
+  {org:"bpwt",category:"District Secretary",title:"Watch for District Plan of Action from Theresa DD",notes:"Expected next month. Includes bylaws/policies and growth plan. Distribute to chapter.",due_date:null,assigned_to:"Jen"},
+  {org:"bpwt",category:"District Secretary",title:"Support Brandy with District Bylaw & Policy review",notes:"Brandy Mausbach leading. Coming months — coordinate scheduling/comms.",due_date:null,assigned_to:"Jen"},
+  // ── BPWT Convention ──
+  {org:"bpwt",category:"Convention",title:"Connect with Tevyan (Burnsville) to begin convention planning",notes:"District voted to bid for MNWT Annual Convention 2027 in Burnsville, May 21–23. Tevyan submitting bid + contacting Jen as co-chair.",due_date:null,assigned_to:"Jen"},
+  {org:"bpwt",category:"Convention",title:"Share Super SHEroes theme doc with Tevyan",notes:"Full doc already in Drive. Theme: Super SHEroes — MNWT Annual Convention 2027.",due_date:null,assigned_to:"Jen"},
+];
+
+// ── Turso helpers ──
+async function tursoQuery(sql, args=[]) {
+  const res = await fetch(`${TURSO_URL}/v2/pipeline`, {
+    method:"POST",
+    headers:{ Authorization:`Bearer ${TURSO_TOKEN}`, "Content-Type":"application/json" },
+    body: JSON.stringify({ requests:[
+      { type:"execute", stmt:{ sql, args: args.map(v => v===null ? {type:"null"} : {type:"text",value:String(v)}) } },
+      { type:"close" }
+    ]})
+  });
+  const data = await res.json();
+  if (data.results?.[0]?.type==="error") throw new Error(data.results[0].error.message);
+  return data.results?.[0]?.response?.result;
+}
+
+function toObjects(result) {
+  if (!result?.rows) return [];
+  const cols = result.cols.map(c=>c.name);
+  return result.rows.map(row => {
+    const o={};
+    cols.forEach((c,i)=>{ o[c]=row[i]?.value??null; });
+    return o;
+  });
+}
+
+async function initDB() {
+  await tursoQuery(`CREATE TABLE IF NOT EXISTS command_center_items (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    org TEXT NOT NULL,
+    category TEXT NOT NULL,
+    title TEXT NOT NULL,
+    notes TEXT,
+    due_date TEXT,
+    assigned_to TEXT,
+    completed INTEGER DEFAULT 0,
+    created_at TEXT DEFAULT (datetime('now'))
+  )`);
+  const r = await tursoQuery("SELECT COUNT(*) as cnt FROM command_center_items");
+  const cnt = parseInt(r?.rows?.[0]?.[0]?.value??"0");
+  if (cnt===0) {
+    for (const item of SEED) {
+      await tursoQuery(
+        "INSERT INTO command_center_items (org,category,title,notes,due_date,assigned_to,completed) VALUES (?,?,?,?,?,?,0)",
+        [item.org,item.category,item.title,item.notes||null,item.due_date||null,item.assigned_to||null]
+      );
+    }
+  }
+}
+
+// ── Date helpers ──
+function fmtDate(d) {
+  if (!d) return null;
+  const dt = new Date(d+"T12:00:00");
+  return dt.toLocaleDateString("en-US",{month:"short",day:"numeric"});
+}
+function isOverdue(d) { return d && new Date(d+"T23:59:59") < new Date(); }
+function isSoon(d)    { if(!d) return false; const diff=new Date(d+"T23:59:59")-new Date(); return diff>0 && diff<1000*60*60*24*7; }
+function isDone(v)    { return v==="1"||v===1; }
+
+// ── Main App ──
+function App() {
+  const [org, setOrg]   = React.useState("bpwt");
+  const [items, setItems] = React.useState([]);
+  const [loading, setLoading] = React.useState(true);
+  const [error, setError]     = React.useState(null);
+  const [collapsed, setCollapsed] = React.useState({});
+  const [filter, setFilter]       = React.useState("open");
+  const [modal, setModal] = React.useState(null); // null | {mode:"add"|"edit", item?}
+  const [form, setForm]   = React.useState({});
+  const [saving, setSaving] = React.useState(false);
+
+  const load = React.useCallback(async () => {
+    try {
+      setLoading(true);
+      await initDB();
+      const r = await tursoQuery("SELECT * FROM command_center_items ORDER BY completed ASC, due_date ASC NULLS LAST, created_at ASC");
+      setItems(toObjects(r));
+      setError(null);
+    } catch(e) { setError(e.message); }
+    finally    { setLoading(false); }
+  }, []);
+
+  React.useEffect(()=>{ load(); },[load]);
+
+  const orgItems = items.filter(i=>i.org===org);
+  const filtered = filter==="all"  ? orgItems
+                 : filter==="open" ? orgItems.filter(i=>!isDone(i.completed))
+                 :                   orgItems.filter(i=> isDone(i.completed));
+
+  const cats = CATEGORIES[org];
+  const grouped = {};
+  cats.forEach(c=>{ grouped[c]=filtered.filter(i=>i.category===c); });
+  const extra = filtered.filter(i=>!cats.includes(i.category));
+  if (extra.length) grouped["Other"]=extra;
+
+  const openCnt   = orgItems.filter(i=>!isDone(i.completed)).length;
+  const doneCnt   = orgItems.filter(i=> isDone(i.completed)).length;
+  const urgentCnt = orgItems.filter(i=>!isDone(i.completed)&&(isOverdue(i.due_date)||isSoon(i.due_date))).length;
+  const oc = ORGS[org];
+
+  // toggle complete
+  const toggleDone = async (item) => {
+    const nv = isDone(item.completed)?0:1;
+    setItems(prev=>prev.map(i=>i.id===item.id?{...i,completed:nv}:i));
+    await tursoQuery("UPDATE command_center_items SET completed=? WHERE id=?",[String(nv),item.id]);
+  };
+
+  const openAdd = () => {
+    setForm({org, category:CATEGORIES[org][0], title:"", notes:"", due_date:"", assigned_to:""});
+    setModal({mode:"add"});
+  };
+  const openEdit = (item) => {
+    setForm({org:item.org,category:item.category,title:item.title,notes:item.notes||"",due_date:item.due_date||"",assigned_to:item.assigned_to||""});
+    setModal({mode:"edit",item});
+  };
+  const closeModal = () => setModal(null);
+
+  const saveItem = async () => {
+    if (!form.title.trim()) return;
+    setSaving(true);
+    try {
+      if (modal.mode==="edit") {
+        await tursoQuery(
+          "UPDATE command_center_items SET org=?,category=?,title=?,notes=?,due_date=?,assigned_to=? WHERE id=?",
+          [form.org,form.category,form.title,form.notes||null,form.due_date||null,form.assigned_to||null,modal.item.id]
+        );
+      } else {
+        await tursoQuery(
+          "INSERT INTO command_center_items (org,category,title,notes,due_date,assigned_to,completed) VALUES (?,?,?,?,?,?,0)",
+          [form.org,form.category,form.title,form.notes||null,form.due_date||null,form.assigned_to||null]
+        );
+      }
+      await load();
+      closeModal();
+    } finally { setSaving(false); }
+  };
+
+  const deleteItem = async (id) => {
+    if (!confirm("Delete this item?")) return;
+    await tursoQuery("DELETE FROM command_center_items WHERE id=?",[id]);
+    setItems(prev=>prev.filter(i=>i.id!==id));
+  };
+
+  const formCats = CATEGORIES[form.org||org];
+
+  return (
+    <div style={{minHeight:"100vh",background:"#F8F7F4",paddingBottom:80}}>
+
+      {/* ── HEADER ── */}
+      <div style={{background:"#1C1917",position:"sticky",top:0,zIndex:20}}>
+        <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"16px 16px 0"}}>
+          <div>
+            <p style={{color:"#A8A29E",fontSize:10,letterSpacing:"0.12em",textTransform:"uppercase",margin:0}}>Jen's</p>
+            <h1 style={{color:"#FAFAF9",fontSize:24,fontWeight:800,margin:0,letterSpacing:"-0.03em"}}>Command Center</h1>
+          </div>
+          <button onClick={openAdd} style={{background:oc.color,color:"#fff",border:"none",borderRadius:10,padding:"9px 18px",fontSize:14,fontWeight:700,cursor:"pointer"}}>+ Add</button>
+        </div>
+        {/* org tabs */}
+        <div style={{display:"flex",gap:2,padding:"12px 16px 0"}}>
+          {Object.entries(ORGS).map(([key,o])=>(
+            <button key={key} onClick={()=>setOrg(key)} style={{
+              flex:1,padding:"10px 6px",border:"none",cursor:"pointer",fontSize:13,fontWeight:700,
+              background:org===key?o.color:"transparent",
+              color:org===key?"#fff":"#78716C",
+              borderRadius:"8px 8px 0 0",transition:"all 0.15s"
+            }}>{o.label}</button>
+          ))}
+        </div>
+      </div>
+
+      {/* ── STATS BAR ── */}
+      <div style={{background:oc.color,padding:"10px 16px",display:"flex",alignItems:"center",gap:24}}>
+        {[["Open",openCnt],["Done",doneCnt],["Urgent",urgentCnt]].map(([lbl,val])=>(
+          <div key={lbl} style={{textAlign:"center"}}>
+            <p style={{color:"#fff",fontSize:22,fontWeight:800,margin:0,lineHeight:1}}>{val}</p>
+            <p style={{color:"rgba(255,255,255,0.7)",fontSize:11,margin:0}}>{lbl}</p>
+          </div>
+        ))}
+        <div style={{flex:1}}/>
+        <div style={{display:"flex",gap:4"}}>
+          {["all","open","done"].map(f=>(
+            <button key={f} onClick={()=>setFilter(f)} style={{
+              padding:"5px 12px",borderRadius:99,border:"none",cursor:"pointer",fontSize:12,fontWeight:600,
+              background:filter===f?"rgba(255,255,255,0.25)":"transparent",
+              color:filter===f?"#fff":"rgba(255,255,255,0.55)"
+            }}>{f.charAt(0).toUpperCase()+f.slice(1)}</button>
+          ))}
+        </div>
+      </div>
+
+      {/* ── CONTENT ── */}
+      <div style={{padding:"14px 14px 0"}}>
+        {loading && <p style={{textAlign:"center",color:"#78716C",padding:60,fontSize:15}}>Loading…</p>}
+        {error   && <div style={{background:"#FEF2F2",borderRadius:10,padding:16,color:"#DC2626",fontSize:14,margin:"8px 0"}}>⚠ {error}</div>}
+
+        {!loading && !error && Object.entries(grouped).map(([cat,catItems])=>{
+          const isOpen = collapsed[cat]!==true;
+          const catOpen    = catItems.filter(i=>!isDone(i.completed)).length;
+          const catDone    = catItems.filter(i=> isDone(i.completed)).length;
+          const hasUrgent  = catItems.some(i=>!isDone(i.completed)&&(isOverdue(i.due_date)||isSoon(i.due_date)));
+
+          return (
+            <div key={cat} style={{marginBottom:10,background:"#fff",borderRadius:14,overflow:"hidden",border:"0.5px solid #E7E5E4",boxShadow:"0 1px 3px rgba(0,0,0,0.04)"}}>
+              {/* category header */}
+              <button onClick={()=>setCollapsed(p=>({...p,[cat]:!p[cat]}))} style={{
+                width:"100%",background:"none",border:"none",cursor:"pointer",
+                padding:"14px 16px",display:"flex",alignItems:"center",gap:10,textAlign:"left"
+              }}>
+                <span style={{fontSize:14,fontWeight:700,color:"#1C1917",flex:1}}>{cat}</span>
+                {hasUrgent && <span style={{fontSize:10,background:"#FEF2F2",color:"#DC2626",padding:"2px 8px",borderRadius:99,fontWeight:800}}>URGENT</span>}
+                <span style={{fontSize:12,color:"#A8A29E"}}>
+                  {catOpen>0?`${catOpen} open`:""}
+                  {catOpen>0&&catDone>0?" · ":""}
+                  {catDone>0?`${catDone} done`:""}
+                </span>
+                <span style={{color:"#C4B5A0",fontSize:14,fontWeight:700}}>{isOpen?"▾":"▸"}</span>
+              </button>
+
+              {isOpen && (
+                <div style={{borderTop:"0.5px solid #F5F5F4"}}>
+                  {catItems.length===0 && (
+                    <p style={{color:"#C4B5A0",fontSize:13,padding:"12px 16px",margin:0,fontStyle:"italic"}}>Nothing here yet.</p>
+                  )}
+                  {catItems.map((item,idx)=>{
+                    const done    = isDone(item.completed);
+                    const overdue = !done && isOverdue(item.due_date);
+                    const soon    = !done && isSoon(item.due_date);
+                    return (
+                      <div key={item.id} style={{
+                        display:"flex",alignItems:"flex-start",gap:12,padding:"13px 16px",
+                        borderTop:idx>0?"0.5px solid #F5F5F4":"none",
+                        background:done?"#FAFAF9":"#fff",
+                        transition:"background 0.2s"
+                      }}>
+                        {/* checkbox */}
+                        <button onClick={()=>toggleDone(item)} style={{
+                          width:22,height:22,borderRadius:6,flexShrink:0,marginTop:1,cursor:"pointer",
+                          border:`2px solid ${done?oc.color:"#D6D3D1"}`,
+                          background:done?oc.color:"transparent",
+                          display:"flex",alignItems:"center",justifyContent:"center",transition:"all 0.15s"
+                        }}>
+                          {done && <span style={{color:"#fff",fontSize:12,fontWeight:900,lineHeight:1}}>✓</span>}
+                        </button>
+
+                        {/* body */}
+                        <div style={{flex:1,minWidth:0}}>
+                          <p style={{margin:0,fontSize:14,fontWeight:600,color:done?"#A8A29E":"#1C1917",textDecoration:done?"line-through":"none",lineHeight:1.4}}>{item.title}</p>
+                          {item.notes && !done && <p style={{margin:"4px 0 0",fontSize:12,color:"#78716C",lineHeight:1.5}}>{item.notes}</p>}
+                          <div style={{display:"flex",gap:8,marginTop:6,flexWrap:"wrap",alignItems:"center"}}>
+                            {item.due_date && (
+                              <span style={{
+                                fontSize:11,fontWeight:700,padding:"2px 8px",borderRadius:99,
+                                background:overdue?"#FEF2F2":soon?"#FFFBEB":"#F5F5F4",
+                                color:overdue?"#DC2626":soon?"#D97706":"#78716C"
+                              }}>
+                                {overdue?"⚠ ":soon?"⏰ ":""}{fmtDate(item.due_date)}
+                              </span>
+                            )}
+                            {item.assigned_to && (
+                              <span style={{fontSize:11,color:"#A8A29E",fontWeight:500}}>→ {item.assigned_to}</span>
+                            )}
+                          </div>
+                        </div>
+
+                        {/* actions */}
+                        <div style={{display:"flex",gap:2,flexShrink:0}}>
+                          <button onClick={()=>openEdit(item)} title="Edit" style={{background:"none",border:"none",cursor:"pointer",padding:"4px 6px",borderRadius:6,color:"#A8A29E",fontSize:15}}>✏️</button>
+                          <button onClick={()=>deleteItem(item.id)} title="Delete" style={{background:"none",border:"none",cursor:"pointer",padding:"4px 6px",borderRadius:6,color:"#A8A29E",fontSize:15}}>🗑</button>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+
+      {/* ── MODAL ── */}
+      {modal && (
+        <div style={{position:"fixed",inset:0,background:"rgba(0,0,0,0.55)",zIndex:50,display:"flex",alignItems:"flex-end"}} onClick={e=>e.target===e.currentTarget&&closeModal()}>
+          <div style={{background:"#fff",borderRadius:"22px 22px 0 0",width:"100%",maxHeight:"92vh",overflow:"auto",padding:"24px 20px 40px"}}>
+            <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:22}}>
+              <h2 style={{margin:0,fontSize:18,fontWeight:800,color:"#1C1917"}}>{modal.mode==="edit"?"Edit item":"New item"}</h2>
+              <button onClick={closeModal} style={{background:"#F5F5F4",border:"none",borderRadius:8,padding:"6px 14px",cursor:"pointer",fontSize:14,color:"#78716C",fontWeight:600}}>Cancel</button>
+            </div>
+
+            <div style={{display:"flex",flexDirection:"column",gap:16}}>
+              {/* org */}
+              <div>
+                <label style={{fontSize:11,fontWeight:700,color:"#78716C",display:"block",marginBottom:7,textTransform:"uppercase",letterSpacing:"0.06em"}}>Organization</label>
+                <div style={{display:"flex",gap:8}}>
+                  {Object.entries(ORGS).map(([key,o])=>(
+                    <button key={key} onClick={()=>setForm(f=>({...f,org:key,category:CATEGORIES[key][0]}))} style={{
+                      flex:1,padding:"10px 8px",borderRadius:10,cursor:"pointer",fontSize:13,fontWeight:700,
+                      border:`2px solid ${form.org===key?o.color:"#E7E5E4"}`,
+                      background:form.org===key?o.light:"#fff",
+                      color:form.org===key?o.text:"#78716C"
+                    }}>{o.label}</button>
+                  ))}
+                </div>
+              </div>
+
+              {/* category */}
+              <div>
+                <label style={{fontSize:11,fontWeight:700,color:"#78716C",display:"block",marginBottom:7,textTransform:"uppercase",letterSpacing:"0.06em"}}>Category</label>
+                <select value={form.category} onChange={e=>setForm(f=>({...f,category:e.target.value}))}
+                  style={{width:"100%",padding:"11px 14px",borderRadius:10,border:"1.5px solid #E7E5E4",fontSize:14,color:"#1C1917",background:"#fff",appearance:"auto"}}>
+                  {formCats.map(c=><option key={c}>{c}</option>)}
+                </select>
+              </div>
+
+              {/* title */}
+              <div>
+                <label style={{fontSize:11,fontWeight:700,color:"#78716C",display:"block",marginBottom:7,textTransform:"uppercase",letterSpacing:"0.06em"}}>Title *</label>
+                <input value={form.title} onChange={e=>setForm(f=>({...f,title:e.target.value}))}
+                  placeholder="What needs to happen?"
+                  style={{width:"100%",padding:"11px 14px",borderRadius:10,border:"1.5px solid #E7E5E4",fontSize:14,color:"#1C1917"}}/>
+              </div>
+
+              {/* notes */}
+              <div>
+                <label style={{fontSize:11,fontWeight:700,color:"#78716C",display:"block",marginBottom:7,textTransform:"uppercase",letterSpacing:"0.06em"}}>Notes</label>
+                <textarea value={form.notes} onChange={e=>setForm(f=>({...f,notes:e.target.value}))}
+                  placeholder="Details, links, context…" rows={3}
+                  style={{width:"100%",padding:"11px 14px",borderRadius:10,border:"1.5px solid #E7E5E4",fontSize:14,color:"#1C1917",resize:"vertical"}}/>
+              </div>
+
+              <div style={{display:"flex",gap:12}}>
+                {/* due date */}
+                <div style={{flex:1}}>
+                  <label style={{fontSize:11,fontWeight:700,color:"#78716C",display:"block",marginBottom:7,textTransform:"uppercase",letterSpacing:"0.06em"}}>Due date</label>
+                  <input type="date" value={form.due_date} onChange={e=>setForm(f=>({...f,due_date:e.target.value}))}
+                    style={{width:"100%",padding:"11px 14px",borderRadius:10,border:"1.5px solid #E7E5E4",fontSize:14,color:"#1C1917"}}/>
+                </div>
+                {/* assigned to */}
+                <div style={{flex:1}}>
+                  <label style={{fontSize:11,fontWeight:700,color:"#78716C",display:"block",marginBottom:7,textTransform:"uppercase",letterSpacing:"0.06em"}}>Assigned to</label>
+                  <input value={form.assigned_to} onChange={e=>setForm(f=>({...f,assigned_to:e.target.value}))}
+                    placeholder="Name"
+                    style={{width:"100%",padding:"11px 14px",borderRadius:10,border:"1.5px solid #E7E5E4",fontSize:14,color:"#1C1917"}}/>
+                </div>
+              </div>
+
+              <button onClick={saveItem} disabled={saving||!form.title.trim()} style={{
+                background:ORGS[form.org||org].color,color:"#fff",border:"none",borderRadius:12,
+                padding:"15px",fontSize:15,fontWeight:800,cursor:"pointer",marginTop:4,
+                opacity:saving||!form.title.trim()?0.5:1,transition:"opacity 0.15s"
+              }}>
+                {saving?"Saving…":modal.mode==="edit"?"Save changes":"Add item"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App/>);
+</script>
+</body>
+</html>
