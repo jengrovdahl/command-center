@@ -388,15 +388,7 @@ async function initDB() {
     await tursoQuery("UPDATE command_center_items SET due_date='2027-04-10' WHERE org='bpwt' AND category='District Secretary' AND title LIKE '%Tri 3%' AND title LIKE '%Distribute%'");
     await tursoQuery("INSERT OR REPLACE INTO cc_meta (key,value) VALUES ('patch_dist_sec_dates','done')");
   }
-  // seed personal org
-  const persCnt = parseInt((await tursoQuery("SELECT COUNT(*) FROM command_center_items WHERE org='personal'"))?.rows?.[0]?.[0]?.value??"0");
-  if (persCnt===0) for (const i of PERSONAL_SEED) await tursoQuery("INSERT INTO command_center_items (org,category,title,notes,due_date,assigned_to,completed) VALUES (?,?,?,?,?,?,0)",["personal",i.category,i.title,i.notes||null,i.due_date||null,i.assigned_to||null]);
-  // seed member/self
-  const memberCnt = parseInt((await tursoQuery("SELECT COUNT(*) FROM command_center_items WHERE org='bpwt' AND category='Member/Self'"))?.rows?.[0]?.[0]?.value??"0");
-  if (memberCnt===0) for (const i of MEMBER_SEED) await tursoQuery("INSERT INTO command_center_items (org,category,title,notes,due_date,assigned_to,completed) VALUES (?,?,?,?,?,?,0)",["bpwt",i.category,i.title,i.notes||null,i.due_date||null,i.assigned_to||null]);
-  // seed nominations
-  const nomCnt = parseInt((await tursoQuery("SELECT COUNT(*) FROM command_center_items WHERE org='bpwt' AND category='Nominations'"))?.rows?.[0]?.[0]?.value??"0");
-  if (nomCnt===0) for (const i of NOMINATIONS_SEED) await tursoQuery("INSERT INTO command_center_items (org,category,title,notes,due_date,assigned_to,completed) VALUES (?,?,?,?,?,?,0)",["bpwt",i.category,i.title,i.notes||null,i.due_date||null,i.assigned_to||null]);
+
 }
 
 // ── Helpers ──
