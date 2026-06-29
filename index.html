@@ -1,23 +1,104 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Command Center</title>
 <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
 <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
 <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 <style>
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #F8F7F4; min-height: 100vh; }
-  input, select, textarea, button { font-family: inherit; }
-  .inline-date { border: none; background: transparent; font-size: 11px; font-weight: 700; color: inherit; padding: 0; margin: 0; width: 130px; cursor: pointer; }
-  .inline-date:focus { outline: none; }
-  .inline-text { border: none; border-bottom: 1.5px solid #D6D3D1; background: transparent; font-size: 11px; font-weight: 500; color: #78716C; padding: 1px 2px; width: 100px; }
-  .inline-text:focus { outline: none; border-bottom-color: #7C3AED; }
-  .inline-title { border: none; background: transparent; font-size: 14px; font-weight: 600; padding: 0; width: 100%; line-height: 1.4; }
-  .inline-title:focus { outline: none; border-bottom: 1.5px solid #D6D3D1; }
-  ::-webkit-scrollbar { width: 4px; } ::-webkit-scrollbar-track { background: transparent; } ::-webkit-scrollbar-thumb { background: #D6D3D1; border-radius: 2px; }
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body, #root { height: 100%; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #F8F7F4; overflow: hidden; }
+input, select, textarea, button { font-family: inherit; }
+.app { display: flex; height: 100vh; overflow: hidden; }
+
+/* SIDEBAR */
+.sidebar { width: 220px; min-width: 220px; background: #1C1917; display: flex; flex-direction: column; overflow: hidden; }
+.sidebar-header { padding: 18px 16px 14px; border-bottom: 1px solid rgba(255,255,255,0.08); }
+.sidebar-sub  { font-size: 10px; color: #A8A29E; letter-spacing: 0.12em; text-transform: uppercase; margin: 0; }
+.sidebar-title { font-size: 18px; font-weight: 800; color: #FAFAF9; margin: 0; letter-spacing: -0.02em; }
+.org-tabs { display: flex; gap: 0; padding: 10px 10px 0; }
+.org-tab { flex: 1; padding: 7px 4px; border: none; cursor: pointer; font-size: 11px; font-weight: 700; border-radius: 7px 7px 0 0; transition: all 0.15s; }
+.sidebar-nav { flex: 1; overflow-y: auto; padding: 8px 0 20px; }
+.sidebar-nav::-webkit-scrollbar { width: 3px; }
+.sidebar-nav::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 2px; }
+.nav-item { display: flex; align-items: center; justify-content: space-between; padding: 9px 16px; cursor: pointer; transition: background 0.12s; border: none; background: none; width: 100%; text-align: left; }
+.nav-item:hover { background: rgba(255,255,255,0.06); }
+.nav-item.active { background: rgba(255,255,255,0.12); }
+.nav-label { font-size: 13px; font-weight: 600; color: #E7E5E4; }
+.nav-item.active .nav-label { color: #fff; }
+.nav-badge { font-size: 10px; font-weight: 800; padding: 2px 6px; border-radius: 99px; }
+
+/* MAIN */
+.main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+.topbar { display: flex; align-items: center; justify-content: space-between; padding: 14px 20px; background: #fff; border-bottom: 0.5px solid #E7E5E4; flex-shrink: 0; }
+.topbar-title { font-size: 20px; font-weight: 800; color: #1C1917; }
+.topbar-meta  { font-size: 12px; color: #A8A29E; margin-top: 2px; }
+.content { flex: 1; overflow-y: auto; padding: 16px 20px 40px; }
+.content::-webkit-scrollbar { width: 4px; }
+.content::-webkit-scrollbar-thumb { background: #D6D3D1; border-radius: 2px; }
+
+/* STATS ROW */
+.stats-row { display: flex; gap: 10px; margin-bottom: 16px; }
+.stat-card { flex: 1; background: #fff; border: 0.5px solid #E7E5E4; border-radius: 10px; padding: 10px 14px; text-align: center; }
+.stat-num   { font-size: 22px; font-weight: 800; line-height: 1; }
+.stat-lbl   { font-size: 11px; color: #A8A29E; margin-top: 2px; }
+
+/* ITEMS */
+.item-card { background: #fff; border: 0.5px solid #E7E5E4; border-radius: 12px; overflow: hidden; margin-bottom: 8px; }
+.item-row  { display: flex; align-items: flex-start; gap: 12px; padding: 13px 16px; }
+.item-row + .item-row { border-top: 0.5px solid #F5F5F4; }
+.item-row.done-row { background: #FAFAF9; }
+.check-btn { width: 22px; height: 22px; border-radius: 6px; flex-shrink: 0; margin-top: 2px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.15s; }
+.item-body { flex: 1; min-width: 0; }
+.item-title { font-size: 14px; font-weight: 600; line-height: 1.4; margin: 0; }
+.item-notes { font-size: 12px; color: #78716C; line-height: 1.5; margin: 4px 0 0; }
+.item-meta  { display: flex; gap: 8px; margin-top: 6px; flex-wrap: wrap; align-items: center; }
+.item-actions { display: flex; gap: 2px; flex-shrink: 0; }
+.icon-btn { background: none; border: none; cursor: pointer; padding: 4px 6px; border-radius: 6px; color: #D6D3D1; font-size: 14px; }
+.done-info { display: flex; align-items: center; gap: 6px; margin-top: 4px; font-size: 11px; }
+
+/* INLINE EDITING */
+.inline-title { border: none; background: transparent; font-size: 14px; font-weight: 600; padding: 0; width: 100%; line-height: 1.4; color: #1C1917; }
+.inline-title:focus { outline: none; border-bottom: 1.5px solid #D6D3D1; }
+.inline-date-input { border: none; font-size: 11px; font-weight: 700; color: inherit; padding: 2px 8px; border-radius: 99px; width: 130px; cursor: pointer; }
+.inline-date-input:focus { outline: none; }
+.inline-name-input { border: none; border-bottom: 1.5px solid #D6D3D1; background: transparent; font-size: 11px; font-weight: 500; color: #78716C; padding: 1px 2px; width: 100px; }
+.inline-name-input:focus { outline: none; }
+.date-badge { font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 99px; cursor: pointer; display: inline-flex; align-items: center; gap: 3px; border: 1px dashed transparent; }
+.assign-text { font-size: 11px; font-weight: 500; cursor: pointer; display: inline-flex; align-items: center; gap: 3px; padding-bottom: 1px; }
+.people-pills { display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 4px; }
+.people-pill { padding: 3px 10px; border-radius: 99px; border: none; cursor: pointer; font-size: 11px; font-weight: 600; }
+
+/* MODAL */
+.modal-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,0.55); z-index: 50; display: flex; align-items: flex-end; }
+.modal-sheet { background: #fff; border-radius: 22px 22px 0 0; width: 100%; max-height: 92vh; overflow-y: auto; padding: 24px 20px 40px; }
+.modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 22px; }
+.modal-title { margin: 0; font-size: 18px; font-weight: 800; color: #1C1917; }
+.modal-cancel { background: #F5F5F4; border: none; border-radius: 8px; padding: 6px 14px; cursor: pointer; font-size: 14px; color: #78716C; font-weight: 600; }
+.field-group { display: flex; flex-direction: column; gap: 16px; }
+.field-lbl { font-size: 11px; font-weight: 700; color: #78716C; display: block; margin-bottom: 7px; text-transform: uppercase; letter-spacing: 0.06em; }
+.field-input { width: 100%; padding: 11px 14px; border-radius: 10px; border: 1.5px solid #E7E5E4; font-size: 14px; color: #1C1917; background: #fff; }
+.field-textarea { width: 100%; padding: 11px 14px; border-radius: 10px; border: 1.5px solid #E7E5E4; font-size: 14px; color: #1C1917; resize: vertical; }
+.field-row { display: flex; gap: 12px; }
+.save-btn { width: 100%; padding: 15px; border-radius: 12px; border: none; color: #fff; font-size: 15px; font-weight: 800; cursor: pointer; margin-top: 4px; transition: opacity 0.15s; }
+.org-btn { flex: 1; padding: 10px 8px; border-radius: 10px; cursor: pointer; font-size: 13px; font-weight: 700; }
+
+/* HAMBURGER — mobile */
+.hamburger { display: none; background: none; border: none; cursor: pointer; padding: 8px; color: #FAFAF9; font-size: 22px; }
+.sidebar-overlay { display: none; }
+
+@media (max-width: 680px) {
+  .sidebar { position: fixed; left: -220px; top: 0; bottom: 0; z-index: 40; transition: left 0.25s; }
+  .sidebar.open { left: 0; }
+  .sidebar-overlay { display: block; position: fixed; inset: 0; z-index: 39; background: rgba(0,0,0,0.4); }
+  .hamburger { display: block; }
+  .topbar { padding: 10px 14px; }
+  .stats-row { gap: 6px; }
+  .stat-card { padding: 8px 10px; }
+}
 </style>
 </head>
 <body>
@@ -31,24 +112,21 @@ const ORGS = {
   bpwt:          { label:"BPWT",          color:"#7C3AED", light:"#EDE9FE", text:"#5B21B6" },
   blossom_thyme: { label:"Blossom Thyme", color:"#16A34A", light:"#DCFCE7", text:"#15803D" },
 };
-
 const CATEGORIES = {
   bpwt:          ["Fast Starts","President","Programming VP","Membership VP","Secretary","Treasurer","State Delegate","Parliamentarian","District Secretary","Convention","Future Directions"],
   blossom_thyme: ["Market Logistics","Vendors","Marketing","Finances","Volunteers","Events"],
 };
-
 const PEOPLE = {
-  bpwt:          ["Jen","Brandy","Lorissa","Maude","Ann","Cindy","Ashley","Tracy","Emily","Tina","Pam","Alison","Jessica"],
+  bpwt:          ["Jen","Brandy","Lorissa","Maude","Ann","Cindy","Ashley","Tracy","Emily","Tina","Pam","Alison"],
   blossom_thyme: ["Jen"],
 };
 
 const BPWT_SEED = [
-  // ── FAST STARTS (due July 15 or Aug 1) ──
-  {category:"Fast Starts",title:"President Fast Start — Jen",notes:"Set 3 goals, write intro letter to state president, list full board. Submit to state president.",due_date:"2026-07-15",assigned_to:"Jen"},
-  {category:"Fast Starts",title:"Programming VP Fast Start — Brandy",notes:"Hold LPM orientation, set 3 goals, write intro to IVP (ivp@mnwt.org), list all LPMs with contact info.",due_date:"2026-08-01",assigned_to:"Brandy"},
-  {category:"Fast Starts",title:"Membership VP Fast Start — Maude",notes:"Submit growth plan, plan a Tri 1 m-event with details, describe year membership plan. Due July 15.",due_date:"2026-07-15",assigned_to:"Maude"},
-  {category:"Fast Starts",title:"Secretary Fast Start — Lorissa",notes:"Complete Fast Start for Secretary. Submit to chapter president.",due_date:"2026-07-15",assigned_to:"Lorissa"},
-  {category:"Fast Starts",title:"Treasurer Fast Start — Lorissa",notes:"Complete Fast Start for Treasurer. Submit to chapter president.",due_date:"2026-07-15",assigned_to:"Lorissa"},
+  {category:"Fast Starts",title:"President Fast Start — Jen",notes:"Set 3 goals, write intro letter to state president, list full board.",due_date:"2026-07-15",assigned_to:"Jen"},
+  {category:"Fast Starts",title:"Programming VP Fast Start — Brandy",notes:"Hold LPM orientation, set 3 goals, write intro to ivp@mnwt.org, list all LPMs with contact info.",due_date:"2026-08-01",assigned_to:"Brandy"},
+  {category:"Fast Starts",title:"Membership VP Fast Start — Maude",notes:"Submit growth plan, plan a Tri 1 m-event with details, describe year membership plan.",due_date:"2026-07-15",assigned_to:"Maude"},
+  {category:"Fast Starts",title:"Secretary Fast Start — Lorissa",notes:"Complete and submit Fast Start for Secretary position to chapter president.",due_date:"2026-07-15",assigned_to:"Lorissa"},
+  {category:"Fast Starts",title:"Treasurer Fast Start — Lorissa",notes:"Complete and submit Fast Start for Treasurer position to chapter president.",due_date:"2026-07-15",assigned_to:"Lorissa"},
   {category:"Fast Starts",title:"Living & Learning LPM Fast Start — Cindy",notes:"Attend orientation, write goals for POA, introduce self to DPM, submit prelim trimester report. https://tinyurl.com/SPMFastStart",due_date:"2026-07-15",assigned_to:"Cindy"},
   {category:"Fast Starts",title:"Community Connections LPM Fast Start — Lorissa",notes:"Attend orientation, write goals for POA, introduce self to DPM, submit prelim trimester report.",due_date:"2026-08-01",assigned_to:"Lorissa"},
   {category:"Fast Starts",title:"Women's Wellness LPM Fast Start — Ann",notes:"Attend orientation, write goals for POA, introduce self to DPM, submit prelim trimester report.",due_date:"2026-08-01",assigned_to:"Ann"},
@@ -56,134 +134,124 @@ const BPWT_SEED = [
   {category:"Fast Starts",title:"Public Relations LPM Fast Start",notes:"Attend orientation, write goals for POA, introduce self to DPM, submit prelim trimester report.",due_date:"2026-08-01",assigned_to:""},
   {category:"Fast Starts",title:"NEWSLET LPM Fast Start — Jen",notes:"Attend orientation, write goals for POA, introduce self to DPM, submit prelim trimester report.",due_date:"2026-08-01",assigned_to:"Jen"},
   {category:"Fast Starts",title:"Records & Recognition LPM Fast Start",notes:"Attend orientation, write goals for POA, introduce self to DPM, submit prelim trimester report.",due_date:"2026-08-01",assigned_to:""},
-
-  // ── PRESIDENT — Jen ──
-  {category:"President",title:"Finalize Plan of Action goals with board",notes:"POA goals were due June 12th / emailed to DD8 June 26. Confirm full POA is filed with state.",due_date:"2026-07-10",assigned_to:"Jen"},
-  {category:"President",title:"Conduct chapter survey and discuss results at July meeting",notes:"Survey was sent — discuss results at July general meeting as planned at June board meeting.",due_date:"2026-07-07",assigned_to:"Jen"},
-  {category:"President",title:"Send post-meeting recap email to members",notes:"Goal: send update email after each meeting so absent members stay in the loop.",due_date:null,assigned_to:"Jen"},
-  {category:"President",title:"Send reminder text before each meeting and event",notes:"Goal: send upcoming events reminder text to chapter group chat (9am–9pm window only).",due_date:null,assigned_to:"Jen"},
-  {category:"President",title:"Ensure binders with forms and info are created and passed on",notes:"Board goal: create position binders with all necessary forms and information to pass on year after year.",due_date:"2026-08-31",assigned_to:"Jen"},
-  {category:"President",title:"Check in with each board position by end of August",notes:"Board goal: contact each position by end of August to check in on progress and offer support.",due_date:"2026-08-31",assigned_to:"Jen"},
-  {category:"President",title:"Plan project signup process — no owner = no project",notes:"Established at June meeting: if no one signs up to own a project it will not happen. Communicate this clearly to chapter.",due_date:null,assigned_to:"Jen"},
-  {category:"President",title:"Confirm Facebook posting schedule with board",notes:"Sun=PVP, Mon=MVP, Tue=YOT, Wed=WW, Thu=LL, Fri=CC. Only 2 posts/day; reach out before posting on someone else's day.",due_date:null,assigned_to:"Jen"},
-  {category:"President",title:"Hold new member orientation within trimester of signing",notes:"Goal: orientation within same trimester new member joins. Distribute new member packet and follow up with phone call.",due_date:null,assigned_to:"Jen"},
-  {category:"President",title:"Collect hosts for each monthly meeting",notes:"Goal: pass a sign-up for meeting hosts. Let host choose theme and/or RAK project for that meeting.",due_date:null,assigned_to:"Jen"},
-  {category:"President",title:"Participate in SUCCESS program all 3 trimesters",notes:"Goal: submit SUCCESS report each trimester. Last year BPWT placed 4th overall. Presidential Bonus requires 5 fast starts, project of trimester, and programming report.",due_date:"2026-08-25",assigned_to:"Jen"},
-  {category:"President",title:"Sign at least 3 new members by year end",notes:"Personal goal. Invite prospectives to meetings, projects, and events throughout the year.",due_date:null,assigned_to:"Jen"},
-  {category:"President",title:"Visit all District 8 chapters at least once this year",notes:"Goal: visit each of the 6–7 chapters in District 8. Coordinate with State Delegate on chapter visit dates.",due_date:null,assigned_to:"Jen"},
-  {category:"President",title:"Attend at least one state meeting this year",notes:"Goal: attend Fall State (September), Winter State (January), or Annual Convention (May 2027).",due_date:null,assigned_to:"Jen"},
-  {category:"President",title:"Donate to MNWT Foundation this trimester",notes:"Required for SUCCESS (F6). Chapter donates to MNWT Foundation each trimester.",due_date:"2026-08-25",assigned_to:"Jen"},
-  {category:"President",title:"File proof of annual renewal with MN Secretary of State",notes:"Required for SUCCESS Bonus Bonanza. Confirm LLC annual renewal is filed.",due_date:null,assigned_to:"Jen"},
-  {category:"President",title:"File 990 (or 990-N) with IRS",notes:"Required for SUCCESS Bonus Bonanza. Non-profit annual filing — confirm with treasurer.",due_date:null,assigned_to:"Lorissa"},
-
-  // ── PROGRAMMING VP — Brandy ──
-  {category:"Programming VP",title:"Hold LPM orientation — date was May 6, confirm done",notes:"Per SUCCESS report, LPM orientation was held May 6, 2026. Confirm all LPMs attended or were individually briefed.",due_date:null,assigned_to:"Brandy"},
-  {category:"Programming VP",title:"Meet one-on-one with each LPM to review goals",notes:"Goal: meet with each LPM before July 1st for session planning. Answer questions, help write goals.",due_date:"2026-07-01",assigned_to:"Brandy"},
-  {category:"Programming VP",title:"Collect LPM goals for Plan of Action by June 12",notes:"Goals were due June 12. Confirm all LPMs submitted goals to Brandy/Jen.",due_date:null,assigned_to:"Brandy"},
-  {category:"Programming VP",title:"Remind LPMs of emphasis months and promote their area",notes:"July = CC/PR. August = YOT. September = CC/PR. October = R&R. Coordinate extra meeting time for LPMs during their month.",due_date:null,assigned_to:"Brandy"},
-  {category:"Programming VP",title:"Ensure LPM project reports are submitted within 1 week of project",notes:"LPM orientation covered this: project owner has 1 week to turn in to LPM, LPM has 1 week to turn in to PVP.",due_date:null,assigned_to:"Brandy"},
-  {category:"Programming VP",title:"Collect LPM newsletter articles by 7pm night of each general meeting",notes:"Newsletter deadline: 7pm night of general meeting. LPMs must submit recap + upcoming plans or it won't be included.",due_date:null,assigned_to:"Brandy"},
-  {category:"Programming VP",title:"Complete and submit Programming Trimester Report — Tri 1 due Aug 25",notes:"Collect info from all LPMs by Aug 20. Submit to State EVP. Required for SUCCESS.",due_date:"2026-08-25",assigned_to:"Brandy"},
-  {category:"Programming VP",title:"Submit Project of the Trimester nominations",notes:"Nominate outstanding projects after completion. Submit 3 weeks prior to Fall State. Goal: nominate 1 per programming area.",due_date:null,assigned_to:"Brandy"},
-  {category:"Programming VP",title:"Nominate at least one LPM for Outstanding Program Manager each trimester",notes:"Submit to appropriate State/District Program Manager. Recognize the nominated LPM at the chapter meeting too.",due_date:null,assigned_to:"Brandy"},
-  {category:"Programming VP",title:"Write monthly PVP newsletter article and post Sunday FB update",notes:"Sunday = PVP Facebook post day. Also submit article to newsletter each month.",due_date:null,assigned_to:"Brandy"},
+  // PRESIDENT
+  {category:"President",title:"Finalize and file Plan of Action with state",notes:"POA goals were due June 12th / emailed to DD8 June 26. Confirm full POA is on file.",due_date:"2026-07-10",assigned_to:"Jen"},
+  {category:"President",title:"Discuss chapter survey results at July meeting",notes:"Survey was sent — present results and discuss priorities at July general meeting.",due_date:"2026-07-07",assigned_to:"Jen"},
+  {category:"President",title:"Send post-meeting recap email to members after each meeting",notes:"Goal: send update email after each meeting so absent members stay in the loop.",due_date:null,assigned_to:"Jen"},
+  {category:"President",title:"Send reminder text before each meeting and event",notes:"Goal: reminder text to group chat before each event (9am–9pm window only).",due_date:null,assigned_to:"Jen"},
+  {category:"President",title:"Create position binders and pass on year after year",notes:"Board goal: binders with all necessary forms and information for each position.",due_date:"2026-08-31",assigned_to:"Jen"},
+  {category:"President",title:"Check in with each board position by end of August",notes:"Board goal: contact every position by end of August to check progress and offer support.",due_date:"2026-08-31",assigned_to:"Jen"},
+  {category:"President",title:"Communicate project signup rule — no owner = no project",notes:"Established at June meeting. Make sure all members understand this going into Tri 1.",due_date:null,assigned_to:"Jen"},
+  {category:"President",title:"Confirm Facebook posting schedule with board",notes:"Sun=PVP, Mon=MVP, Tue=YOT, Wed=WW, Thu=LL, Fri=CC. 2 posts/day max; reach out before posting on someone else's day.",due_date:null,assigned_to:"Jen"},
+  {category:"President",title:"Hold new member orientation within trimester of signing",notes:"Goal: orientation same trimester they join. Distribute new member packet and follow up with phone call.",due_date:null,assigned_to:"Jen"},
+  {category:"President",title:"Collect meeting hosts via sign-up sheet",notes:"Goal: pass sign-up for meeting hosts each month. Let host choose theme and/or RAK project.",due_date:null,assigned_to:"Jen"},
+  {category:"President",title:"Participate in SUCCESS all 3 trimesters — Tri 1 due Aug 25",notes:"Presidential Bonus requires: 5+ fast starts, project of trimester submissions, programming report. Last year BPWT placed 4th overall.",due_date:"2026-08-25",assigned_to:"Jen"},
+  {category:"President",title:"Sign at least 3 new members this year",notes:"Personal goal. Invite prospectives to meetings, projects, and events throughout the year.",due_date:null,assigned_to:"Jen"},
+  {category:"President",title:"Visit all District 8 chapters at least once this year",notes:"Goal: visit each of the 7 chapters in District 8. Coordinate with State Delegate on visit dates.",due_date:null,assigned_to:"Jen"},
+  {category:"President",title:"Attend at least one state meeting this year",notes:"Fall State (Sep), Winter State (Jan), or Annual Convention (May 2027).",due_date:null,assigned_to:"Jen"},
+  {category:"President",title:"Make donation to MNWT Foundation — Tri 1",notes:"Required for SUCCESS (F6). Make chapter donation to MNWT Foundation this trimester.",due_date:"2026-08-25",assigned_to:"Jen"},
+  {category:"President",title:"File proof of annual renewal with MN Secretary of State",notes:"Required for SUCCESS Bonus Bonanza. Confirm LLC annual renewal is current.",due_date:null,assigned_to:"Jen"},
+  {category:"President",title:"File 990 or 990-N with IRS",notes:"Required for SUCCESS Bonus Bonanza. Non-profit annual filing — confirm with Lorissa/treasurer.",due_date:null,assigned_to:"Lorissa"},
+  // PROGRAMMING VP
+  {category:"Programming VP",title:"Confirm all LPMs attended orientation (held May 6)",notes:"Per SUCCESS report LPM orientation was May 6. Confirm any who missed were individually briefed.",due_date:null,assigned_to:"Brandy"},
+  {category:"Programming VP",title:"Meet one-on-one with each LPM before July 1",notes:"Goal: session planning meeting with each LPM before July 1. Answer questions, review goals.",due_date:"2026-07-01",assigned_to:"Brandy"},
+  {category:"Programming VP",title:"Confirm all LPM goals submitted for POA by June 12",notes:"Goals were due June 12. Verify all LPMs submitted goals to Brandy/Jen.",due_date:null,assigned_to:"Brandy"},
+  {category:"Programming VP",title:"Share emphasis month schedule with all LPMs",notes:"July=CC/PR, Aug=YOT, Sep=CC/PR, Oct=R&R, Nov=WW, Jan=LL, Feb=NEWSLET, Mar=STEP, Apr=Volunteer. Coordinate extra meeting time.",due_date:null,assigned_to:"Brandy"},
+  {category:"Programming VP",title:"Enforce project report turnaround: owner → LPM → PVP each 1 week",notes:"From LPM orientation: project owner has 1 week to turn in to LPM; LPM has 1 week after that to turn in to PVP.",due_date:null,assigned_to:"Brandy"},
+  {category:"Programming VP",title:"Collect LPM newsletter articles by 7pm night of each general meeting",notes:"Articles not received by 7pm night of general meeting will not be included. Remind LPMs monthly.",due_date:null,assigned_to:"Brandy"},
+  {category:"Programming VP",title:"Complete and submit Programming Trimester Report — due Aug 25",notes:"Collect activity info from all LPMs by ~Aug 20. Submit to State EVP. Required for SUCCESS.",due_date:"2026-08-25",assigned_to:"Brandy"},
+  {category:"Programming VP",title:"Submit Project of the Trimester nominations — due 3 weeks before Fall State",notes:"Nominate outstanding projects. Goal: nominate one per programming area. Chair Yoga and Daycare Self-Care Bags already submitted for Tri 1.",due_date:null,assigned_to:"Brandy"},
+  {category:"Programming VP",title:"Nominate one LPM for Outstanding Program Manager this trimester",notes:"Submit to appropriate State/District Program Manager before Fall State. Recognize nominated LPM at chapter meeting.",due_date:null,assigned_to:"Brandy"},
+  {category:"Programming VP",title:"Write monthly PVP newsletter article and post Sunday FB update",notes:"Sunday = PVP Facebook post day. Also submit article to Jen for newsletter by 7pm night of meeting.",due_date:null,assigned_to:"Brandy"},
   {category:"Programming VP",title:"Identify and recruit one new member into an LPM role for next year",notes:"Board goal: elect one new member to fill an LPM role for 2027-28. Start conversations this trimester.",due_date:null,assigned_to:"Brandy"},
-
-  // ── MEMBERSHIP VP — Maude ──
-  {category:"Membership VP",title:"Update and send out chapter roster",notes:"From May meeting: update roster and send out to members. Confirm all contact info is current.",due_date:"2026-07-07",assigned_to:"Maude"},
-  {category:"Membership VP",title:"Plan and host Tri 1 membership event (m-event)",notes:"Goal: hold m-event Tri 1. Targeting Membership Week in July. Need details and date confirmed.",due_date:"2026-07-31",assigned_to:"Maude"},
-  {category:"Membership VP",title:"Plan Tri 1 chapter social",notes:"Goal: 3+ socials this year. First social was May 9 Black Light Bingo. Plan next one for Tri 1.",due_date:"2026-08-31",assigned_to:"Maude"},
-  {category:"Membership VP",title:"Confirm all Tri 1 renewals are submitted — early bird July 15",notes:"All Tri 1 members were covered by participation levels. Confirm renewals are postmarked by July 15 early bird deadline.",due_date:"2026-07-15",assigned_to:"Maude"},
+  // MEMBERSHIP VP
+  {category:"Membership VP",title:"Update chapter roster and send out to members",notes:"From May meeting: update roster and circulate. Confirm all contact info is current.",due_date:"2026-07-07",assigned_to:"Maude"},
+  {category:"Membership VP",title:"Plan and host Tri 1 m-event — targeting Membership Week in July",notes:"Goal: one m-event per trimester. Need date, location, and format confirmed.",due_date:"2026-07-31",assigned_to:"Maude"},
+  {category:"Membership VP",title:"Plan Tri 1 chapter social",notes:"Goal: 3+ chapter socials this year. First was May 9 Black Light Bingo. Plan Tri 1 social.",due_date:"2026-08-31",assigned_to:"Maude"},
+  {category:"Membership VP",title:"Confirm Tri 1 renewals submitted — early bird July 15",notes:"All Tri 1 members were covered by participation levels. Ensure billing form + check postmarked by July 15.",due_date:"2026-07-15",assigned_to:"Maude"},
   {category:"Membership VP",title:"Submit New Member Adds by July 1",notes:"Monthly NMA deadline. Add/Change form + dues to Chapter Service Center.",due_date:"2026-07-01",assigned_to:"Maude"},
   {category:"Membership VP",title:"Submit New Member Adds by Aug 1",notes:"Monthly NMA deadline.",due_date:"2026-08-01",assigned_to:"Maude"},
-  {category:"Membership VP",title:"Keep up Monday Membership Facebook post",notes:"Monday = MVP post day. Post membership content and share to local pages every Monday.",due_date:null,assigned_to:"Maude"},
-  {category:"Membership VP",title:"Update growth plan and share with board",notes:"Goal: reach 13 members by May 1, 2027. Review and update the chapter growth plan with current numbers.",due_date:null,assigned_to:"Maude"},
-  {category:"Membership VP",title:"Distribute and track membership incentive cards",notes:"Incentive cards were handed out at May meeting. Keep tracking progress with members.",due_date:null,assigned_to:"Maude"},
-  {category:"Membership VP",title:"Attend at least one district meeting this year",notes:"Goal from MVP position doc: attend at least one district meeting. Next district meeting TBD Tri 2.",due_date:null,assigned_to:"Maude"},
+  {category:"Membership VP",title:"Post Monday Membership Facebook update every week",notes:"Monday = MVP post day. Post membership content and share to local pages.",due_date:null,assigned_to:"Maude"},
+  {category:"Membership VP",title:"Update growth plan with current numbers and share with board",notes:"Goal: reach 13 members by May 1, 2027. Review growth plan with current Tri 1 base.",due_date:null,assigned_to:"Maude"},
+  {category:"Membership VP",title:"Track and follow up on membership incentive cards",notes:"Incentive cards handed out at May meeting. Keep tracking progress with members.",due_date:null,assigned_to:"Maude"},
+  {category:"Membership VP",title:"Attend at least one district meeting this year",notes:"Goal from MVP position: attend at least one district meeting. Tri 2 district meeting TBD.",due_date:null,assigned_to:"Maude"},
   {category:"Membership VP",title:"Attend state or national membership meeting/convention",notes:"Goal: attend Fall State, Winter State, or Annual Convention this year.",due_date:null,assigned_to:"Maude"},
-
-  // ── SECRETARY — Lorissa ──
-  {category:"Secretary",title:"Record and distribute minutes within 1 week of each meeting",notes:"Goal: distribute meeting minutes within 1 week. Board and general meetings both.",due_date:null,assigned_to:"Lorissa"},
-  {category:"Secretary",title:"Submit minutes to State Secretary for review and critique",notes:"Secretary goal: submit minutes for at least one meeting to state secretary to review. One-time per year.",due_date:null,assigned_to:"Lorissa"},
-  {category:"Secretary",title:"Send agenda/minutes to members who missed meetings",notes:"Board goal: send copy of agenda and meeting recap to any member who was absent.",due_date:null,assigned_to:"Lorissa"},
-
-  // ── TREASURER — Lorissa ──
-  {category:"Treasurer",title:"Type and email monthly treasurer report before each meeting",notes:"Goal: typed report emailed to group before each monthly meeting. Checking + savings balance, income, expenses.",due_date:null,assigned_to:"Lorissa"},
-  {category:"Treasurer",title:"Send early bird renewal dues by July 15 — all 3 trimesters",notes:"Tri 1 early bird: July 15. Send completed Trimester Billing Form + check to Chapter Service Center.",due_date:"2026-07-15",assigned_to:"Lorissa"},
-  {category:"Treasurer",title:"Review yearly budget mid-year (November) with board",notes:"Goal: present mid-year budget review to board in November and get approval for any adjustments.",due_date:null,assigned_to:"Lorissa"},
-  {category:"Treasurer",title:"Confirm District 8 dues were paid ($60)",notes:"Per June treasurer report check #2284 = $60 District dues. Confirm district received and recorded.",due_date:null,assigned_to:"Lorissa"},
-  {category:"Treasurer",title:"Confirm MNWT insurance payment was submitted ($228)",notes:"Per June treasurer report check #2286 = $228 MNWT insurance. Confirm receipt.",due_date:null,assigned_to:"Lorissa"},
-  {category:"Treasurer",title:"Make donation to Ways & Means this trimester",notes:"Required for SUCCESS (C3). Confirm donation calendar income and Ways & Means donation are recorded.",due_date:"2026-08-25",assigned_to:"Lorissa"},
-
-  // ── STATE DELEGATE — Open ──
-  {category:"State Delegate",title:"Fill State Delegate position for 2026-27",notes:"Per April newsletter and board minutes: State Delegate position is open. Recruit a member or confirm who is filling this role.",due_date:"2026-07-07",assigned_to:"Jen"},
-  {category:"State Delegate",title:"Attend Fall State Convention — September 2026",notes:"Goal: attend all 3 state conventions. Fall State is typically September. Watch for date/location announcement.",due_date:null,assigned_to:""},
-  {category:"State Delegate",title:"Give chapter report after each state convention and in newsletter",notes:"Goal: provide verbal report at meeting and written article in newsletter following each state event.",due_date:null,assigned_to:""},
-  {category:"State Delegate",title:"Attend all 3 District 8 meetings and give chapter report",notes:"Goal: attend all district meetings, have 3+ members attend each, and report back to chapter after.",due_date:null,assigned_to:""},
-  {category:"State Delegate",title:"Submit trimester reports",notes:"State Delegate submits trimester report each trimester. Work with president on timing.",due_date:"2026-08-25",assigned_to:""},
-  {category:"State Delegate",title:"Submit monthly newsletter article on district/state happenings",notes:"Goal: submit to chapter newsletter every month with updates from district and state level.",due_date:null,assigned_to:""},
-  {category:"State Delegate",title:"Attend State Delegate Retreat — August 8, Monticello",notes:"Announced at District Tri 1 meeting. Confirm attendance.",due_date:"2026-08-08",assigned_to:""},
+  // SECRETARY
+  {category:"Secretary",title:"Record and distribute minutes within 1 week of each meeting",notes:"Goal: distribute board and general meeting minutes within 1 week every time.",due_date:null,assigned_to:"Lorissa"},
+  {category:"Secretary",title:"Submit minutes to State Secretary for review and critique — once this year",notes:"Secretary goal: submit at least one set of minutes to state secretary for review. One-time.",due_date:null,assigned_to:"Lorissa"},
+  {category:"Secretary",title:"Send agenda/minutes to members who missed each meeting",notes:"Board goal: send copy of agenda and meeting recap to any absent member.",due_date:null,assigned_to:"Lorissa"},
+  // TREASURER
+  {category:"Treasurer",title:"Type and email monthly treasurer report before each meeting",notes:"Goal: typed report emailed to group before each monthly meeting. Checking + savings balance, income, expenses by category.",due_date:null,assigned_to:"Lorissa"},
+  {category:"Treasurer",title:"Submit Tri 1 early bird renewal dues — postmarked July 15",notes:"Complete Trimester Billing Form + check to Chapter Service Center by July 15.",due_date:"2026-07-15",assigned_to:"Lorissa"},
+  {category:"Treasurer",title:"Review yearly budget mid-year with board in November",notes:"Goal: present mid-year budget review to board in November and get approval.",due_date:null,assigned_to:"Lorissa"},
+  {category:"Treasurer",title:"Confirm District 8 dues received ($60 — check #2284)",notes:"Per June treasurer report. Confirm district received and recorded payment.",due_date:null,assigned_to:"Lorissa"},
+  {category:"Treasurer",title:"Confirm MNWT insurance payment received ($228 — check #2286)",notes:"Per June treasurer report. Confirm MNWT received and confirmed coverage.",due_date:null,assigned_to:"Lorissa"},
+  {category:"Treasurer",title:"Record Ways & Means donation calendar income for Tri 1",notes:"Required for SUCCESS (C3). Donation calendar raised $52 in June. Continue tracking through Aug.",due_date:"2026-08-25",assigned_to:"Lorissa"},
+  // STATE DELEGATE
+  {category:"State Delegate",title:"URGENT: Fill State Delegate position for 2026-27",notes:"Per April newsletter and board minutes: State Delegate is open. Recruit a member or confirm who is filling this.",due_date:"2026-07-07",assigned_to:"Jen"},
+  {category:"State Delegate",title:"Attend Fall State Convention — September 2026",notes:"Goal: attend all 3 state conventions. Watch for Fall State date/location announcement.",due_date:null,assigned_to:""},
+  {category:"State Delegate",title:"Give chapter report after each state convention and in newsletter",notes:"Goal: verbal report at meeting and written article in newsletter after each state event.",due_date:null,assigned_to:""},
+  {category:"State Delegate",title:"Attend all 3 District 8 meetings; have 3+ members attend each",notes:"Goal: attend all district meetings and report back to chapter after each one.",due_date:null,assigned_to:""},
+  {category:"State Delegate",title:"Submit trimester reports — Tri 1 due Aug 25",notes:"State Delegate submits trimester report each trimester. Coordinate with Jen on timing.",due_date:"2026-08-25",assigned_to:""},
+  {category:"State Delegate",title:"Submit monthly newsletter article on district/state happenings",notes:"Goal: monthly newsletter contribution with district and state updates.",due_date:null,assigned_to:""},
+  {category:"State Delegate",title:"Attend State Delegate Retreat — Aug 8, Monticello",notes:"Announced at District Tri 1 meeting.",due_date:"2026-08-08",assigned_to:""},
   {category:"State Delegate",title:"Plan chapter visits to District 8 chapters — goal 4 of 7",notes:"Goal: visit at least 4 chapters this year. Inform and invite members to join each visit.",due_date:null,assigned_to:""},
-  {category:"State Delegate",title:"Attend at least 2 state committee meetings this year",notes:"Goal from board goals doc. Work with Jen on which committees to attend.",due_date:null,assigned_to:""},
-  {category:"State Delegate",title:"Educate members on what happens at district meetings and conventions",notes:"Goal: provide handouts or brief presentation on CIPs, district meetings, conventions, Presidential Pin nominations, and state committees.",due_date:null,assigned_to:""},
-
-  // ── PARLIAMENTARIAN — Lorissa/Brandy (shared) ──
-  {category:"Parliamentarian",title:"Ensure bylaws are current and approved — confirmed June 1",notes:"Bylaws approved at June 1 meeting (M/S/P Brandy, Emily). Sent to parliamentarian June 25, verified. Confirmed done.",due_date:null,assigned_to:"Lorissa"},
-  {category:"Parliamentarian",title:"Conduct bylaw study with chapter each trimester",notes:"Required for SUCCESS (C9). Schedule bylaw study session — can be brief, part of a meeting.",due_date:"2026-08-25",assigned_to:"Lorissa"},
-  {category:"Parliamentarian",title:"Maintain Roberts Rules order at meetings",notes:"Ongoing role: ensure quorum is established, motions are properly made/seconded/voted, and Orders of the Day are given.",due_date:null,assigned_to:"Lorissa"},
-
-  // ── DISTRICT SECRETARY — Jen ──
-  {category:"District Secretary",title:"Fix 'Anne Thorson' → 'Ann Thorson' in Tri 3 2025–26 District minutes",notes:"Motion passed at Tri 1 district meeting contingent on this correction. File corrected copy.",due_date:null,assigned_to:"Jen"},
-  {category:"District Secretary",title:"Watch for District Plan of Action from Theresa DD — expected July",notes:"Includes bylaws/policies and growth plan. Distribute to chapter when received.",due_date:null,assigned_to:"Jen"},
-  {category:"District Secretary",title:"Support Brandy with District Bylaw & Policy review",notes:"Brandy Mausbach (District Parliamentarian) leading this coming months. Coordinate scheduling/comms.",due_date:null,assigned_to:"Jen"},
-  {category:"District Secretary",title:"Record and distribute District Tri 2 meeting minutes",notes:"Next district meeting is Tri 2 — date TBD. Jen records minutes as District Secretary.",due_date:null,assigned_to:"Jen"},
-
-  // ── CONVENTION CO-CHAIR ──
-  {category:"Convention",title:"Connect with Tevyan (Burnsville) — you are co-chair for MNWT 2027",notes:"District voted to bid for MNWT Annual Convention 2027, Burnsville, May 21–23. Tevyan submitting bid and reaching out to Jen.",due_date:null,assigned_to:"Jen"},
-  {category:"Convention",title:"Share Super SHEroes theme doc with Tevyan",notes:"Full theme doc already in Drive with color palette, squad themes, Friday night party, costume contest, session names, decor, programming ideas.",due_date:null,assigned_to:"Jen"},
-  {category:"Convention",title:"Watch for convention bid confirmation from MNWT state",notes:"Tevyan is submitting the bid. Confirm it is accepted by state. All convention proceeds stay at district level for membership incentives.",due_date:null,assigned_to:"Jen"},
-
-  // ── FUTURE DIRECTIONS ──
-  {category:"Future Directions",title:"Attend Future Directions Committee meetings this year",notes:"Jen is a Future Directions committee member. Watch for meeting schedule from state FDC chair.",due_date:null,assigned_to:"Jen"},
+  {category:"State Delegate",title:"Attend at least 2 state committee meetings this year",notes:"Goal from board goals doc. Coordinate with Jen on which committees to attend.",due_date:null,assigned_to:""},
+  {category:"State Delegate",title:"Educate members on CIPs, conventions, and Presidential Pin nominations",notes:"Goal: handouts or presentation on what happens at district meetings, conventions, and state committees.",due_date:null,assigned_to:""},
+  // PARLIAMENTARIAN
+  {category:"Parliamentarian",title:"Bylaws approved and sent to state parliamentarian — confirmed done",notes:"Bylaws approved June 1 (M/S/P Brandy, Emily). Sent to parliamentarian June 25, verified. ✓",due_date:null,assigned_to:"Lorissa"},
+  {category:"Parliamentarian",title:"Conduct bylaw study with chapter — Tri 1",notes:"Required for SUCCESS (C9). Schedule brief bylaw review as part of a meeting or separately.",due_date:"2026-08-25",assigned_to:"Lorissa"},
+  {category:"Parliamentarian",title:"Maintain Roberts Rules order at all meetings",notes:"Ongoing: establish quorum, ensure proper motions/seconds/votes, give Orders of the Day.",due_date:null,assigned_to:"Lorissa"},
+  // DISTRICT SECRETARY
+  {category:"District Secretary",title:"Fix 'Anne Thorson' → 'Ann Thorson' in Tri 3 2025–26 District minutes",notes:"Motion passed at Tri 1 meeting contingent on this correction. File corrected copy.",due_date:null,assigned_to:"Jen"},
+  {category:"District Secretary",title:"Watch for District Plan of Action from Theresa DD — expected July",notes:"Includes bylaws, policies, and growth plan. Distribute to chapter when received.",due_date:null,assigned_to:"Jen"},
+  {category:"District Secretary",title:"Support Brandy with District Bylaw & Policy review",notes:"Brandy Mausbach (District Parliamentarian) leading this in coming months.",due_date:null,assigned_to:"Jen"},
+  {category:"District Secretary",title:"Record and distribute District Tri 2 meeting minutes",notes:"Next district meeting is Tri 2 — date TBD. Jen records minutes as District 8 Secretary.",due_date:null,assigned_to:"Jen"},
+  // CONVENTION
+  {category:"Convention",title:"Connect with Tevyan (Burnsville) — Jen is co-chair MNWT 2027",notes:"District voted to bid for MNWT Annual Convention 2027, Burnsville, May 21–23. Tevyan submitting bid and reaching out to Jen.",due_date:null,assigned_to:"Jen"},
+  {category:"Convention",title:"Share Super SHEroes theme doc with Tevyan",notes:"Full theme doc in Drive: color palette, squad themes, Friday night party, costume contest, session names, decor, programming.",due_date:null,assigned_to:"Jen"},
+  {category:"Convention",title:"Confirm convention bid accepted by MNWT state",notes:"Tevyan submitting bid. Confirm state accepts. All proceeds stay at district level for membership incentives.",due_date:null,assigned_to:"Jen"},
+  // FUTURE DIRECTIONS
+  {category:"Future Directions",title:"Watch for Future Directions Committee meeting schedule from state",notes:"Jen is a Future Directions committee member. Watch for FDC meeting dates from state chair.",due_date:null,assigned_to:"Jen"},
   {category:"Future Directions",title:"Submit LL Outstanding Program Manager nomination — due Sep 2",notes:"Nominate any member who did exceptional LL work. Email LL@MNWT.ORG. https://tinyurl.com/OPMnomination",due_date:"2026-09-02",assigned_to:"Jen"},
-  {category:"Future Directions",title:"Journal into Growth — submit journal entries by Sep 17",notes:"LL SPM Carolyn's Tri 1 initiative. Email/text photo of completed weekly journal entries. Each week = 1 entry.",due_date:"2026-09-17",assigned_to:"Jen"},
+  {category:"Future Directions",title:"Journal into Growth — submit journal entries by Sep 17",notes:"LL SPM Carolyn's Tri 1 initiative. Email/text photo of weekly completed journal entries.",due_date:"2026-09-17",assigned_to:"Jen"},
 ];
 
 const BT_SEED = [
   {category:"Market Logistics",title:"Confirm market location, layout, and site map",notes:"Pin down exact footprint, parking, vendor entrance, and power access. Sketch a booth map.",due_date:"2026-07-10",assigned_to:"Jen"},
-  {category:"Market Logistics",title:"Set full season market dates and hours",notes:"Publish a firm calendar so vendors can commit. Lock in start/end times and any holiday adjustments.",due_date:null,assigned_to:"Jen"},
-  {category:"Market Logistics",title:"Secure permit and city approval from Blooming Prairie",notes:"Check with city hall. Confirm zoning, noise, signage, and temporary food sale rules.",due_date:null,assigned_to:"Jen"},
-  {category:"Market Logistics",title:"Inventory tables, tents, and signage — order what's missing",notes:"Know what the market owns vs. what vendors bring. Order entrance banner or directional signs if needed.",due_date:null,assigned_to:"Jen"},
-  {category:"Market Logistics",title:"Set up rain/cancellation communication plan",notes:"Decide: text chain, Facebook post, or email blast? Who sends it and how fast?",due_date:null,assigned_to:"Jen"},
-  {category:"Market Logistics",title:"Source a PA system or portable speaker for announcements",notes:"Even a Bluetooth speaker helps for opening announcements, raffle calls, and demos.",due_date:null,assigned_to:"Jen"},
-  {category:"Market Logistics",title:"Create market day checklist (setup through teardown)",notes:"Arrival time, cone placement, table layout, opening announcement, closing sweep.",due_date:null,assigned_to:"Jen"},
-  {category:"Vendors",title:"Recruit vendors for the season — target 15+",notes:"Reach out to past vendors first, then open applications. Prioritize diversity: produce, baked goods, crafts, plants, protein, honey.",due_date:null,assigned_to:"Jen"},
-  {category:"Vendors",title:"Create and send vendor application and contract",notes:"Include: booth fee, size, rules, cancellation policy, MN cottage food compliance acknowledgment, insurance requirement.",due_date:null,assigned_to:"Jen"},
-  {category:"Vendors",title:"Collect vendor booth fees and track payment status",notes:"Track who has paid. Set a deadline 2 weeks before first market. No pay = no spot.",due_date:null,assigned_to:"Jen"},
-  {category:"Vendors",title:"Build vendor contact list with booth assignments",notes:"Spreadsheet: name, business, product category, phone, email, booth #, paid status.",due_date:null,assigned_to:"Jen"},
-  {category:"Vendors",title:"Confirm Hen House & Co booth spot and setup needs",notes:"You're a vendor too! Lock in your own booth size, power needs, and product lineup.",due_date:null,assigned_to:"Jen"},
-  {category:"Vendors",title:"Set category caps to prevent too much overlap",notes:"E.g. max 2 jam makers, max 3 bakers. Keeps it fair and diverse for shoppers.",due_date:null,assigned_to:"Jen"},
-  {category:"Vendors",title:"Send season info packet to all confirmed vendors",notes:"Dates, times, site map, setup/teardown rules, payment policies, market rules, emergency contacts.",due_date:null,assigned_to:"Jen"},
-  {category:"Marketing",title:"Create Blossom Thyme Farmers Market Facebook page",notes:"Public page for event posts, vendor spotlights, and shopper updates.",due_date:null,assigned_to:"Jen"},
-  {category:"Marketing",title:"Design and print market signage and road signs",notes:"At minimum: entrance banner, directional signs from main road. Canva → Staples or online printer.",due_date:null,assigned_to:"Jen"},
-  {category:"Marketing",title:"Submit market dates to local community calendars",notes:"Blooming Prairie city newsletter, Mower County events pages, Austin/Owatonna Facebook groups.",due_date:null,assigned_to:"Jen"},
-  {category:"Marketing",title:"Plan a weekly vendor spotlight series",notes:"One vendor per week leading up to and during the season. Drives their audience to the market page.",due_date:null,assigned_to:"Jen"},
-  {category:"Marketing",title:"Set up a simple market website or landing page",notes:"Even a single page with dates, location, vendor list, and contact form builds credibility.",due_date:null,assigned_to:"Jen"},
-  {category:"Marketing",title:"Create a Facebook Event for opening day",notes:"Invite everyone. Boost it for $10–20 to reach Mower County.",due_date:null,assigned_to:"Jen"},
-  {category:"Finances",title:"Open a dedicated bank account for market funds",notes:"Keep market money completely separate from Hen House & Co.",due_date:null,assigned_to:"Jen"},
-  {category:"Finances",title:"Set vendor booth fee structure",notes:"Flat rate per market? Season pass discount? Sliding scale for new vendors?",due_date:null,assigned_to:"Jen"},
-  {category:"Finances",title:"Track income and expenses in a simple ledger",notes:"Booth fees in, expenses out. Know your margin by end of season.",due_date:null,assigned_to:"Jen"},
+  {category:"Market Logistics",title:"Set full season market dates and hours",notes:"Publish a firm calendar so vendors can commit.",due_date:null,assigned_to:"Jen"},
+  {category:"Market Logistics",title:"Secure permit and city approval from Blooming Prairie",notes:"Check with city hall — zoning, noise, signage, temporary food sale rules.",due_date:null,assigned_to:"Jen"},
+  {category:"Market Logistics",title:"Inventory tables, tents, and signage — order what's missing",due_date:null,assigned_to:"Jen"},
+  {category:"Market Logistics",title:"Set up rain/cancellation communication plan",notes:"Text chain, Facebook post, or email blast? Who sends it and how fast?",due_date:null,assigned_to:"Jen"},
+  {category:"Market Logistics",title:"Source PA system or portable speaker for announcements",due_date:null,assigned_to:"Jen"},
+  {category:"Market Logistics",title:"Create market day checklist (setup through teardown)",due_date:null,assigned_to:"Jen"},
+  {category:"Vendors",title:"Recruit vendors — target 15+",notes:"Reach out to past vendors first. Prioritize diversity: produce, baked goods, crafts, plants, protein, honey.",due_date:null,assigned_to:"Jen"},
+  {category:"Vendors",title:"Create and send vendor application and contract",notes:"Booth fee, size, rules, cancellation policy, MN cottage food compliance, insurance requirement.",due_date:null,assigned_to:"Jen"},
+  {category:"Vendors",title:"Collect vendor booth fees and track payment status",notes:"No pay = no spot. Set deadline 2 weeks before first market.",due_date:null,assigned_to:"Jen"},
+  {category:"Vendors",title:"Build vendor contact list with booth assignments",due_date:null,assigned_to:"Jen"},
+  {category:"Vendors",title:"Confirm Hen House & Co booth spot and setup needs",notes:"You're a vendor too — lock in booth size, power needs, and product lineup.",due_date:null,assigned_to:"Jen"},
+  {category:"Vendors",title:"Set category caps to prevent too much overlap",notes:"E.g. max 2 jam makers, max 3 bakers.",due_date:null,assigned_to:"Jen"},
+  {category:"Vendors",title:"Send season info packet to all confirmed vendors",notes:"Dates, times, site map, setup/teardown rules, payment policies, rules, emergency contacts.",due_date:null,assigned_to:"Jen"},
+  {category:"Marketing",title:"Create Blossom Thyme Farmers Market Facebook page",due_date:null,assigned_to:"Jen"},
+  {category:"Marketing",title:"Design and print market signage and road signs",notes:"Entrance banner + directional signs from main road. Canva → Staples.",due_date:null,assigned_to:"Jen"},
+  {category:"Marketing",title:"Submit market dates to local community calendars",notes:"BP city newsletter, Mower County events pages, Austin/Owatonna Facebook groups.",due_date:null,assigned_to:"Jen"},
+  {category:"Marketing",title:"Plan weekly vendor spotlight series",notes:"One vendor per week before and during the season.",due_date:null,assigned_to:"Jen"},
+  {category:"Marketing",title:"Set up a simple market website or landing page",due_date:null,assigned_to:"Jen"},
+  {category:"Marketing",title:"Create Facebook Event for opening day",notes:"Boost it for $10–20 to reach Mower County.",due_date:null,assigned_to:"Jen"},
+  {category:"Finances",title:"Open a dedicated bank account for market funds",due_date:null,assigned_to:"Jen"},
+  {category:"Finances",title:"Set vendor booth fee structure",due_date:null,assigned_to:"Jen"},
+  {category:"Finances",title:"Track income and expenses in a simple ledger",due_date:null,assigned_to:"Jen"},
   {category:"Finances",title:"Research whether market needs its own LLC or EIN",notes:"Blossom Thyme is separate from Hen House & Co LLC. Talk to your accountant.",due_date:null,assigned_to:"Jen"},
-  {category:"Finances",title:"Build a season startup budget",notes:"Permits, signage, marketing, supplies. Know your number before you spend it.",due_date:null,assigned_to:"Jen"},
-  {category:"Volunteers",title:"Recruit 2–3 market day volunteers per date",notes:"Setup crew, info table host, breakdown help. BPWT members are a natural pipeline — great service hours!",due_date:null,assigned_to:"Jen"},
-  {category:"Volunteers",title:"Create a volunteer sign-up schedule",notes:"Google Sheet or SignUpGenius. Assign roles: setup, greeter, photographer, breakdown.",due_date:null,assigned_to:"Jen"},
-  {category:"Volunteers",title:"Brief volunteers on market rules and their roles",notes:"15-minute pre-market huddle or a simple one-pager.",due_date:null,assigned_to:"Jen"},
-  {category:"Volunteers",title:"Thank volunteers after each market",notes:"Handwritten note, a little product from your booth, or a public shoutout.",due_date:null,assigned_to:"Jen"},
-  {category:"Events",title:"Plan an opening day special activity",notes:"A demo, raffle, kids activity, or live music — make the first market feel like an occasion.",due_date:null,assigned_to:"Jen"},
-  {category:"Events",title:"Schedule a mid-season featured event",notes:"Cooking demo, local musician, kids craft table, or a cause tie-in.",due_date:null,assigned_to:"Jen"},
+  {category:"Finances",title:"Build a season startup budget",notes:"Permits, signage, marketing, supplies.",due_date:null,assigned_to:"Jen"},
+  {category:"Volunteers",title:"Recruit 2–3 market day volunteers per date",notes:"BPWT members are a natural pipeline — great service hours!",due_date:null,assigned_to:"Jen"},
+  {category:"Volunteers",title:"Create a volunteer sign-up schedule",due_date:null,assigned_to:"Jen"},
+  {category:"Volunteers",title:"Brief volunteers on market rules and their roles",due_date:null,assigned_to:"Jen"},
+  {category:"Volunteers",title:"Thank volunteers after each market",due_date:null,assigned_to:"Jen"},
+  {category:"Events",title:"Plan an opening day special activity",notes:"Demo, raffle, kids activity, or live music.",due_date:null,assigned_to:"Jen"},
+  {category:"Events",title:"Schedule a mid-season featured event",due_date:null,assigned_to:"Jen"},
   {category:"Events",title:"Tie in a BPWT Make a Difference Day project",notes:"Market day + community service = great press for both orgs.",due_date:null,assigned_to:"Jen"},
-  {category:"Events",title:"Set up a raffle or prize drawing to build shopper email list",notes:"Simple entry form, local prize basket. Email list is your biggest asset for year two.",due_date:null,assigned_to:"Jen"},
-  {category:"Events",title:"Plan a season-closing vendor appreciation moment",notes:"Thank vendors publicly, give out a 'Vendor of the Season' nod, get photos for next year.",due_date:null,assigned_to:"Jen"},
+  {category:"Events",title:"Set up a raffle or prize drawing to build shopper email list",due_date:null,assigned_to:"Jen"},
+  {category:"Events",title:"Plan a season-closing vendor appreciation moment",due_date:null,assigned_to:"Jen"},
 ];
 
 // ── Turso ──
@@ -207,18 +275,15 @@ function toObjects(result) {
 }
 async function initDB() {
   await tursoQuery(`CREATE TABLE IF NOT EXISTS command_center_items (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    org TEXT NOT NULL, category TEXT NOT NULL, title TEXT NOT NULL,
-    notes TEXT, due_date TEXT, assigned_to TEXT,
+    id INTEGER PRIMARY KEY AUTOINCREMENT, org TEXT NOT NULL, category TEXT NOT NULL,
+    title TEXT NOT NULL, notes TEXT, due_date TEXT, assigned_to TEXT,
     completed INTEGER DEFAULT 0, completed_by TEXT, completed_at TEXT,
     created_at TEXT DEFAULT (datetime('now'))
   )`);
   try { await tursoQuery("ALTER TABLE command_center_items ADD COLUMN completed_by TEXT"); } catch(e){}
   try { await tursoQuery("ALTER TABLE command_center_items ADD COLUMN completed_at TEXT"); } catch(e){}
-  // wipe and reseed BPWT if category list has changed (new categories added)
-  const catCheck = await tursoQuery("SELECT COUNT(*) FROM command_center_items WHERE org='bpwt' AND category='President'");
-  const hasPres = parseInt(catCheck?.rows?.[0]?.[0]?.value??"0");
-  if (hasPres===0) {
+  const presCheck = parseInt((await tursoQuery("SELECT COUNT(*) FROM command_center_items WHERE org='bpwt' AND category='President'"))?.rows?.[0]?.[0]?.value??"0");
+  if (presCheck===0) {
     await tursoQuery("DELETE FROM command_center_items WHERE org='bpwt'");
     for (const i of BPWT_SEED) await tursoQuery("INSERT INTO command_center_items (org,category,title,notes,due_date,assigned_to,completed) VALUES (?,?,?,?,?,?,0)",["bpwt",i.category,i.title,i.notes||null,i.due_date||null,i.assigned_to||null]);
   }
@@ -227,256 +292,241 @@ async function initDB() {
 }
 
 // ── Helpers ──
-function fmtDate(d)     { if(!d) return null; return new Date(d+"T12:00:00").toLocaleDateString("en-US",{month:"short",day:"numeric"}); }
-function fmtDateTime(d) { if(!d) return null; return new Date(d).toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric"}); }
+function fmtDate(d)     { if(!d)return null; return new Date(d+"T12:00:00").toLocaleDateString("en-US",{month:"short",day:"numeric"}); }
+function fmtDT(d)       { if(!d)return null; return new Date(d).toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric"}); }
 function isOverdue(d)   { return d && new Date(d+"T23:59:59") < new Date(); }
-function isSoon(d)      { if(!d) return false; const diff=new Date(d+"T23:59:59")-new Date(); return diff>0&&diff<1000*60*60*24*7; }
+function isSoon(d)      { if(!d)return false; const df=new Date(d+"T23:59:59")-new Date(); return df>0&&df<1000*60*60*24*7; }
 function isDone(v)      { return v==="1"||v===1; }
 function nowISO()       { return new Date().toISOString(); }
 
-// ── Inline components ──
+// ── Inline date ──
 function InlineDate({ value, onChange, color }) {
-  const [editing, setEditing] = React.useState(false);
-  const [local, setLocal]     = React.useState(value||"");
-  const overdue = isOverdue(value), soon = isSoon(value);
-  const commit = () => { setEditing(false); if(local!==(value||"")) onChange(local||null); };
-  if (editing) return (
-    <input type="date" className="inline-date" value={local} onChange={e=>setLocal(e.target.value)}
-      onBlur={commit} onKeyDown={e=>e.key==="Enter"&&commit()} autoFocus
-      style={{fontSize:11,fontWeight:700,padding:"2px 8px",borderRadius:99,
-        background:overdue?"#FEF2F2":soon?"#FFFBEB":"#F5F5F4",
-        color:overdue?"#DC2626":soon?"#D97706":"#78716C",border:`1.5px solid ${color}`}}/>
-  );
-  return (
-    <span onClick={()=>{setLocal(value||"");setEditing(true);}} style={{
-      fontSize:11,fontWeight:700,padding:"2px 8px",borderRadius:99,cursor:"pointer",display:"inline-flex",alignItems:"center",gap:3,
-      background:overdue?"#FEF2F2":soon?"#FFFBEB":value?"#F5F5F4":"#F5F5F4",
-      color:overdue?"#DC2626":soon?"#D97706":value?"#78716C":"#C4B5A0",
-      border:`1px dashed ${value?"transparent":"#D6D3D1"}`
-    }}>{overdue?"⚠ ":soon?"⏰ ":""}{value?fmtDate(value):"Add date"}</span>
-  );
+  const [editing,setEditing]=React.useState(false);
+  const [local,setLocal]=React.useState(value||"");
+  const ov=isOverdue(value), so=isSoon(value);
+  const commit=()=>{setEditing(false);if(local!==(value||""))onChange(local||null);};
+  const bg=ov?"#FEF2F2":so?"#FFFBEB":value?"#F5F5F4":"#F5F5F4";
+  const clr=ov?"#DC2626":so?"#D97706":value?"#78716C":"#C4B5A0";
+  if(editing) return <input type="date" className="inline-date-input" value={local} onChange={e=>setLocal(e.target.value)} onBlur={commit} onKeyDown={e=>e.key==="Enter"&&commit()} autoFocus style={{background:bg,color:clr,border:`1.5px solid ${color}`}}/>;
+  return <span className="date-badge" onClick={()=>{setLocal(value||"");setEditing(true);}} style={{background:bg,color:clr,border:`1px dashed ${value?"transparent":"#D6D3D1"}`}}>{ov?"⚠ ":so?"⏰ ":""}{value?fmtDate(value):"Add date"}</span>;
 }
 
+// ── Inline assignee ──
 function InlineAssignee({ value, org, onChange, color }) {
-  const [editing, setEditing] = React.useState(false);
-  const [local, setLocal]     = React.useState(value||"");
-  const people = PEOPLE[org]||[];
-  const commit = (val) => { const v=val!==undefined?val:local; setEditing(false); if(v!==(value||"")) onChange(v||null); };
-  if (editing) return (
+  const [editing,setEditing]=React.useState(false);
+  const [local,setLocal]=React.useState(value||"");
+  const people=PEOPLE[org]||[];
+  const commit=(val)=>{ const v=val!==undefined?val:local; setEditing(false); if(v!==(value||""))onChange(v||null); };
+  if(editing) return (
     <div style={{display:"flex",flexDirection:"column",gap:4}}>
-      <div style={{display:"flex",flexWrap:"wrap",gap:4}}>
-        {people.map(p=>(
-          <button key={p} onMouseDown={()=>commit(p)} style={{
-            padding:"3px 10px",borderRadius:99,border:"none",cursor:"pointer",fontSize:11,fontWeight:600,
-            background:local===p?color:"#F5F5F4",color:local===p?"#fff":"#78716C"
-          }}>{p}</button>
-        ))}
-      </div>
-      <input className="inline-text" value={local} onChange={e=>setLocal(e.target.value)}
-        onBlur={()=>commit()} onKeyDown={e=>e.key==="Enter"&&commit()} placeholder="Other…" autoFocus/>
+      <div className="people-pills">{people.map(p=><button key={p} className="people-pill" onMouseDown={()=>commit(p)} style={{background:local===p?color:"#F5F5F4",color:local===p?"#fff":"#78716C"}}>{p}</button>)}</div>
+      <input className="inline-name-input" value={local} onChange={e=>setLocal(e.target.value)} onBlur={()=>commit()} onKeyDown={e=>e.key==="Enter"&&commit()} placeholder="Other…" autoFocus/>
     </div>
   );
-  return (
-    <span onClick={()=>{setLocal(value||"");setEditing(true);}} style={{
-      fontSize:11,fontWeight:500,cursor:"pointer",display:"inline-flex",alignItems:"center",gap:3,
-      color:value?"#78716C":"#C4B5A0",borderBottom:`1px dashed ${value?"transparent":"#D6D3D1"}`,paddingBottom:1
-    }}>{value?`→ ${value}`:"Assign…"}</span>
-  );
+  return <span className="assign-text" onClick={()=>{setLocal(value||"");setEditing(true);}} style={{color:value?"#78716C":"#C4B5A0",borderBottom:`1px dashed ${value?"transparent":"#D6D3D1"}`}}>{value?`→ ${value}`:"Assign…"}</span>;
 }
 
+// ── Inline title ──
 function InlineTitle({ value, done, onChange }) {
-  const [editing, setEditing] = React.useState(false);
-  const [local, setLocal]     = React.useState(value);
-  const commit = () => { setEditing(false); if(local.trim()&&local!==value) onChange(local.trim()); else setLocal(value); };
-  if (editing) return (
-    <input className="inline-title" value={local} onChange={e=>setLocal(e.target.value)}
-      onBlur={commit} onKeyDown={e=>{if(e.key==="Enter")commit();if(e.key==="Escape"){setLocal(value);setEditing(false);}}} autoFocus style={{color:"#1C1917"}}/>
-  );
-  return (
-    <p onClick={()=>!done&&setEditing(true)} style={{
-      margin:0,fontSize:14,fontWeight:600,lineHeight:1.4,
-      color:done?"#A8A29E":"#1C1917",textDecoration:done?"line-through":"none",cursor:done?"default":"text"
-    }}>{value}</p>
-  );
+  const [editing,setEditing]=React.useState(false);
+  const [local,setLocal]=React.useState(value);
+  const commit=()=>{setEditing(false);if(local.trim()&&local!==value)onChange(local.trim());else setLocal(value);};
+  if(editing) return <input className="inline-title" value={local} onChange={e=>setLocal(e.target.value)} onBlur={commit} onKeyDown={e=>{if(e.key==="Enter")commit();if(e.key==="Escape"){setLocal(value);setEditing(false);}}} autoFocus/>;
+  return <p className="item-title" onClick={()=>!done&&setEditing(true)} style={{color:done?"#A8A29E":"#1C1917",textDecoration:done?"line-through":"none",cursor:done?"default":"text"}}>{value}</p>;
 }
 
 // ── App ──
 function App() {
-  const [org, setOrg]             = React.useState("bpwt");
-  const [items, setItems]         = React.useState([]);
-  const [loading, setLoading]     = React.useState(true);
-  const [error, setError]         = React.useState(null);
-  const [collapsed, setCollapsed] = React.useState({});
-  const [filter, setFilter]       = React.useState("open");
-  const [modal, setModal]         = React.useState(null);
-  const [form, setForm]           = React.useState({});
-  const [saving, setSaving]       = React.useState(false);
-  const [completeBy, setCompleteBy] = React.useState("");
+  const [org,setOrg]               = React.useState("bpwt");
+  const [activeCat,setActiveCat]   = React.useState(CATEGORIES.bpwt[0]);
+  const [items,setItems]           = React.useState([]);
+  const [loading,setLoading]       = React.useState(true);
+  const [error,setError]           = React.useState(null);
+  const [filter,setFilter]         = React.useState("open");
+  const [sidebarOpen,setSidebar]   = React.useState(false);
+  const [modal,setModal]           = React.useState(null);
+  const [form,setForm]             = React.useState({});
+  const [saving,setSaving]         = React.useState(false);
+  const [completeBy,setCompleteBy] = React.useState("");
 
-  const load = React.useCallback(async () => {
+  const load = React.useCallback(async()=>{
     try { setLoading(true); await initDB();
-      const r = await tursoQuery("SELECT * FROM command_center_items ORDER BY completed ASC, due_date ASC, created_at ASC");
+      const r=await tursoQuery("SELECT * FROM command_center_items ORDER BY completed ASC, due_date ASC, created_at ASC");
       setItems(toObjects(r)); setError(null);
-    } catch(e) { setError(e.message); } finally { setLoading(false); }
-  }, []);
-  React.useEffect(()=>{ load(); },[load]);
+    } catch(e){setError(e.message);} finally{setLoading(false);}
+  },[]);
+  React.useEffect(()=>{load();},[load]);
 
-  const saveField = async (id, field, value) => {
+  const saveField=async(id,field,value)=>{
     setItems(prev=>prev.map(i=>i.id===id?{...i,[field]:value}:i));
     await tursoQuery(`UPDATE command_center_items SET ${field}=? WHERE id=?`,[value,id]);
   };
 
-  const handleCheck = (item) => {
-    if (isDone(item.completed)) uncomplete(item);
-    else { setCompleteBy(item.assigned_to||""); setModal({mode:"complete",item}); }
-  };
-  const uncomplete = async (item) => {
-    setItems(prev=>prev.map(i=>i.id===item.id?{...i,completed:0,completed_by:null,completed_at:null}:i));
-    await tursoQuery("UPDATE command_center_items SET completed=0,completed_by=NULL,completed_at=NULL WHERE id=?",[item.id]);
-  };
-  const confirmComplete = async () => {
-    const item=modal.item, by=completeBy.trim()||null, at=nowISO();
-    setItems(prev=>prev.map(i=>i.id===item.id?{...i,completed:1,completed_by:by,completed_at:at}:i));
-    await tursoQuery("UPDATE command_center_items SET completed=1,completed_by=?,completed_at=? WHERE id=?",[by,at,item.id]);
-    setModal(null);
-  };
+  const handleCheck=(item)=>{ if(isDone(item.completed))uncomplete(item); else{setCompleteBy(item.assigned_to||"");setModal({mode:"complete",item});} };
+  const uncomplete=async(item)=>{ setItems(prev=>prev.map(i=>i.id===item.id?{...i,completed:0,completed_by:null,completed_at:null}:i)); await tursoQuery("UPDATE command_center_items SET completed=0,completed_by=NULL,completed_at=NULL WHERE id=?",[item.id]); };
+  const confirmComplete=async()=>{ const item=modal.item,by=completeBy.trim()||null,at=nowISO(); setItems(prev=>prev.map(i=>i.id===item.id?{...i,completed:1,completed_by:by,completed_at:at}:i)); await tursoQuery("UPDATE command_center_items SET completed=1,completed_by=?,completed_at=? WHERE id=?",[by,at,item.id]); setModal(null); };
 
-  const openAdd  = () => { setForm({org,category:CATEGORIES[org][0],title:"",notes:"",due_date:"",assigned_to:""}); setModal({mode:"add"}); };
-  const openEdit = (item) => { setForm({org:item.org,category:item.category,title:item.title,notes:item.notes||"",due_date:item.due_date||"",assigned_to:item.assigned_to||""}); setModal({mode:"edit",item}); };
-  const closeModal = () => setModal(null);
-
-  const saveItem = async () => {
-    if (!form.title.trim()) return;
-    setSaving(true);
+  const openAdd=()=>{setForm({org,category:activeCat,title:"",notes:"",due_date:"",assigned_to:""});setModal({mode:"add"});};
+  const openEdit=(item)=>{setForm({org:item.org,category:item.category,title:item.title,notes:item.notes||"",due_date:item.due_date||"",assigned_to:item.assigned_to||""});setModal({mode:"edit",item});};
+  const closeModal=()=>setModal(null);
+  const saveItem=async()=>{
+    if(!form.title.trim())return; setSaving(true);
     try {
-      if (modal.mode==="edit") await tursoQuery("UPDATE command_center_items SET org=?,category=?,title=?,notes=?,due_date=?,assigned_to=? WHERE id=?",[form.org,form.category,form.title,form.notes||null,form.due_date||null,form.assigned_to||null,modal.item.id]);
+      if(modal.mode==="edit") await tursoQuery("UPDATE command_center_items SET org=?,category=?,title=?,notes=?,due_date=?,assigned_to=? WHERE id=?",[form.org,form.category,form.title,form.notes||null,form.due_date||null,form.assigned_to||null,modal.item.id]);
       else await tursoQuery("INSERT INTO command_center_items (org,category,title,notes,due_date,assigned_to,completed) VALUES (?,?,?,?,?,?,0)",[form.org,form.category,form.title,form.notes||null,form.due_date||null,form.assigned_to||null]);
       await load(); closeModal();
-    } finally { setSaving(false); }
+    } finally{setSaving(false);}
   };
-  const deleteItem = async (id) => {
-    if (!confirm("Delete this item?")) return;
-    await tursoQuery("DELETE FROM command_center_items WHERE id=?",[id]);
-    setItems(prev=>prev.filter(i=>i.id!==id));
-  };
+  const deleteItem=async(id)=>{ if(!confirm("Delete this item?"))return; await tursoQuery("DELETE FROM command_center_items WHERE id=?",[id]); setItems(prev=>prev.filter(i=>i.id!==id)); };
 
-  const orgItems = items.filter(i=>i.org===org);
-  const filtered = filter==="all"?orgItems:filter==="open"?orgItems.filter(i=>!isDone(i.completed)):orgItems.filter(i=>isDone(i.completed));
-  const cats = CATEGORIES[org];
-  const grouped = {};
-  cats.forEach(c=>{ grouped[c]=filtered.filter(i=>i.category===c); });
-  const extra = filtered.filter(i=>!cats.includes(i.category));
-  if (extra.length) grouped["Other"]=extra;
+  const switchOrg=(key)=>{ setOrg(key); setActiveCat(CATEGORIES[key][0]); setSidebar(false); };
+  const pickCat=(cat)=>{ setActiveCat(cat); setSidebar(false); };
 
-  const openCnt   = orgItems.filter(i=>!isDone(i.completed)).length;
-  const doneCnt   = orgItems.filter(i=> isDone(i.completed)).length;
-  const urgentCnt = orgItems.filter(i=>!isDone(i.completed)&&(isOverdue(i.due_date)||isSoon(i.due_date))).length;
-  const oc = ORGS[org];
-  const formCats = CATEGORIES[form.org||org];
-  const quickPeople = PEOPLE[modal?.item?.org||org]||[];
+  const oc=ORGS[org];
+  const cats=CATEGORIES[org];
+  const orgItems=items.filter(i=>i.org===org);
+
+  // per-category counts for badges
+  const catCounts={};
+  cats.forEach(c=>{ const ci=orgItems.filter(i=>i.category===c); catCounts[c]={ open:ci.filter(i=>!isDone(i.completed)).length, urgent:ci.some(i=>!isDone(i.completed)&&(isOverdue(i.due_date)||isSoon(i.due_date))) }; });
+
+  // active page items
+  const pageItems=orgItems.filter(i=>i.category===activeCat);
+  const displayed=filter==="all"?pageItems:filter==="open"?pageItems.filter(i=>!isDone(i.completed)):pageItems.filter(i=>isDone(i.completed));
+  const pageOpen=pageItems.filter(i=>!isDone(i.completed)).length;
+  const pageDone=pageItems.filter(i=> isDone(i.completed)).length;
+  const pageUrgent=pageItems.filter(i=>!isDone(i.completed)&&(isOverdue(i.due_date)||isSoon(i.due_date))).length;
+
+  const totalOpen=orgItems.filter(i=>!isDone(i.completed)).length;
+  const formCats=CATEGORIES[form.org||org];
+  const quickPeople=PEOPLE[modal?.item?.org||org]||[];
 
   return (
-    <div style={{minHeight:"100vh",background:"#F8F7F4",paddingBottom:80}}>
-      {/* HEADER */}
-      <div style={{background:"#1C1917",position:"sticky",top:0,zIndex:20}}>
-        <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"16px 16px 0"}}>
-          <div>
-            <p style={{color:"#A8A29E",fontSize:10,letterSpacing:"0.12em",textTransform:"uppercase",margin:0}}>Jen's</p>
-            <h1 style={{color:"#FAFAF9",fontSize:24,fontWeight:800,margin:0,letterSpacing:"-0.03em"}}>Command Center</h1>
-          </div>
-          <button onClick={openAdd} style={{background:oc.color,color:"#fff",border:"none",borderRadius:10,padding:"9px 18px",fontSize:14,fontWeight:700,cursor:"pointer"}}>+ Add</button>
+    <div className="app">
+      {/* SIDEBAR OVERLAY (mobile) */}
+      {sidebarOpen && <div className="sidebar-overlay" onClick={()=>setSidebar(false)}/>}
+
+      {/* SIDEBAR */}
+      <aside className={`sidebar${sidebarOpen?" open":""}`}>
+        <div className="sidebar-header">
+          <p className="sidebar-sub">Jen's</p>
+          <h1 className="sidebar-title">Command Center</h1>
+          <p style={{fontSize:11,color:"#78716C",marginTop:4}}>{totalOpen} open items</p>
         </div>
-        <div style={{display:"flex",gap:2,padding:"12px 16px 0"}}>
+
+        {/* Org tabs */}
+        <div className="org-tabs">
           {Object.entries(ORGS).map(([key,o])=>(
-            <button key={key} onClick={()=>setOrg(key)} style={{flex:1,padding:"10px 6px",border:"none",cursor:"pointer",fontSize:13,fontWeight:700,background:org===key?o.color:"transparent",color:org===key?"#fff":"#78716C",borderRadius:"8px 8px 0 0",transition:"all 0.15s"}}>{o.label}</button>
+            <button key={key} className="org-tab" onClick={()=>switchOrg(key)} style={{background:org===key?o.color:"transparent",color:org===key?"#fff":"#78716C"}}>{o.label}</button>
           ))}
         </div>
-      </div>
-      {/* STATS */}
-      <div style={{background:oc.color,padding:"10px 16px",display:"flex",alignItems:"center",gap:24}}>
-        {[["Open",openCnt],["Done",doneCnt],["Urgent",urgentCnt]].map(([lbl,val])=>(
-          <div key={lbl} style={{textAlign:"center"}}>
-            <p style={{color:"#fff",fontSize:22,fontWeight:800,margin:0,lineHeight:1}}>{val}</p>
-            <p style={{color:"rgba(255,255,255,0.7)",fontSize:11,margin:0}}>{lbl}</p>
-          </div>
-        ))}
-        <div style={{flex:1}}/>
-        <div style={{display:"flex",gap:4}}>
-          {["all","open","done"].map(f=>(
-            <button key={f} onClick={()=>setFilter(f)} style={{padding:"5px 12px",borderRadius:99,border:"none",cursor:"pointer",fontSize:12,fontWeight:600,background:filter===f?"rgba(255,255,255,0.25)":"transparent",color:filter===f?"#fff":"rgba(255,255,255,0.55)"}}>{f.charAt(0).toUpperCase()+f.slice(1)}</button>
-          ))}
-        </div>
-      </div>
-      {/* CONTENT */}
-      <div style={{padding:"14px 14px 0"}}>
-        {loading && <p style={{textAlign:"center",color:"#78716C",padding:60,fontSize:15}}>Loading…</p>}
-        {error   && <div style={{background:"#FEF2F2",borderRadius:10,padding:16,color:"#DC2626",fontSize:14}}>⚠ {error}</div>}
-        {!loading&&!error&&Object.entries(grouped).map(([cat,catItems])=>{
-          const isOpen   = collapsed[cat]!==true;
-          const catOpen  = catItems.filter(i=>!isDone(i.completed)).length;
-          const catDone  = catItems.filter(i=> isDone(i.completed)).length;
-          const hasUrgent= catItems.some(i=>!isDone(i.completed)&&(isOverdue(i.due_date)||isSoon(i.due_date)));
-          return (
-            <div key={cat} style={{marginBottom:10,background:"#fff",borderRadius:14,overflow:"hidden",border:"0.5px solid #E7E5E4",boxShadow:"0 1px 3px rgba(0,0,0,0.04)"}}>
-              <button onClick={()=>setCollapsed(p=>({...p,[cat]:!p[cat]}))} style={{width:"100%",background:"none",border:"none",cursor:"pointer",padding:"14px 16px",display:"flex",alignItems:"center",gap:10,textAlign:"left"}}>
-                <span style={{fontSize:14,fontWeight:700,color:"#1C1917",flex:1}}>{cat}</span>
-                {hasUrgent&&<span style={{fontSize:10,background:"#FEF2F2",color:"#DC2626",padding:"2px 8px",borderRadius:99,fontWeight:800}}>URGENT</span>}
-                <span style={{fontSize:12,color:"#A8A29E"}}>{catOpen>0?`${catOpen} open`:""}{catOpen>0&&catDone>0?" · ":""}{catDone>0?`${catDone} done`:""}</span>
-                <span style={{color:"#C4B5A0",fontSize:14,fontWeight:700}}>{isOpen?"▾":"▸"}</span>
+
+        {/* Nav */}
+        <nav className="sidebar-nav">
+          {cats.map(cat=>{
+            const cc=catCounts[cat]||{open:0,urgent:false};
+            return (
+              <button key={cat} className={`nav-item${activeCat===cat?" active":""}`} onClick={()=>pickCat(cat)}>
+                <span className="nav-label">{cat}</span>
+                <div style={{display:"flex",gap:4,alignItems:"center"}}>
+                  {cc.urgent && <span style={{width:6,height:6,borderRadius:99,background:"#DC2626",flexShrink:0}}/>}
+                  {cc.open>0 && <span className="nav-badge" style={{background:activeCat===cat?"rgba(255,255,255,0.2)":"rgba(255,255,255,0.08)",color:activeCat===cat?"#fff":"#A8A29E"}}>{cc.open}</span>}
+                </div>
               </button>
-              {isOpen&&(
-                <div style={{borderTop:"0.5px solid #F5F5F4"}}>
-                  {catItems.length===0&&<p style={{color:"#C4B5A0",fontSize:13,padding:"12px 16px",margin:0,fontStyle:"italic"}}>Nothing here yet.</p>}
-                  {catItems.map((item,idx)=>{
+            );
+          })}
+        </nav>
+      </aside>
+
+      {/* MAIN */}
+      <main className="main">
+        {/* TOPBAR */}
+        <div className="topbar">
+          <div style={{display:"flex",alignItems:"center",gap:10}}>
+            <button className="hamburger" onClick={()=>setSidebar(s=>!s)}>☰</button>
+            <div>
+              <p className="topbar-title">{activeCat}</p>
+              <p className="topbar-meta">{org==="bpwt"?"BPWT":"Blossom Thyme"} · {pageOpen} open{pageUrgent>0?` · ${pageUrgent} urgent`:""}</p>
+            </div>
+          </div>
+          <div style={{display:"flex",gap:8,alignItems:"center"}}>
+            {["all","open","done"].map(f=>(
+              <button key={f} onClick={()=>setFilter(f)} style={{padding:"5px 11px",borderRadius:99,border:`1.5px solid ${filter===f?oc.color:"#E7E5E4"}`,background:filter===f?oc.color:"#fff",color:filter===f?"#fff":"#78716C",fontSize:12,fontWeight:600,cursor:"pointer"}}>{f.charAt(0).toUpperCase()+f.slice(1)}</button>
+            ))}
+            <button onClick={openAdd} style={{background:oc.color,color:"#fff",border:"none",borderRadius:9,padding:"8px 16px",fontSize:13,fontWeight:700,cursor:"pointer",marginLeft:4}}>+ Add</button>
+          </div>
+        </div>
+
+        {/* CONTENT */}
+        <div className="content">
+          {/* Stats */}
+          <div className="stats-row">
+            {[["Open",pageOpen,oc.color],["Done",pageDone,"#16A34A"],["Urgent",pageUrgent,"#DC2626"]].map(([lbl,val,clr])=>(
+              <div key={lbl} className="stat-card">
+                <p className="stat-num" style={{color:clr}}>{val}</p>
+                <p className="stat-lbl">{lbl}</p>
+              </div>
+            ))}
+          </div>
+
+          {loading && <p style={{textAlign:"center",color:"#78716C",padding:60}}>Loading…</p>}
+          {error   && <div style={{background:"#FEF2F2",borderRadius:10,padding:16,color:"#DC2626",fontSize:14,marginBottom:12}}>⚠ {error}</div>}
+
+          {!loading&&!error&&(
+            displayed.length===0
+              ? <div style={{textAlign:"center",padding:"60px 20px",color:"#A8A29E"}}>
+                  <p style={{fontSize:32,marginBottom:8}}>✓</p>
+                  <p style={{fontSize:15,fontWeight:600}}>{filter==="open"?"All done!":"No items"}</p>
+                  <p style={{fontSize:13,marginTop:4}}>{filter==="open"?"Nothing open in this section.":"Nothing to show."}</p>
+                </div>
+              : <div className="item-card">
+                  {displayed.map((item,idx)=>{
                     const done=isDone(item.completed);
                     return (
-                      <div key={item.id} style={{display:"flex",alignItems:"flex-start",gap:12,padding:"13px 16px",borderTop:idx>0?"0.5px solid #F5F5F4":"none",background:done?"#FAFAF9":"#fff"}}>
-                        <button onClick={()=>handleCheck(item)} style={{width:22,height:22,borderRadius:6,flexShrink:0,marginTop:2,cursor:"pointer",border:`2px solid ${done?oc.color:"#D6D3D1"}`,background:done?oc.color:"transparent",display:"flex",alignItems:"center",justifyContent:"center",transition:"all 0.15s"}}>
-                          {done&&<span style={{color:"#fff",fontSize:12,fontWeight:900,lineHeight:1}}>✓</span>}
+                      <div key={item.id} className={`item-row${done?" done-row":""}`}>
+                        <button className="check-btn" onClick={()=>handleCheck(item)} style={{border:`2px solid ${done?oc.color:"#D6D3D1"}`,background:done?oc.color:"transparent"}}>
+                          {done&&<span style={{color:"#fff",fontSize:11,fontWeight:900}}>✓</span>}
                         </button>
-                        <div style={{flex:1,minWidth:0}}>
+                        <div className="item-body">
                           <InlineTitle value={item.title} done={done} onChange={v=>saveField(item.id,"title",v)}/>
-                          {item.notes&&!done&&<p style={{margin:"4px 0 6px",fontSize:12,color:"#78716C",lineHeight:1.5}}>{item.notes}</p>}
+                          {item.notes&&!done&&<p className="item-notes">{item.notes}</p>}
                           {!done&&(
-                            <div style={{display:"flex",gap:10,marginTop:6,flexWrap:"wrap",alignItems:"center"}}>
+                            <div className="item-meta">
                               <InlineDate value={item.due_date} color={oc.color} onChange={v=>saveField(item.id,"due_date",v)}/>
                               <InlineAssignee value={item.assigned_to} org={item.org} color={oc.color} onChange={v=>saveField(item.id,"assigned_to",v)}/>
                             </div>
                           )}
                           {done&&(
-                            <div style={{display:"flex",alignItems:"center",gap:6,marginTop:4}}>
-                              <span style={{color:oc.color,fontWeight:700,fontSize:11}}>✓</span>
-                              {item.completed_by&&<span style={{fontSize:11,fontWeight:600,color:"#78716C"}}>{item.completed_by}</span>}
-                              {item.completed_at&&<span style={{fontSize:11,color:"#A8A29E"}}>· {fmtDateTime(item.completed_at)}</span>}
+                            <div className="done-info">
+                              <span style={{color:oc.color,fontWeight:700}}>✓</span>
+                              {item.completed_by&&<span style={{fontWeight:600,color:"#78716C"}}>{item.completed_by}</span>}
+                              {item.completed_at&&<span style={{color:"#A8A29E"}}>· {fmtDT(item.completed_at)}</span>}
                             </div>
                           )}
                         </div>
-                        <div style={{display:"flex",gap:2,flexShrink:0}}>
-                          {!done&&<button onClick={()=>openEdit(item)} style={{background:"none",border:"none",cursor:"pointer",padding:"4px 6px",borderRadius:6,color:"#D6D3D1",fontSize:13}}>✏️</button>}
-                          <button onClick={()=>deleteItem(item.id)} style={{background:"none",border:"none",cursor:"pointer",padding:"4px 6px",borderRadius:6,color:"#D6D3D1",fontSize:13}}>🗑</button>
+                        <div className="item-actions">
+                          {!done&&<button className="icon-btn" onClick={()=>openEdit(item)}>✏️</button>}
+                          <button className="icon-btn" onClick={()=>deleteItem(item.id)}>🗑</button>
                         </div>
                       </div>
                     );
                   })}
                 </div>
-              )}
-            </div>
-          );
-        })}
-      </div>
+          )}
+        </div>
+      </main>
+
       {/* COMPLETE MODAL */}
       {modal?.mode==="complete"&&(
-        <div style={{position:"fixed",inset:0,background:"rgba(0,0,0,0.55)",zIndex:50,display:"flex",alignItems:"flex-end"}} onClick={e=>e.target===e.currentTarget&&closeModal()}>
-          <div style={{background:"#fff",borderRadius:"22px 22px 0 0",width:"100%",padding:"24px 20px 40px"}}>
+        <div className="modal-backdrop" onClick={e=>e.target===e.currentTarget&&closeModal()}>
+          <div className="modal-sheet">
             <p style={{fontSize:12,color:"#A8A29E",margin:"0 0 4px",textTransform:"uppercase",letterSpacing:"0.08em",fontWeight:700}}>Marking complete</p>
             <p style={{fontSize:15,fontWeight:700,color:"#1C1917",margin:"0 0 20px",lineHeight:1.3}}>{modal.item.title}</p>
-            <label style={{fontSize:11,fontWeight:700,color:"#78716C",display:"block",marginBottom:8,textTransform:"uppercase",letterSpacing:"0.06em"}}>Who completed this?</label>
-            <div style={{display:"flex",flexWrap:"wrap",gap:8,marginBottom:12}}>
-              {quickPeople.map(p=>(
-                <button key={p} onClick={()=>setCompleteBy(p)} style={{padding:"7px 14px",borderRadius:99,border:"none",cursor:"pointer",fontSize:13,fontWeight:600,background:completeBy===p?oc.color:oc.light,color:completeBy===p?"#fff":oc.text}}>{p}</button>
-              ))}
+            <label className="field-lbl">Who completed this?</label>
+            <div className="people-pills" style={{marginBottom:12}}>
+              {quickPeople.map(p=><button key={p} className="people-pill" onClick={()=>setCompleteBy(p)} style={{background:completeBy===p?oc.color:oc.light,color:completeBy===p?"#fff":oc.text,padding:"7px 14px",fontSize:13}}>{p}</button>)}
             </div>
-            <input value={completeBy} onChange={e=>setCompleteBy(e.target.value)} placeholder="Or type a name (optional)…" style={{width:"100%",padding:"11px 14px",borderRadius:10,border:"1.5px solid #E7E5E4",fontSize:14,color:"#1C1917",marginBottom:16}}/>
+            <input value={completeBy} onChange={e=>setCompleteBy(e.target.value)} placeholder="Or type a name (optional)…" className="field-input" style={{marginBottom:16}}/>
             <div style={{display:"flex",gap:10}}>
               <button onClick={closeModal} style={{flex:1,padding:"13px",borderRadius:12,border:"1.5px solid #E7E5E4",background:"#fff",fontSize:14,fontWeight:700,cursor:"pointer",color:"#78716C"}}>Cancel</button>
               <button onClick={confirmComplete} style={{flex:2,padding:"13px",borderRadius:12,border:"none",background:oc.color,color:"#fff",fontSize:14,fontWeight:800,cursor:"pointer"}}>✓ Mark complete{completeBy?` — ${completeBy}`:""}</button>
@@ -484,48 +534,49 @@ function App() {
           </div>
         </div>
       )}
+
       {/* ADD/EDIT MODAL */}
       {(modal?.mode==="add"||modal?.mode==="edit")&&(
-        <div style={{position:"fixed",inset:0,background:"rgba(0,0,0,0.55)",zIndex:50,display:"flex",alignItems:"flex-end"}} onClick={e=>e.target===e.currentTarget&&closeModal()}>
-          <div style={{background:"#fff",borderRadius:"22px 22px 0 0",width:"100%",maxHeight:"92vh",overflow:"auto",padding:"24px 20px 40px"}}>
-            <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:22}}>
-              <h2 style={{margin:0,fontSize:18,fontWeight:800,color:"#1C1917"}}>{modal.mode==="edit"?"Edit item":"New item"}</h2>
-              <button onClick={closeModal} style={{background:"#F5F5F4",border:"none",borderRadius:8,padding:"6px 14px",cursor:"pointer",fontSize:14,color:"#78716C",fontWeight:600}}>Cancel</button>
+        <div className="modal-backdrop" onClick={e=>e.target===e.currentTarget&&closeModal()}>
+          <div className="modal-sheet">
+            <div className="modal-header">
+              <h2 className="modal-title">{modal.mode==="edit"?"Edit item":"New item"}</h2>
+              <button className="modal-cancel" onClick={closeModal}>Cancel</button>
             </div>
-            <div style={{display:"flex",flexDirection:"column",gap:16}}>
+            <div className="field-group">
               <div>
-                <label style={{fontSize:11,fontWeight:700,color:"#78716C",display:"block",marginBottom:7,textTransform:"uppercase",letterSpacing:"0.06em"}}>Organization</label>
+                <label className="field-lbl">Organization</label>
                 <div style={{display:"flex",gap:8}}>
                   {Object.entries(ORGS).map(([key,o])=>(
-                    <button key={key} onClick={()=>setForm(f=>({...f,org:key,category:CATEGORIES[key][0]}))} style={{flex:1,padding:"10px 8px",borderRadius:10,cursor:"pointer",fontSize:13,fontWeight:700,border:`2px solid ${form.org===key?o.color:"#E7E5E4"}`,background:form.org===key?o.light:"#fff",color:form.org===key?o.text:"#78716C"}}>{o.label}</button>
+                    <button key={key} className="org-btn" onClick={()=>setForm(f=>({...f,org:key,category:CATEGORIES[key][0]}))} style={{border:`2px solid ${form.org===key?o.color:"#E7E5E4"}`,background:form.org===key?o.light:"#fff",color:form.org===key?o.text:"#78716C"}}>{o.label}</button>
                   ))}
                 </div>
               </div>
               <div>
-                <label style={{fontSize:11,fontWeight:700,color:"#78716C",display:"block",marginBottom:7,textTransform:"uppercase",letterSpacing:"0.06em"}}>Category</label>
-                <select value={form.category} onChange={e=>setForm(f=>({...f,category:e.target.value}))} style={{width:"100%",padding:"11px 14px",borderRadius:10,border:"1.5px solid #E7E5E4",fontSize:14,color:"#1C1917",background:"#fff"}}>
+                <label className="field-lbl">Category</label>
+                <select value={form.category} onChange={e=>setForm(f=>({...f,category:e.target.value}))} className="field-input">
                   {formCats.map(c=><option key={c}>{c}</option>)}
                 </select>
               </div>
               <div>
-                <label style={{fontSize:11,fontWeight:700,color:"#78716C",display:"block",marginBottom:7,textTransform:"uppercase",letterSpacing:"0.06em"}}>Title *</label>
-                <input value={form.title} onChange={e=>setForm(f=>({...f,title:e.target.value}))} placeholder="What needs to happen?" style={{width:"100%",padding:"11px 14px",borderRadius:10,border:"1.5px solid #E7E5E4",fontSize:14,color:"#1C1917"}}/>
+                <label className="field-lbl">Title *</label>
+                <input value={form.title} onChange={e=>setForm(f=>({...f,title:e.target.value}))} placeholder="What needs to happen?" className="field-input"/>
               </div>
               <div>
-                <label style={{fontSize:11,fontWeight:700,color:"#78716C",display:"block",marginBottom:7,textTransform:"uppercase",letterSpacing:"0.06em"}}>Notes</label>
-                <textarea value={form.notes} onChange={e=>setForm(f=>({...f,notes:e.target.value}))} placeholder="Details, links, context…" rows={3} style={{width:"100%",padding:"11px 14px",borderRadius:10,border:"1.5px solid #E7E5E4",fontSize:14,color:"#1C1917",resize:"vertical"}}/>
+                <label className="field-lbl">Notes</label>
+                <textarea value={form.notes} onChange={e=>setForm(f=>({...f,notes:e.target.value}))} placeholder="Details, links, context…" rows={3} className="field-textarea"/>
               </div>
-              <div style={{display:"flex",gap:12}}>
+              <div className="field-row">
                 <div style={{flex:1}}>
-                  <label style={{fontSize:11,fontWeight:700,color:"#78716C",display:"block",marginBottom:7,textTransform:"uppercase",letterSpacing:"0.06em"}}>Due date</label>
-                  <input type="date" value={form.due_date} onChange={e=>setForm(f=>({...f,due_date:e.target.value}))} style={{width:"100%",padding:"11px 14px",borderRadius:10,border:"1.5px solid #E7E5E4",fontSize:14,color:"#1C1917"}}/>
+                  <label className="field-lbl">Due date</label>
+                  <input type="date" value={form.due_date} onChange={e=>setForm(f=>({...f,due_date:e.target.value}))} className="field-input"/>
                 </div>
                 <div style={{flex:1}}>
-                  <label style={{fontSize:11,fontWeight:700,color:"#78716C",display:"block",marginBottom:7,textTransform:"uppercase",letterSpacing:"0.06em"}}>Assigned to</label>
-                  <input value={form.assigned_to} onChange={e=>setForm(f=>({...f,assigned_to:e.target.value}))} placeholder="Name" style={{width:"100%",padding:"11px 14px",borderRadius:10,border:"1.5px solid #E7E5E4",fontSize:14,color:"#1C1917"}}/>
+                  <label className="field-lbl">Assigned to</label>
+                  <input value={form.assigned_to} onChange={e=>setForm(f=>({...f,assigned_to:e.target.value}))} placeholder="Name" className="field-input"/>
                 </div>
               </div>
-              <button onClick={saveItem} disabled={saving||!form.title.trim()} style={{background:ORGS[form.org||org].color,color:"#fff",border:"none",borderRadius:12,padding:"15px",fontSize:15,fontWeight:800,cursor:"pointer",marginTop:4,opacity:saving||!form.title.trim()?0.5:1}}>
+              <button onClick={saveItem} disabled={saving||!form.title.trim()} className="save-btn" style={{background:ORGS[form.org||org].color,opacity:saving||!form.title.trim()?0.5:1}}>
                 {saving?"Saving…":modal.mode==="edit"?"Save changes":"Add item"}
               </button>
             </div>
