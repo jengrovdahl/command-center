@@ -280,20 +280,33 @@ async function initDB() {
     completed INTEGER DEFAULT 0, completed_by TEXT, completed_at TEXT,
     created_at TEXT DEFAULT (datetime('now'))
   )`);
-  await tursoQuery(`CREATE TABLE IF NOT EXISTS cc_meta (key TEXT PRIMARY KEY, value TEXT)`);
   try { await tursoQuery("ALTER TABLE command_center_items ADD COLUMN completed_by TEXT"); } catch(e){}
   try { await tursoQuery("ALTER TABLE command_center_items ADD COLUMN completed_at TEXT"); } catch(e){}
-  // Version check — bump SEED_VERSION to force a clean reseed
-  const SEED_VERSION = "3";
-  const vRow = await tursoQuery("SELECT value FROM cc_meta WHERE key='seed_version'");
-  const currentVer = vRow?.rows?.[0]?.[0]?.value ?? "0";
-  if (currentVer !== SEED_VERSION) {
+  const presCheck = parseInt((await tursoQuery("SELECT COUNT(*) FROM command_center_items WHERE org='bpwt' AND category='President'"))?.rows?.[0]?.[0]?.value??"0");
+  if (presCheck===0) {
     await tursoQuery("DELETE FROM command_center_items WHERE org='bpwt'");
     for (const i of BPWT_SEED) await tursoQuery("INSERT INTO command_center_items (org,category,title,notes,due_date,assigned_to,completed) VALUES (?,?,?,?,?,?,0)",["bpwt",i.category,i.title,i.notes||null,i.due_date||null,i.assigned_to||null]);
-    await tursoQuery("INSERT OR REPLACE INTO cc_meta (key,value) VALUES ('seed_version',?)",[SEED_VERSION]);
   }
   const btCnt = parseInt((await tursoQuery("SELECT COUNT(*) FROM command_center_items WHERE org='blossom_thyme'"))?.rows?.[0]?.[0]?.value??"0");
   if (btCnt===0) for (const i of BT_SEED) await tursoQuery("INSERT INTO command_center_items (org,category,title,notes,due_date,assigned_to,completed) VALUES (?,?,?,?,?,?,0)",["blossom_thyme",i.category,i.title,i.notes||null,i.due_date||null,i.assigned_to||null]);
+  // one-time patches
+  const p1 = await tursoQuery("SELECT value FROM cc_meta WHERE key='patch_secretary_split'");
+  if (!p1?.rows?.length) {
+    // find the combined item
+    const r = await tursoQuery("SELECT id FROM command_center_items WHERE org='bpwt' AND category='Secretary' AND title LIKE '%Record and distribute%'");
+    if (r?.rows?.length) {
+      const id = r.rows[0][0].value;
+      await tursoQuery("UPDATE command_center_items SET title=?, notes=? WHERE id=?",
+        ["Record minutes within 1 week of each meeting",
+         "Board and general meetings both. Written copy submitted to the secretary by each officer after their report.",
+         id]);
+      await tursoQuery("INSERT INTO command_center_items (org,category,title,notes,due_date,assigned_to,completed) VALUES (?,?,?,?,?,?,0)",
+        ["bpwt","Secretary","Distribute minutes to all members within 1 week of each meeting",
+         "Email minutes to full chapter after each board and general meeting. Send copy to absent members too.",
+         null,"Lorissa"]);
+    }
+    await tursoQuery("INSERT OR REPLACE INTO cc_meta (key,value) VALUES ('patch_secretary_split','done')");
+  }
 }
 
 // ── Helpers ──
