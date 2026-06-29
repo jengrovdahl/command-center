@@ -307,6 +307,25 @@ async function initDB() {
     }
     await tursoQuery("INSERT OR REPLACE INTO cc_meta (key,value) VALUES ('patch_secretary_split','done')");
   }
+  // patch: add district secretary trimester items
+  const p2 = await tursoQuery("SELECT value FROM cc_meta WHERE key='patch_dist_sec_trimester'");
+  if (!p2?.rows?.length) {
+    const items = [
+      // Tri 1
+      ["bpwt","District Secretary","Record District Tri 1 meeting minutes — Jun/Jul 2026","Record minutes during the Tri 1 district meeting. Written copy to DD within 1 week.","2026-07-31","Jen"],
+      ["bpwt","District Secretary","Distribute District Tri 1 meeting minutes — Jun/Jul 2026","Send approved minutes to all chapters in District 8 within 1 week of the meeting.","2026-07-31","Jen"],
+      // Tri 2
+      ["bpwt","District Secretary","Record District Tri 2 meeting minutes — Oct 2026","Record minutes during the Tri 2 district meeting (typically October). Written copy to DD within 1 week.",null,"Jen"],
+      ["bpwt","District Secretary","Distribute District Tri 2 meeting minutes — Oct 2026","Send approved minutes to all chapters in District 8 within 1 week of the Tri 2 meeting.",null,"Jen"],
+      // Tri 3
+      ["bpwt","District Secretary","Record District Tri 3 meeting minutes — Feb/Mar 2027","Record minutes during the Tri 3 district meeting (typically February or March). Written copy to DD within 1 week.",null,"Jen"],
+      ["bpwt","District Secretary","Distribute District Tri 3 meeting minutes — Feb/Mar 2027","Send approved minutes to all chapters in District 8 within 1 week of the Tri 3 meeting.",null,"Jen"],
+    ];
+    for (const i of items) {
+      await tursoQuery("INSERT INTO command_center_items (org,category,title,notes,due_date,assigned_to,completed) VALUES (?,?,?,?,?,?,0)", i);
+    }
+    await tursoQuery("INSERT OR REPLACE INTO cc_meta (key,value) VALUES ('patch_dist_sec_trimester','done')");
+  }
 }
 
 // ── Helpers ──
