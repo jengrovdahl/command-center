@@ -436,6 +436,32 @@ function isSoon(d)      { if(!d)return false; const df=new Date(d+"T23:59:59")-n
 function isDone(v)      { return v==="1"||v===1; }
 function nowISO()       { return new Date().toISOString(); }
 
+// ── Notes renderer — makes URLs clickable ──
+function NotesDisplay({ text }) {
+  if (!text) return null;
+  const urlRegex = /(https?:\/\/[^\s]+)/g;
+  const lines = text.split('\n');
+  return (
+    <p className="item-notes" style={{whiteSpace:'pre-wrap'}}>
+      {lines.map((line, li) => {
+        const parts = line.split(urlRegex);
+        return (
+          <span key={li}>
+            {li > 0 && '\n'}
+            {parts.map((part, pi) =>
+              urlRegex.test(part)
+                ? <a key={pi} href={part} target="_blank" rel="noopener noreferrer"
+                    style={{color:'#7C3AED',textDecoration:'underline',wordBreak:'break-all'}}
+                    onClick={e=>e.stopPropagation()}>{part}</a>
+                : part
+            )}
+          </span>
+        );
+      })}
+    </p>
+  );
+}
+
 // ── Inline date ──
 function InlineDate({ value, onChange, color }) {
   const [editing,setEditing]=React.useState(false);
@@ -660,7 +686,7 @@ function App() {
                         )}
                         <div className="item-body">
                           <InlineTitle value={item.title} done={!NOMINATION_CATEGORIES.includes(item.category)&&done} onChange={v=>saveField(item.id,"title",v)}/>
-                          {item.notes&&<p className="item-notes" style={{whiteSpace:'pre-wrap'}}>{item.notes}</p>}
+                          {item.notes&&<NotesDisplay text={item.notes}/>}
                           {!NOMINATION_CATEGORIES.includes(item.category)&&!done&&(
                             <div className="item-meta">
                               <InlineDate value={item.due_date} color={oc.color} onChange={v=>saveField(item.id,"due_date",v)}/>
