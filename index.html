@@ -388,6 +388,43 @@ async function initDB() {
     await tursoQuery("UPDATE command_center_items SET due_date='2027-04-10' WHERE org='bpwt' AND category='District Secretary' AND title LIKE '%Tri 3%' AND title LIKE '%Distribute%'");
     await tursoQuery("INSERT OR REPLACE INTO cc_meta (key,value) VALUES ('patch_dist_sec_dates','done')");
   }
+  // patch: add EmailMe form links to notes
+  const pe = await tursoQuery("SELECT value FROM cc_meta WHERE key='patch_emailme_links'");
+  if (!pe?.rows?.length) {
+    const linkUpdates = [
+      ["Fast Starts","Fast Start","EmailMe form (LPM Fast Start): https://tinyurl.com/SPMFastStart"],
+      ["Programming VP","Programming Trimester Report","EmailMe form: https://www.emailmeform.com/builder/form/Ixbdc9860vE70"],
+      ["Programming VP","Project of the Trimester","EmailMe form: https://www.emailmeform.com/builder/form/Jg0Z3cpYP332cbUQfi8H"],
+      ["Programming VP","Outstanding Program Manager","EmailMe form: https://www.emailmeform.com/builder/form/VF7ne75IaH013Oi41D1U25k"],
+      ["Membership VP","New Member Adds","USWT Add & Change EmailMe form: https://www.emailmeform.com/builder/form/hemn8uHcINPOc368sA9"],
+      ["Membership VP","renewal","MNWT Membership Resources: https://mnwt.org/membership-resources/"],
+      ["Treasurer","early bird renewal","Trimester Billing info: https://mnwt.org/membership-resources/"],
+      ["President","MNWT Foundation","MNWT Foundation donation page: https://mnwt.org/mnwt-foundation/"],
+      ["President","SUCCESS","Chapter Management Resources: https://mnwt.org/chapter-management-resources/"],
+      ["Member/Self","Living & Learning Certification","EmailMe form: https://www.emailmeform.com/builder/form/SW7bdp4cA7uw2BkZ7biJ"],
+      ["Future Directions","Outstanding Program Manager","EmailMe form: https://www.emailmeform.com/builder/form/VF7ne75IaH013Oi41D1U25k"],
+    ];
+    for (const [category, titleLike, linkLine] of linkUpdates) {
+      const r = await tursoQuery(
+        "SELECT id, notes FROM command_center_items WHERE org='bpwt' AND category=? AND title LIKE ?",
+        [category, `%${titleLike}%`]
+      );
+      if (r?.rows) {
+        const cols = r.cols.map(c=>c.name);
+        for (const row of r.rows) {
+          const obj={};
+          cols.forEach((c,i)=>{obj[c]=row[i]?.value??null;});
+          const notes=obj.notes||"";
+          const linkUrl=linkLine.split(': ').slice(1).join(': ');
+          if (!notes.includes(linkUrl)) {
+            const newNotes=notes?notes+"\n"+linkLine:linkLine;
+            await tursoQuery("UPDATE command_center_items SET notes=? WHERE id=?",[newNotes,obj.id]);
+          }
+        }
+      }
+    }
+    await tursoQuery("INSERT OR REPLACE INTO cc_meta (key,value) VALUES ('patch_emailme_links','done')");
+  }
 
 }
 
