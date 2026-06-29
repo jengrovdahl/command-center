@@ -111,14 +111,19 @@ const TURSO_TOKEN = "eyJhbGciOiJFZERTQSIsInR5cCI6IkpXVCJ9.eyJhIjoicnciLCJpYXQiOj
 const ORGS = {
   bpwt:          { label:"BPWT",          color:"#7C3AED", light:"#EDE9FE", text:"#5B21B6" },
   blossom_thyme: { label:"Blossom Thyme", color:"#16A34A", light:"#DCFCE7", text:"#15803D" },
+  personal:      { label:"Personal",      color:"#B45309", light:"#FEF3C7", text:"#92400E" },
 };
 const CATEGORIES = {
-  bpwt:          ["Fast Starts","President","Programming VP","Membership VP","Secretary","Treasurer","State Delegate","Parliamentarian","District Secretary","Convention","Future Directions"],
+  bpwt:          ["Fast Starts","President","Programming VP","Membership VP","Secretary","Treasurer","State Delegate","Parliamentarian","District Secretary","Convention","Future Directions","Member/Self","Nominations"],
   blossom_thyme: ["Market Logistics","Vendors","Marketing","Finances","Volunteers","Events"],
+  personal:      ["Home","Personal Goals","Health & Wellness","Finances","Projects","Errands"],
 };
+// categories that use nomination flow instead of checkbox
+const NOMINATION_CATEGORIES = ["Nominations"];
 const PEOPLE = {
   bpwt:          ["Jen","Brandy","Lorissa","Maude","Ann","Cindy","Ashley","Tracy","Emily","Tina","Pam","Alison"],
   blossom_thyme: ["Jen"],
+  personal:      ["Jen"],
 };
 
 const BPWT_SEED = [
@@ -254,6 +259,48 @@ const BT_SEED = [
   {category:"Events",title:"Plan a season-closing vendor appreciation moment",due_date:null,assigned_to:"Jen"},
 ];
 
+const PERSONAL_SEED = [
+  {category:"Home",title:"Schedule home maintenance walkthrough",notes:"Check roof, gutters, HVAC filter, water heater, smoke detectors.",due_date:null,assigned_to:"Jen"},
+  {category:"Home",title:"Review home insurance policy",notes:"Make sure coverage is current and adequate.",due_date:null,assigned_to:"Jen"},
+  {category:"Personal Goals",title:"Set personal goals for 2026-27",notes:"Career, homestead, health, organization, learning.",due_date:null,assigned_to:"Jen"},
+  {category:"Health & Wellness",title:"Schedule annual physical",due_date:null,assigned_to:"Jen"},
+  {category:"Finances",title:"Review budget and subscriptions",notes:"Check for unused subscriptions. Review monthly spend.",due_date:null,assigned_to:"Jen"},
+  {category:"Projects",title:"Camper shower renovation — finish framing and FRP panels",notes:"Platform built. Moen 2510 valve ordered. Install FRP over cement board next.",due_date:null,assigned_to:"Jen"},
+  {category:"Projects",title:"Camper door frame — long-term rebuild with PVC trim board",notes:"Immediate fix via barrel bolt done. Fall rebuild with PVC trim board + exterior adhesive.",due_date:null,assigned_to:"Jen"},
+  {category:"Projects",title:"Starlink Mini Roam mount — finalize install",notes:"Hitched4fun bumper frame mount + 1.5 inch EMT conduit chosen. Complete mount.",due_date:null,assigned_to:"Jen"},
+];
+
+const MEMBER_SEED = [
+  // MNWT Member certifications
+  {category:"Member/Self",title:"Complete Living & Learning Certification (MNWT)",notes:"Earn the LL Certification by completing required LL activities this trimester.\nForm: https://www.emailmeform.com/builder/form/SW7bdp4cA7uw2BkZ7biJ\nPDF: https://mnwt.org/wp-content/uploads/2024/12/mnwt_llcertification-2024.pdf\nSubmit to MNWT LL SPM.",due_date:"2026-08-25",assigned_to:"Jen"},
+  {category:"Member/Self",title:"Complete PEP Certification (MNWT Personal Enrichment)",notes:"Earn the PEP Certification by completing Personal Enrichment Program activities.\nFind form at: https://mnwt.org/programming-resources/\nSubmit to MNWT PVP.",due_date:"2026-08-25",assigned_to:"Jen"},
+  // USWT Member certifications
+  {category:"Member/Self",title:"Complete USWT Wellness & Personal Development (WPD) Certification",notes:"Complete minimum 15 of 30 WPD items. Due May 1 each year.\nForm submits to MNWT CMVP who forwards to USWT.\nManual + form: https://mnwt.org/members/forms_categories.php?bofID=16",due_date:"2027-05-01",assigned_to:"Jen"},
+  {category:"Member/Self",title:"Complete USWT STEP I Certification",notes:"Success Through Enthusiastic Participation — Step I.\nElectronic form: https://www.emailmeform.com/builder/form/42e4n20e0c1q2rv\nManual: https://uswomenoftoday.org/wp-content/uploads/2024/09/2014-STEP-Manual-FINAL.pdf",due_date:null,assigned_to:"Jen"},
+  {category:"Member/Self",title:"Complete USWT STEP II Certification",notes:"After completing STEP I.\nElectronic form: https://www.emailmeform.com/builder/form/yg0Axe5XOzUw9kfji9b8",due_date:null,assigned_to:"Jen"},
+  {category:"Member/Self",title:"Complete USWT STEP III Certification",notes:"After completing STEP II.\nElectronic form: https://www.emailmeform.com/builder/form/FA2ubfx5jy9MbW",due_date:null,assigned_to:"Jen"},
+  {category:"Member/Self",title:"Participate in Friendship Day — first Sunday in August",notes:"Hold or attend a chapter social event in August for Friendship Day.\nCertification due after the event.\nElectronic form: https://www.emailmeform.com/builder/form/eV878zf0S3Lkf41aFM\nPDF: https://uswomenoftoday.org/wp-content/uploads/2024/09/Cert_FriendshipDay-USWTBOF-20170707.pdf",due_date:"2026-08-02",assigned_to:"Jen"},
+  {category:"Member/Self",title:"Participate in Founders Day (USWT)",notes:"Celebrate USWT founding with a chapter event.\nElectronic form: https://www.emailmeform.com/builder/form/vz2556I1MA\nPDF: https://uswomenoftoday.org/wp-content/uploads/2025/06/USWT_FoundersDay.pdf",due_date:null,assigned_to:"Jen"},
+  {category:"Member/Self",title:"Work toward Outstanding Achievement in Programming (USWT)",notes:"Complete all USWT programming certifications + DVA project + another service project + one competition at state or national level. Self-nominate.\nForm: https://www.emailmeform.com/builder/form/2uO770fxqla4fajko",due_date:null,assigned_to:"Jen"},
+  {category:"Member/Self",title:"Submit MNWT LL Outstanding Program Manager nomination — Sep 2",notes:"Nominate any member who did exceptional LL work.\nEmailMe form: https://www.emailmeform.com/builder/form/VF7ne75IaH013Oi41D1U25k\nEmail: LL@MNWT.ORG",due_date:"2026-09-02",assigned_to:"Jen"},
+  {category:"Member/Self",title:"Journal into Growth — weekly entries by Sep 17",notes:"LL SPM Carolyn's Tri 1 initiative. Email/text photo of completed weekly journal entries. Sign up at CIP QR code.",due_date:"2026-09-17",assigned_to:"Jen"},
+];
+
+const NOMINATIONS_SEED = [
+  // MNWT Nominations
+  {category:"Nominations",title:"MNWT Outstanding Program Manager Nomination",notes:"Nominate any member who did exceptional programming work in any area.\nWho nominated:\nDate submitted:\nEmailMe form: https://www.emailmeform.com/builder/form/VF7ne75IaH013Oi41D1U25k\nPDF: https://mnwt.org/wp-content/uploads/2024/12/mnwt_outstandingpmnomination-2016.pdf",due_date:null,assigned_to:"Jen"},
+  {category:"Nominations",title:"MNWT Project of the Trimester Nomination",notes:"Nominate an outstanding chapter project 3 weeks before Fall State.\nWho nominated:\nDate submitted:\nEmailMe form: https://www.emailmeform.com/builder/form/Jg0Z3cpYP332cbUQfi8H\nPDF: https://mnwt.org/wp-content/uploads/2024/12/mnwt_projectofthetrimester-2015.pdf",due_date:null,assigned_to:"Brandy"},
+  {category:"Nominations",title:"MNWT Key Women Club Nomination",notes:"Highest honor in MNWT. Must be in good standing 4+ years, served as officer or LPM 2+ years. Nominated by 5 Key Women.\nWho nominated:\nDate submitted:\nEmailMe form: https://mnwt.org/key-women-club/\nContact: keywomen@mnwt.org",due_date:null,assigned_to:"Jen"},
+  {category:"Nominations",title:"MNWT Presidential Pin Nomination",notes:"Nominate an outstanding member for the Presidential Pin.\nWho nominated:\nDate submitted:\nContact MNWT President directly.",due_date:null,assigned_to:"Jen"},
+  // USWT Nominations
+  {category:"Nominations",title:"USWT Presidential Pin Nomination",notes:"Only 75 granted nationally per year. Nominated by peers.\nWho nominated:\nDate submitted:\nElectronic form: https://www.emailmeform.com/builder/form/Lf01bGZ52Nc9O091taB5npo5\nPDF: https://uswomenoftoday.org/wp-content/uploads/2024/09/Award_PresidentialPin-USWTBOF-20210409.pdf",due_date:null,assigned_to:"Jen"},
+  {category:"Nominations",title:"USWT Ambassador Award Nomination",notes:"Highest USWT honor for a local member. Must have 5+ years membership. Nominated by local AND state presidents.\nWho nominated:\nDate submitted:\nPDF form: https://uswomenoftoday.org/wp-content/uploads/2024/09/Award_Ambassador-USWTBOF-20200119.pdf",due_date:null,assigned_to:"Jen"},
+  {category:"Nominations",title:"USWT Outstanding Officer Award Nomination",notes:"Recognizes outstanding local or state leaders who went above and beyond. Nominated by peers.\nWho nominated:\nDate submitted:\nElectronic form: https://www.emailmeform.com/builder/form/a6blaKei57fO\nPDF: https://uswomenoftoday.org/wp-content/uploads/2024/09/Award_OutstandingOfficer-USWTBOF-20210409.pdf",due_date:null,assigned_to:"Jen"},
+  {category:"Nominations",title:"USWT All American Chapter Award",notes:"Chapter-level award for well-rounded program of projects. Chapter and state presidents must both submit.\nWho nominated:\nDate submitted:\nElectronic form: https://www.emailmeform.com/builder/form/9IU1e8cbhfzFyxAvj1d8HRr\nPDF: https://uswomenoftoday.org/wp-content/uploads/2024/09/Award_AllAmericanChapter-USWTBOF-20170707-1.pdf",due_date:null,assigned_to:"Jen"},
+  {category:"Nominations",title:"USWT Fellowship Builder Award",notes:"Chapter held Friendship Day plus 3 additional social events during the year.\nWho nominated:\nDate submitted:\nElectronic form: https://www.emailmeform.com/builder/form/0dPvJ72SQDkffCYst\nPDF: https://uswomenoftoday.org/wp-content/uploads/2024/09/Award_FellowshipBuilder-USWTBOF-20170707-1.pdf",due_date:null,assigned_to:"Jen"},
+  {category:"Nominations",title:"USWT Outstanding Achievement in Programming — Self-Nomination",notes:"Complete all USWT programming certifications + DVA project + another service project + competition at state or national level. Must self-nominate.\nWho nominated:\nDate submitted:\nElectronic form: https://www.emailmeform.com/builder/form/2uO770fxqla4fajko",due_date:null,assigned_to:"Jen"},
+];
+
 // ── Turso ──
 async function tursoQuery(sql, args=[]) {
   const res = await fetch(`${TURSO_URL}/v2/pipeline`, {
@@ -289,6 +336,12 @@ async function initDB() {
   }
   const btCnt = parseInt((await tursoQuery("SELECT COUNT(*) FROM command_center_items WHERE org='blossom_thyme'"))?.rows?.[0]?.[0]?.value??"0");
   if (btCnt===0) for (const i of BT_SEED) await tursoQuery("INSERT INTO command_center_items (org,category,title,notes,due_date,assigned_to,completed) VALUES (?,?,?,?,?,?,0)",["blossom_thyme",i.category,i.title,i.notes||null,i.due_date||null,i.assigned_to||null]);
+  const persCnt = parseInt((await tursoQuery("SELECT COUNT(*) FROM command_center_items WHERE org='personal'"))?.rows?.[0]?.[0]?.value??"0");
+  if (persCnt===0) for (const i of PERSONAL_SEED) await tursoQuery("INSERT INTO command_center_items (org,category,title,notes,due_date,assigned_to,completed) VALUES (?,?,?,?,?,?,0)",["personal",i.category,i.title,i.notes||null,i.due_date||null,i.assigned_to||null]);
+  const memberCnt = parseInt((await tursoQuery("SELECT COUNT(*) FROM command_center_items WHERE org='bpwt' AND category='Member/Self'"))?.rows?.[0]?.[0]?.value??"0");
+  if (memberCnt===0) for (const i of MEMBER_SEED) await tursoQuery("INSERT INTO command_center_items (org,category,title,notes,due_date,assigned_to,completed) VALUES (?,?,?,?,?,?,0)",["bpwt",i.category,i.title,i.notes||null,i.due_date||null,i.assigned_to||null]);
+  const nomCnt = parseInt((await tursoQuery("SELECT COUNT(*) FROM command_center_items WHERE org='bpwt' AND category='Nominations'"))?.rows?.[0]?.[0]?.value??"0");
+  if (nomCnt===0) for (const i of NOMINATIONS_SEED) await tursoQuery("INSERT INTO command_center_items (org,category,title,notes,due_date,assigned_to,completed) VALUES (?,?,?,?,?,?,0)",["bpwt",i.category,i.title,i.notes||null,i.due_date||null,i.assigned_to||null]);
   // one-time patches
   const p1 = await tursoQuery("SELECT value FROM cc_meta WHERE key='patch_secretary_split'");
   if (!p1?.rows?.length) {
@@ -335,6 +388,15 @@ async function initDB() {
     await tursoQuery("UPDATE command_center_items SET due_date='2027-04-10' WHERE org='bpwt' AND category='District Secretary' AND title LIKE '%Tri 3%' AND title LIKE '%Distribute%'");
     await tursoQuery("INSERT OR REPLACE INTO cc_meta (key,value) VALUES ('patch_dist_sec_dates','done')");
   }
+  // seed personal org
+  const persCnt = parseInt((await tursoQuery("SELECT COUNT(*) FROM command_center_items WHERE org='personal'"))?.rows?.[0]?.[0]?.value??"0");
+  if (persCnt===0) for (const i of PERSONAL_SEED) await tursoQuery("INSERT INTO command_center_items (org,category,title,notes,due_date,assigned_to,completed) VALUES (?,?,?,?,?,?,0)",["personal",i.category,i.title,i.notes||null,i.due_date||null,i.assigned_to||null]);
+  // seed member/self
+  const memberCnt = parseInt((await tursoQuery("SELECT COUNT(*) FROM command_center_items WHERE org='bpwt' AND category='Member/Self'"))?.rows?.[0]?.[0]?.value??"0");
+  if (memberCnt===0) for (const i of MEMBER_SEED) await tursoQuery("INSERT INTO command_center_items (org,category,title,notes,due_date,assigned_to,completed) VALUES (?,?,?,?,?,?,0)",["bpwt",i.category,i.title,i.notes||null,i.due_date||null,i.assigned_to||null]);
+  // seed nominations
+  const nomCnt = parseInt((await tursoQuery("SELECT COUNT(*) FROM command_center_items WHERE org='bpwt' AND category='Nominations'"))?.rows?.[0]?.[0]?.value??"0");
+  if (nomCnt===0) for (const i of NOMINATIONS_SEED) await tursoQuery("INSERT INTO command_center_items (org,category,title,notes,due_date,assigned_to,completed) VALUES (?,?,?,?,?,?,0)",["bpwt",i.category,i.title,i.notes||null,i.due_date||null,i.assigned_to||null]);
 }
 
 // ── Helpers ──
@@ -381,10 +443,34 @@ function InlineTitle({ value, done, onChange }) {
   return <p className="item-title" onClick={()=>!done&&setEditing(true)} style={{color:done?"#A8A29E":"#1C1917",textDecoration:done?"line-through":"none",cursor:done?"default":"text"}}>{value}</p>;
 }
 
+// ── AddCategoryBar ──
+function AddCategoryBar({ org, onAdd }) {
+  const [val,setVal] = React.useState("");
+  const oc = ORGS[org];
+  const submit = () => {
+    const trimmed = val.trim();
+    if (trimmed && !CATEGORIES[org].includes(trimmed)) { onAdd(trimmed); setVal(""); }
+  };
+  return (
+    <div style={{padding:"10px 12px",borderTop:"1px solid rgba(255,255,255,0.08)",display:"flex",gap:6}}>
+      <input value={val} onChange={e=>setVal(e.target.value)}
+        onKeyDown={e=>e.key==="Enter"&&submit()}
+        placeholder="New category…"
+        style={{flex:1,background:"rgba(255,255,255,0.07)",border:"none",borderRadius:7,padding:"6px 10px",fontSize:12,color:"#E7E5E4",outline:"none"}}/>
+      <button onClick={submit} style={{background:oc.color,border:"none",borderRadius:7,padding:"6px 10px",color:"#fff",fontSize:13,cursor:"pointer",fontWeight:700}}>+</button>
+    </div>
+  );
+}
+
 // ── App ──
 function App() {
-  const [org,setOrg]               = React.useState("bpwt");
-  const [activeCat,setActiveCat]   = React.useState(CATEGORIES.bpwt[0]);
+  const [org,setOrg]               = React.useState(()=>localStorage.getItem("cc_org")||"bpwt");
+  const [activeCat,setActiveCat]   = React.useState(()=>{
+    const savedOrg=localStorage.getItem("cc_org")||"bpwt";
+    const savedCat=localStorage.getItem("cc_cat");
+    const cats=CATEGORIES[savedOrg]||CATEGORIES.bpwt;
+    return (savedCat&&cats.includes(savedCat))?savedCat:cats[0];
+  });
   const [items,setItems]           = React.useState([]);
   const [loading,setLoading]       = React.useState(true);
   const [error,setError]           = React.useState(null);
@@ -425,8 +511,8 @@ function App() {
   };
   const deleteItem=async(id)=>{ if(!confirm("Delete this item?"))return; await tursoQuery("DELETE FROM command_center_items WHERE id=?",[id]); setItems(prev=>prev.filter(i=>i.id!==id)); };
 
-  const switchOrg=(key)=>{ setOrg(key); setActiveCat(CATEGORIES[key][0]); setSidebar(false); };
-  const pickCat=(cat)=>{ setActiveCat(cat); setSidebar(false); };
+  const switchOrg=(key)=>{ setOrg(key); setActiveCat(CATEGORIES[key][0]); setSidebar(false); localStorage.setItem("cc_org",key); localStorage.setItem("cc_cat",CATEGORIES[key][0]); };
+  const pickCat=(cat)=>{ setActiveCat(cat); setSidebar(false); localStorage.setItem("cc_cat",cat); };
 
   const oc=ORGS[org];
   const cats=CATEGORIES[org];
@@ -482,6 +568,14 @@ function App() {
             );
           })}
         </nav>
+        <AddCategoryBar org={org} onAdd={(cat)=>{
+          if(!CATEGORIES[org].includes(cat)){
+            CATEGORIES[org]=[...CATEGORIES[org],cat];
+            setActiveCat(cat);
+            localStorage.setItem("cc_cat",cat);
+            setSidebar(false);
+          }
+        }}/>
       </aside>
 
       {/* MAIN */}
@@ -530,23 +624,30 @@ function App() {
                     const done=isDone(item.completed);
                     return (
                       <div key={item.id} className={`item-row${done?" done-row":""}`}>
-                        <button className="check-btn" onClick={()=>handleCheck(item)} style={{border:`2px solid ${done?oc.color:"#D6D3D1"}`,background:done?oc.color:"transparent"}}>
-                          {done&&<span style={{color:"#fff",fontSize:11,fontWeight:900}}>✓</span>}
-                        </button>
+                        {!NOMINATION_CATEGORIES.includes(item.category) && (
+                          <button className="check-btn" onClick={()=>handleCheck(item)} style={{border:`2px solid ${done?oc.color:"#D6D3D1"}`,background:done?oc.color:"transparent"}}>
+                            {done&&<span style={{color:"#fff",fontSize:11,fontWeight:900}}>✓</span>}
+                          </button>
+                        )}
                         <div className="item-body">
-                          <InlineTitle value={item.title} done={done} onChange={v=>saveField(item.id,"title",v)}/>
-                          {item.notes&&!done&&<p className="item-notes">{item.notes}</p>}
-                          {!done&&(
+                          <InlineTitle value={item.title} done={!NOMINATION_CATEGORIES.includes(item.category)&&done} onChange={v=>saveField(item.id,"title",v)}/>
+                          {item.notes&&<p className="item-notes" style={{whiteSpace:'pre-wrap'}}>{item.notes}</p>}
+                          {!NOMINATION_CATEGORIES.includes(item.category)&&!done&&(
                             <div className="item-meta">
                               <InlineDate value={item.due_date} color={oc.color} onChange={v=>saveField(item.id,"due_date",v)}/>
                               <InlineAssignee value={item.assigned_to} org={item.org} color={oc.color} onChange={v=>saveField(item.id,"assigned_to",v)}/>
                             </div>
                           )}
-                          {done&&(
+                          {!NOMINATION_CATEGORIES.includes(item.category)&&done&&(
                             <div className="done-info">
                               <span style={{color:oc.color,fontWeight:700}}>✓</span>
                               {item.completed_by&&<span style={{fontWeight:600,color:"#78716C"}}>{item.completed_by}</span>}
                               {item.completed_at&&<span style={{color:"#A8A29E"}}>· {fmtDT(item.completed_at)}</span>}
+                            </div>
+                          )}
+                          {NOMINATION_CATEGORIES.includes(item.category)&&(
+                            <div style={{marginTop:6}}>
+                              <span style={{fontSize:11,color:"#A8A29E",fontStyle:"italic"}}>Edit notes above to record who was nominated and when</span>
                             </div>
                           )}
                         </div>
