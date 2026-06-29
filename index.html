@@ -326,6 +326,15 @@ async function initDB() {
     }
     await tursoQuery("INSERT OR REPLACE INTO cc_meta (key,value) VALUES ('patch_dist_sec_trimester','done')");
   }
+  // patch: set Tri 2 (Oct 10) and Tri 3 (Apr 3) district meeting dates
+  const p3 = await tursoQuery("SELECT value FROM cc_meta WHERE key='patch_dist_sec_dates'");
+  if (!p3?.rows?.length) {
+    await tursoQuery("UPDATE command_center_items SET due_date='2026-10-17' WHERE org='bpwt' AND category='District Secretary' AND title LIKE '%Tri 2%' AND title LIKE '%Record%'");
+    await tursoQuery("UPDATE command_center_items SET due_date='2026-10-17' WHERE org='bpwt' AND category='District Secretary' AND title LIKE '%Tri 2%' AND title LIKE '%Distribute%'");
+    await tursoQuery("UPDATE command_center_items SET due_date='2027-04-10' WHERE org='bpwt' AND category='District Secretary' AND title LIKE '%Tri 3%' AND title LIKE '%Record%'");
+    await tursoQuery("UPDATE command_center_items SET due_date='2027-04-10' WHERE org='bpwt' AND category='District Secretary' AND title LIKE '%Tri 3%' AND title LIKE '%Distribute%'");
+    await tursoQuery("INSERT OR REPLACE INTO cc_meta (key,value) VALUES ('patch_dist_sec_dates','done')");
+  }
 }
 
 // ── Helpers ──
