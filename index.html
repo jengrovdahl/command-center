@@ -922,6 +922,7 @@ function App() {
 
           {loading && <p style={{textAlign:"center",color:"#78716C",padding:60}}>Loading…</p>}
           {error   && <div style={{background:"#FEF2F2",borderRadius:10,padding:16,color:"#DC2626",fontSize:14,marginBottom:12}}>⚠ {error}</div>}
+          {ROSTER_CATEGORIES.includes(activeCat) && !loading && <RosterView color={oc.color}/>}
 
           {!loading&&!error&&!ROSTER_CATEGORIES.includes(activeCat)&&(
             displayed.length===0
