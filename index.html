@@ -114,13 +114,14 @@ const ORGS = {
   personal:      { label:"Personal",      color:"#B45309", light:"#FEF3C7", text:"#92400E" },
 };
 const CATEGORIES = {
-  bpwt:          ["Fast Starts","President","Programming VP","Membership VP","Secretary","Treasurer","State Delegate","Parliamentarian","District Secretary","Convention","Future Directions","Member/Self","Nominations"],
+  bpwt:          ["Fast Starts","President","Programming VP","Membership VP","Secretary","Treasurer","State Delegate","Parliamentarian","District Secretary","Convention","Future Directions","Member/Self","Nominations","Roster"],
   blossom_thyme: ["Market Logistics","Vendors","Marketing","Finances","Volunteers","Events"],
   personal:      ["Home","Personal Goals","Health & Wellness","Finances","Projects","Errands"],
 };
 // categories that use nomination flow instead of checkbox
 const MEMBERS = ["Brandy", "Ann", "Jen", "Emily", "Maude", "Tina", "Alison", "Cindy", "Lorissa", "Tracy", "Ashley", "Jessica", "Pam"];
 const MEMBER_SELF_CATEGORIES = ["Member/Self"];
+const ROSTER_CATEGORIES = ["Roster"];
 const NOMINATION_CATEGORIES = ["Nominations"];
 const PEOPLE = {
   bpwt:          ["Jen","Brandy","Lorissa","Maude","Ann","Cindy","Ashley","Tracy","Emily","Tina","Pam","Alison"],
@@ -337,6 +338,28 @@ async function initDB() {
     completed_date TEXT,
     UNIQUE(item_id, member_name)
   )`);
+  await tursoQuery(`CREATE TABLE IF NOT EXISTS bpwt_roster (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    first_name TEXT NOT NULL,
+    last_name TEXT NOT NULL,
+    email TEXT,
+    phone TEXT,
+    tri_due TEXT,
+    join_date TEXT,
+    birthday TEXT,
+    active INTEGER DEFAULT 1,
+    created_at TEXT DEFAULT (datetime('now'))
+  )`);
+  const rosterCnt = parseInt((await tursoQuery("SELECT COUNT(*) FROM bpwt_roster"))?.rows?.[0]?.[0]?.value??"0");
+  if (rosterCnt===0) {
+    const rosterSeed = [{"first": "Brandy", "last": "Mausbach", "email": "mausey002@gmail.com", "phone": "507-360-3125", "tri_due": "1", "join_date": "2018-07-18", "birthday": "06/25"}, {"first": "Ann", "last": "Thorson", "email": "anrsept222012@gmail.com", "phone": "507-254-1101", "tri_due": "1", "join_date": "2022-05-04", "birthday": "12/14"}, {"first": "Jennifer", "last": "Grovdahl", "email": "jengrovdahl@gmail.com", "phone": "507-358-3557", "tri_due": "1", "join_date": "2025-06-02", "birthday": "10/24"}, {"first": "Emily", "last": "Glaser", "email": "glaseremily17@gmail.com", "phone": "612-558-8574", "tri_due": "2", "join_date": "2025-09-01", "birthday": "02/10"}, {"first": "Maude", "last": "Livingston", "email": "maudie818@gmail.com", "phone": "507-429-0227", "tri_due": "2", "join_date": "2025-09-08", "birthday": "11/05"}, {"first": "Tina", "last": "Cisneros", "email": "tcisneros@blossoms.k12.mn.us", "phone": "507-438-1466", "tri_due": "2", "join_date": "2025-11-07", "birthday": "06/26"}, {"first": "Alison", "last": "Webb", "email": "Alison.silkey@gmail.com", "phone": "507-330-3264", "tri_due": "2", "join_date": "2025-11-10", "birthday": "04/25"}, {"first": "Cindy", "last": "Golbuff", "email": "scgolbuff@wctatel.net", "phone": "970-223-2759", "tri_due": "3", "join_date": "1999-01-01", "birthday": ""}, {"first": "Lorissa", "last": "Hanson", "email": "lhanson1204@gmail.com", "phone": "507-384-8966", "tri_due": "3", "join_date": "2023-04-03", "birthday": "06/19"}, {"first": "Tracy", "last": "Madsen", "email": "tracyhanson87@yahoo.com", "phone": "507-481-7308", "tri_due": "3", "join_date": "2023-04-03", "birthday": "09/14"}, {"first": "Ashley", "last": "Martin", "email": "ashley_baker1987@hotmail.com", "phone": "715-213-2110", "tri_due": "3", "join_date": "2025-02-13", "birthday": "03/30"}, {"first": "Jessica", "last": "Bremseth", "email": "Blueroseart21@gmail.com", "phone": "507-206-9195", "tri_due": "3", "join_date": "2026-01-27", "birthday": "11/14"}, {"first": "Pam", "last": "Schaefer-Smith", "email": "Fabshop2pam@gmail.com", "phone": "641-220-1445", "tri_due": "3", "join_date": "2026-04-22", "birthday": "09/29"}];
+    for (const m of rosterSeed) {
+      await tursoQuery(
+        "INSERT INTO bpwt_roster (first_name,last_name,email,phone,tri_due,join_date,birthday,active) VALUES (?,?,?,?,?,?,?,1)",
+        [m.first,m.last,m.email,m.phone,m.tri_due,m.join_date,m.birthday]
+      );
+    }
+  }
   try { await tursoQuery("ALTER TABLE command_center_items ADD COLUMN completed_by TEXT"); } catch(e){}
   try { await tursoQuery("ALTER TABLE command_center_items ADD COLUMN completed_at TEXT"); } catch(e){}
   const presCheck = parseInt((await tursoQuery("SELECT COUNT(*) FROM command_center_items WHERE org='bpwt' AND category='President'"))?.rows?.[0]?.[0]?.value??"0");
@@ -535,7 +558,10 @@ function MemberTracker({ item, orgColor }) {
   const loadRows = React.useCallback(async () => {
     setLoading(true);
     try {
-      for (const m of MEMBERS) {
+      // load active members from roster
+      const mr = await tursoQuery("SELECT first_name FROM bpwt_roster WHERE active=1 ORDER BY tri_due ASC, last_name ASC");
+      const activeMembers = mr?.rows ? mr.rows.map(r=>r[0]?.value) : [];
+      for (const m of activeMembers) {
         await tursoQuery("INSERT OR IGNORE INTO member_completions (item_id,member_name,completed) VALUES (?,?,0)",[item.id,m]);
       }
       const r = await tursoQuery("SELECT * FROM member_completions WHERE item_id=? ORDER BY id ASC",[item.id]);
@@ -588,6 +614,161 @@ function MemberTracker({ item, orgColor }) {
           );
         })}
       </div>
+    </div>
+  );
+}
+
+
+// ── Roster view ──
+function RosterView({ color }) {
+  const [members, setMembers] = React.useState([]);
+  const [loading, setLoading] = React.useState(true);
+  const [showAdd, setShowAdd] = React.useState(false);
+  const [form, setForm] = React.useState({first:"",last:"",email:"",phone:"",tri_due:"1",join_date:"",birthday:""});
+  const [saving, setSaving] = React.useState(false);
+  const [editId, setEditId] = React.useState(null);
+
+  const load = React.useCallback(async()=>{
+    setLoading(true);
+    try {
+      const r = await tursoQuery("SELECT * FROM bpwt_roster WHERE active=1 ORDER BY tri_due ASC, last_name ASC");
+      if (r?.rows) {
+        const cols=r.cols.map(c=>c.name);
+        setMembers(r.rows.map(row=>{const o={};cols.forEach((c,i)=>{o[c]=row[i]?.value??null;});return o;}));
+      }
+    } finally { setLoading(false); }
+  },[]);
+
+  React.useEffect(()=>{load();},[load]);
+
+  const openAdd = () => { setForm({first:"",last:"",email:"",phone:"",tri_due:"1",join_date:"",birthday:""}); setEditId(null); setShowAdd(true); };
+  const openEdit = (m) => { setForm({first:m.first_name,last:m.last_name,email:m.email||"",phone:m.phone||"",tri_due:m.tri_due||"1",join_date:m.join_date||"",birthday:m.birthday||""}); setEditId(m.id); setShowAdd(true); };
+
+  const save = async() => {
+    if (!form.first.trim()) return;
+    setSaving(true);
+    try {
+      if (editId) {
+        await tursoQuery("UPDATE bpwt_roster SET first_name=?,last_name=?,email=?,phone=?,tri_due=?,join_date=?,birthday=? WHERE id=?",
+          [form.first,form.last,form.email,form.phone,form.tri_due,form.join_date,form.birthday,editId]);
+      } else {
+        await tursoQuery("INSERT INTO bpwt_roster (first_name,last_name,email,phone,tri_due,join_date,birthday,active) VALUES (?,?,?,?,?,?,?,1)",
+          [form.first,form.last,form.email,form.phone,form.tri_due,form.join_date,form.birthday]);
+      }
+      await load(); setShowAdd(false);
+    } finally { setSaving(false); }
+  };
+
+  const deactivate = async(id) => {
+    if (!confirm("Remove this member from the roster?")) return;
+    await tursoQuery("UPDATE bpwt_roster SET active=0 WHERE id=?",[id]);
+    setMembers(p=>p.filter(m=>m.id!==id));
+  };
+
+  const TRI_COLORS = {"1":"#7C3AED","2":"#2563EB","3":"#16A34A"};
+
+  if (loading) return <p style={{textAlign:"center",color:"#78716C",padding:40}}>Loading roster…</p>;
+
+  return (
+    <div>
+      {/* Stats */}
+      <div style={{display:"flex",gap:10,marginBottom:16}}>
+        {["1","2","3"].map(t=>{
+          const cnt=members.filter(m=>m.tri_due===t).length;
+          return <div key={t} style={{flex:1,background:"#fff",border:"0.5px solid #E7E5E4",borderRadius:10,padding:"10px 14px",textAlign:"center"}}>
+            <p style={{fontSize:20,fontWeight:800,color:TRI_COLORS[t],margin:0,lineHeight:1}}>{cnt}</p>
+            <p style={{fontSize:11,color:"#A8A29E",marginTop:2}}>Tri {t} due</p>
+          </div>;
+        })}
+        <div style={{flex:1,background:"#fff",border:"0.5px solid #E7E5E4",borderRadius:10,padding:"10px 14px",textAlign:"center"}}>
+          <p style={{fontSize:20,fontWeight:800,color:color,margin:0,lineHeight:1}}>{members.length}</p>
+          <p style={{fontSize:11,color:"#A8A29E",marginTop:2}}>Total</p>
+        </div>
+      </div>
+
+      {/* Add button */}
+      <button onClick={openAdd} style={{width:"100%",padding:"11px",borderRadius:10,border:`1.5px dashed ${color}`,background:"transparent",color:color,fontSize:13,fontWeight:700,cursor:"pointer",marginBottom:12}}>
+        + Add new member
+      </button>
+
+      {/* Member cards */}
+      <div style={{display:"flex",flexDirection:"column",gap:8}}>
+        {members.map(m=>(
+          <div key={m.id} style={{background:"#fff",border:"0.5px solid #E7E5E4",borderRadius:12,padding:"14px 16px"}}>
+            <div style={{display:"flex",alignItems:"flex-start",justifyContent:"space-between",gap:10}}>
+              <div style={{flex:1}}>
+                <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:4}}>
+                  <p style={{margin:0,fontSize:15,fontWeight:700,color:"#1C1917"}}>{m.first_name} {m.last_name}</p>
+                  <span style={{fontSize:10,fontWeight:700,padding:"2px 7px",borderRadius:99,background:TRI_COLORS[m.tri_due]+"22",color:TRI_COLORS[m.tri_due]}}>Tri {m.tri_due}</span>
+                </div>
+                {m.email&&<p style={{margin:"2px 0",fontSize:12,color:"#78716C"}}>✉ <a href={"mailto:"+m.email} style={{color:"#7C3AED",textDecoration:"none"}}>{m.email}</a></p>}
+                {m.phone&&<p style={{margin:"2px 0",fontSize:12,color:"#78716C"}}>📞 {m.phone}</p>}
+                <div style={{display:"flex",gap:12,marginTop:4}}>
+                  {m.birthday&&<p style={{margin:0,fontSize:11,color:"#A8A29E"}}>🎂 {m.birthday}</p>}
+                  {m.join_date&&<p style={{margin:0,fontSize:11,color:"#A8A29E"}}>Joined {new Date(m.join_date+"T12:00:00").toLocaleDateString("en-US",{month:"short",year:"numeric"})}</p>}
+                </div>
+              </div>
+              <div style={{display:"flex",gap:4}}>
+                <button onClick={()=>openEdit(m)} style={{background:"none",border:"none",cursor:"pointer",padding:"4px 6px",color:"#A8A29E",fontSize:14}}>✏️</button>
+                <button onClick={()=>deactivate(m.id)} style={{background:"none",border:"none",cursor:"pointer",padding:"4px 6px",color:"#A8A29E",fontSize:14}}>🗑</button>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Add/Edit modal */}
+      {showAdd&&(
+        <div style={{position:"fixed",inset:0,background:"rgba(0,0,0,0.55)",zIndex:50,display:"flex",alignItems:"flex-end"}} onClick={e=>e.target===e.currentTarget&&setShowAdd(false)}>
+          <div style={{background:"#fff",borderRadius:"22px 22px 0 0",width:"100%",maxHeight:"92vh",overflow:"auto",padding:"24px 20px 40px"}}>
+            <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:20}}>
+              <h2 style={{margin:0,fontSize:18,fontWeight:800,color:"#1C1917"}}>{editId?"Edit member":"Add member"}</h2>
+              <button onClick={()=>setShowAdd(false)} style={{background:"#F5F5F4",border:"none",borderRadius:8,padding:"6px 14px",cursor:"pointer",fontSize:14,color:"#78716C",fontWeight:600}}>Cancel</button>
+            </div>
+            <div style={{display:"flex",flexDirection:"column",gap:14}}>
+              <div style={{display:"flex",gap:10}}>
+                <div style={{flex:1}}>
+                  <label style={{fontSize:11,fontWeight:700,color:"#78716C",display:"block",marginBottom:6,textTransform:"uppercase",letterSpacing:"0.06em"}}>First name *</label>
+                  <input value={form.first} onChange={e=>setForm(f=>({...f,first:e.target.value}))} className="field-input" placeholder="First"/>
+                </div>
+                <div style={{flex:1}}>
+                  <label style={{fontSize:11,fontWeight:700,color:"#78716C",display:"block",marginBottom:6,textTransform:"uppercase",letterSpacing:"0.06em"}}>Last name</label>
+                  <input value={form.last} onChange={e=>setForm(f=>({...f,last:e.target.value}))} className="field-input" placeholder="Last"/>
+                </div>
+              </div>
+              <div>
+                <label style={{fontSize:11,fontWeight:700,color:"#78716C",display:"block",marginBottom:6,textTransform:"uppercase",letterSpacing:"0.06em"}}>Email</label>
+                <input type="email" value={form.email} onChange={e=>setForm(f=>({...f,email:e.target.value}))} className="field-input" placeholder="email@example.com"/>
+              </div>
+              <div>
+                <label style={{fontSize:11,fontWeight:700,color:"#78716C",display:"block",marginBottom:6,textTransform:"uppercase",letterSpacing:"0.06em"}}>Phone</label>
+                <input value={form.phone} onChange={e=>setForm(f=>({...f,phone:e.target.value}))} className="field-input" placeholder="507-000-0000"/>
+              </div>
+              <div style={{display:"flex",gap:10}}>
+                <div style={{flex:1}}>
+                  <label style={{fontSize:11,fontWeight:700,color:"#78716C",display:"block",marginBottom:6,textTransform:"uppercase",letterSpacing:"0.06em"}}>Tri due</label>
+                  <select value={form.tri_due} onChange={e=>setForm(f=>({...f,tri_due:e.target.value}))} className="field-input">
+                    <option value="1">Tri 1</option>
+                    <option value="2">Tri 2</option>
+                    <option value="3">Tri 3</option>
+                  </select>
+                </div>
+                <div style={{flex:1}}>
+                  <label style={{fontSize:11,fontWeight:700,color:"#78716C",display:"block",marginBottom:6,textTransform:"uppercase",letterSpacing:"0.06em"}}>Join date</label>
+                  <input type="date" value={form.join_date} onChange={e=>setForm(f=>({...f,join_date:e.target.value}))} className="field-input"/>
+                </div>
+              </div>
+              <div>
+                <label style={{fontSize:11,fontWeight:700,color:"#78716C",display:"block",marginBottom:6,textTransform:"uppercase",letterSpacing:"0.06em"}}>Birthday (MM/DD)</label>
+                <input value={form.birthday} onChange={e=>setForm(f=>({...f,birthday:e.target.value}))} className="field-input" placeholder="06/25"/>
+              </div>
+              <button onClick={save} disabled={saving||!form.first.trim()} style={{background:color,color:"#fff",border:"none",borderRadius:12,padding:"15px",fontSize:15,fontWeight:800,cursor:"pointer",opacity:saving||!form.first.trim()?0.5:1}}>
+                {saving?"Saving…":editId?"Save changes":"Add member"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -730,19 +911,19 @@ function App() {
         {/* CONTENT */}
         <div className="content">
           {/* Stats */}
-          <div className="stats-row">
+          {!ROSTER_CATEGORIES.includes(activeCat)&&<div className="stats-row">
             {[["Open",pageOpen,oc.color],["Done",pageDone,"#16A34A"],["Urgent",pageUrgent,"#DC2626"]].map(([lbl,val,clr])=>(
               <div key={lbl} className="stat-card">
                 <p className="stat-num" style={{color:clr}}>{val}</p>
                 <p className="stat-lbl">{lbl}</p>
               </div>
             ))}
-          </div>
+          </div>}
 
           {loading && <p style={{textAlign:"center",color:"#78716C",padding:60}}>Loading…</p>}
           {error   && <div style={{background:"#FEF2F2",borderRadius:10,padding:16,color:"#DC2626",fontSize:14,marginBottom:12}}>⚠ {error}</div>}
 
-          {!loading&&!error&&(
+          {!loading&&!error&&!ROSTER_CATEGORIES.includes(activeCat)&&(
             displayed.length===0
               ? <div style={{textAlign:"center",padding:"60px 20px",color:"#A8A29E"}}>
                   <p style={{fontSize:32,marginBottom:8}}>✓</p>
