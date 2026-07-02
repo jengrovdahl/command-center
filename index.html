@@ -353,6 +353,15 @@ async function initDB() {
   // ensure honor_hold and notes columns exist
   try { await tursoQuery("ALTER TABLE bpwt_roster ADD COLUMN honor_hold INTEGER DEFAULT 0"); } catch(e){}
   try { await tursoQuery("ALTER TABLE bpwt_roster ADD COLUMN notes TEXT"); } catch(e){}
+  // add Debbie Johnson (honor hold — past state president) if not present
+  const debbieCheck = await tursoQuery("SELECT id FROM bpwt_roster WHERE first_name='Debbie' AND last_name='Johnson'");
+  if (!debbieCheck?.rows?.length) {
+    await tursoQuery(
+      "INSERT INTO bpwt_roster (first_name,last_name,email,phone,tri_due,join_date,birthday,active,honor_hold,notes) VALUES (?,?,?,?,?,?,?,0,1,?)",
+      ["Debbie","Johnson","dsjohnson9798@gmail.com","507-475-3112","2","1987-10-01","07/25","Past State President — required to retain on roster"]
+    );
+    console.log("Debbie Johnson added to roster");
+  }
   const rosterCnt = parseInt((await tursoQuery("SELECT COUNT(*) FROM bpwt_roster"))?.rows?.[0]?.[0]?.value??"0");
   if (rosterCnt===0) {
     const rosterSeed = [{"first": "Brandy", "last": "Mausbach", "email": "mausey002@gmail.com", "phone": "507-360-3125", "tri_due": "1", "join_date": "2018-07-18", "birthday": "06/25"}, {"first": "Ann", "last": "Thorson", "email": "anrsept222012@gmail.com", "phone": "507-254-1101", "tri_due": "1", "join_date": "2022-05-04", "birthday": "12/14"}, {"first": "Jennifer", "last": "Grovdahl", "email": "jengrovdahl@gmail.com", "phone": "507-358-3557", "tri_due": "1", "join_date": "2025-06-02", "birthday": "10/24"}, {"first": "Emily", "last": "Glaser", "email": "glaseremily17@gmail.com", "phone": "612-558-8574", "tri_due": "2", "join_date": "2025-09-01", "birthday": "02/10"}, {"first": "Maude", "last": "Livingston", "email": "maudie818@gmail.com", "phone": "507-429-0227", "tri_due": "2", "join_date": "2025-09-08", "birthday": "11/05"}, {"first": "Tina", "last": "Cisneros", "email": "tcisneros@blossoms.k12.mn.us", "phone": "507-438-1466", "tri_due": "2", "join_date": "2025-11-07", "birthday": "06/26"}, {"first": "Alison", "last": "Webb", "email": "Alison.silkey@gmail.com", "phone": "507-330-3264", "tri_due": "2", "join_date": "2025-11-10", "birthday": "04/25"}, {"first": "Cindy", "last": "Golbuff", "email": "scgolbuff@wctatel.net", "phone": "970-223-2759", "tri_due": "3", "join_date": "1999-01-01", "birthday": ""}, {"first": "Lorissa", "last": "Hanson", "email": "lhanson1204@gmail.com", "phone": "507-384-8966", "tri_due": "3", "join_date": "2023-04-03", "birthday": "06/19"}, {"first": "Tracy", "last": "Madsen", "email": "tracyhanson87@yahoo.com", "phone": "507-481-7308", "tri_due": "3", "join_date": "2023-04-03", "birthday": "09/14"}, {"first": "Ashley", "last": "Martin", "email": "ashley_baker1987@hotmail.com", "phone": "715-213-2110", "tri_due": "3", "join_date": "2025-02-13", "birthday": "03/30"}, {"first": "Jessica", "last": "Bremseth", "email": "Blueroseart21@gmail.com", "phone": "507-206-9195", "tri_due": "3", "join_date": "2026-01-27", "birthday": "11/14"}, {"first": "Pam", "last": "Schaefer-Smith", "email": "Fabshop2pam@gmail.com", "phone": "641-220-1445", "tri_due": "3", "join_date": "2026-04-22", "birthday": "09/29"}];
@@ -363,14 +372,7 @@ async function initDB() {
       );
     }
 
-  // add Debbie if not present
-  const debbieCheck = await tursoQuery("SELECT id FROM bpwt_roster WHERE first_name='Debbie' AND last_name='Johnson'");
-  if (!debbieCheck?.rows?.length) {
-    await tursoQuery(
-      "INSERT INTO bpwt_roster (first_name,last_name,email,phone,tri_due,join_date,birthday,active,honor_hold,notes) VALUES (?,?,?,?,?,?,?,0,1,?)",
-      ["Debbie","Johnson","dsjohnson9798@gmail.com","507-475-3112","2","1987-10-01","07/25","Past State President — required to retain on roster"]
-    );
-  }  }
+  }
   try { await tursoQuery("ALTER TABLE command_center_items ADD COLUMN completed_by TEXT"); } catch(e){}
   try { await tursoQuery("ALTER TABLE command_center_items ADD COLUMN completed_at TEXT"); } catch(e){}
   const presCheck = parseInt((await tursoQuery("SELECT COUNT(*) FROM command_center_items WHERE org='bpwt' AND category='President'"))?.rows?.[0]?.[0]?.value??"0");
