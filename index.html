@@ -456,6 +456,22 @@ async function initDB() {
         }
       }
     }
+
+  // patch: add honor_hold column + add Debbie Johnson
+  const pd = await tursoQuery("SELECT value FROM cc_meta WHERE key='patch_debbie_honor'");
+  if (!pd?.rows?.length) {
+    try { await tursoQuery("ALTER TABLE bpwt_roster ADD COLUMN honor_hold INTEGER DEFAULT 0"); } catch(e){}
+    try { await tursoQuery("ALTER TABLE bpwt_roster ADD COLUMN notes TEXT"); } catch(e){}
+    // add Debbie as inactive but honor_hold
+    const existing = await tursoQuery("SELECT id FROM bpwt_roster WHERE first_name='Debbie' AND last_name='Johnson'");
+    if (!existing?.rows?.length) {
+      await tursoQuery(
+        "INSERT INTO bpwt_roster (first_name,last_name,email,phone,tri_due,join_date,birthday,active,honor_hold,notes) VALUES (?,?,?,?,?,?,?,0,1,?)",
+        ["Debbie","Johnson","dsjohnson9798@gmail.com","507-475-3112","2","1987-10-01","07/25","Past State President — required to retain on roster"]
+      );
+    }
+    await tursoQuery("INSERT OR REPLACE INTO cc_meta (key,value) VALUES ('patch_debbie_honor','done')");
+  }
     await tursoQuery("INSERT OR REPLACE INTO cc_meta (key,value) VALUES ('patch_emailme_links','done')");
   }
 
@@ -631,7 +647,7 @@ function RosterView({ color }) {
   const load = React.useCallback(async()=>{
     setLoading(true);
     try {
-      const r = await tursoQuery("SELECT * FROM bpwt_roster WHERE active=1 ORDER BY tri_due ASC, last_name ASC");
+      const r = await tursoQuery("SELECT * FROM bpwt_roster WHERE active=1 OR honor_hold=1 ORDER BY honor_hold ASC, tri_due ASC, last_name ASC");
       if (r?.rows) {
         const cols=r.cols.map(c=>c.name);
         setMembers(r.rows.map(row=>{const o={};cols.forEach((c,i)=>{o[c]=row[i]?.value??null;});return o;}));
@@ -691,13 +707,13 @@ function RosterView({ color }) {
         + Add new member
       </button>
 
-      {/* Member cards */}
+      {/* Active member cards */}
       <div style={{display:"flex",flexDirection:"column",gap:8}}>
-        {members.map(m=>(
+        {members.filter(m=>!(m.honor_hold==="1"||m.honor_hold===1)).map(m=>(
           <div key={m.id} style={{background:"#fff",border:"0.5px solid #E7E5E4",borderRadius:12,padding:"14px 16px"}}>
             <div style={{display:"flex",alignItems:"flex-start",justifyContent:"space-between",gap:10}}>
               <div style={{flex:1}}>
-                <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:4}}>
+                <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:4,flexWrap:"wrap"}}>
                   <p style={{margin:0,fontSize:15,fontWeight:700,color:"#1C1917"}}>{m.first_name} {m.last_name}</p>
                   <span style={{fontSize:10,fontWeight:700,padding:"2px 7px",borderRadius:99,background:TRI_COLORS[m.tri_due]+"22",color:TRI_COLORS[m.tri_due]}}>Tri {m.tri_due}</span>
                 </div>
@@ -716,6 +732,38 @@ function RosterView({ color }) {
           </div>
         ))}
       </div>
+
+      {/* Honor hold members — past state presidents, required on roster */}
+      {members.some(m=>m.honor_hold==="1"||m.honor_hold===1)&&(
+        <div style={{marginTop:20}}>
+          <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:10}}>
+            <div style={{flex:1,height:1,background:"#E7E5E4"}}/>
+            <span style={{fontSize:11,fontWeight:700,color:"#78716C",textTransform:"uppercase",letterSpacing:"0.08em",whiteSpace:"nowrap"}}>⭐ Honor Hold</span>
+            <div style={{flex:1,height:1,background:"#E7E5E4"}}/>
+          </div>
+          {members.filter(m=>m.honor_hold==="1"||m.honor_hold===1).map(m=>(
+            <div key={m.id} style={{background:"#F5F0FF",border:"2px solid #7C3AED",borderRadius:12,padding:"14px 16px",marginBottom:8}}>
+              <div style={{display:"flex",alignItems:"flex-start",justifyContent:"space-between",gap:10}}>
+                <div style={{flex:1}}>
+                  <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:6,flexWrap:"wrap"}}>
+                    <p style={{margin:0,fontSize:15,fontWeight:700,color:"#1C1917"}}>{m.first_name} {m.last_name}</p>
+                    <span style={{fontSize:10,fontWeight:800,padding:"3px 8px",borderRadius:99,background:"#7C3AED",color:"#fff",letterSpacing:"0.04em"}}>⭐ PAST STATE PRESIDENT</span>
+                    <span style={{fontSize:10,fontWeight:600,padding:"2px 7px",borderRadius:99,background:"#FEF3C7",color:"#92400E"}}>HONOR HOLD</span>
+                  </div>
+                  <p style={{margin:"0 0 6px",fontSize:11,color:"#7C3AED",fontStyle:"italic"}}>{m.notes}</p>
+                  {m.email&&<p style={{margin:"2px 0",fontSize:12,color:"#78716C"}}>✉ <a href={"mailto:"+m.email} style={{color:"#7C3AED",textDecoration:"none"}}>{m.email}</a></p>}
+                  {m.phone&&<p style={{margin:"2px 0",fontSize:12,color:"#78716C"}}>📞 {m.phone}</p>}
+                  <div style={{display:"flex",gap:12,marginTop:4}}>
+                    {m.birthday&&<p style={{margin:0,fontSize:11,color:"#A8A29E"}}>🎂 {m.birthday}</p>}
+                    {m.join_date&&<p style={{margin:0,fontSize:11,color:"#A8A29E"}}>Joined {new Date(m.join_date+"T12:00:00").toLocaleDateString("en-US",{month:"short",year:"numeric"})}</p>}
+                  </div>
+                </div>
+                <button onClick={()=>openEdit(m)} style={{background:"none",border:"none",cursor:"pointer",padding:"4px 6px",color:"#A8A29E",fontSize:14}}>✏️</button>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
 
       {/* Add/Edit modal */}
       {showAdd&&(
