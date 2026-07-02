@@ -470,21 +470,11 @@ async function initDB() {
       }
     }
 
-  // patch: add honor_hold column + add Debbie Johnson
-  const pd = await tursoQuery("SELECT value FROM cc_meta WHERE key='patch_debbie_honor'");
-  if (!pd?.rows?.length) {
-    try { await tursoQuery("ALTER TABLE bpwt_roster ADD COLUMN honor_hold INTEGER DEFAULT 0"); } catch(e){}
-    try { await tursoQuery("ALTER TABLE bpwt_roster ADD COLUMN notes TEXT"); } catch(e){}
-    // add Debbie as inactive but honor_hold
-    const existing = await tursoQuery("SELECT id FROM bpwt_roster WHERE first_name='Debbie' AND last_name='Johnson'");
-    if (!existing?.rows?.length) {
-      await tursoQuery(
-        "INSERT INTO bpwt_roster (first_name,last_name,email,phone,tri_due,join_date,birthday,active,honor_hold,notes) VALUES (?,?,?,?,?,?,?,0,1,?)",
-        ["Debbie","Johnson","dsjohnson9798@gmail.com","507-475-3112","2","1987-10-01","07/25","Past State President — required to retain on roster"]
-      );
-    }
-    await tursoQuery("INSERT OR REPLACE INTO cc_meta (key,value) VALUES ('patch_debbie_honor','done')");
-  }
+  // add Debbie Johnson (honor hold) if not present — safe to run every load
+  try { await tursoQuery("ALTER TABLE bpwt_roster ADD COLUMN honor_hold INTEGER DEFAULT 0"); } catch(e){}
+  try { await tursoQuery("ALTER TABLE bpwt_roster ADD COLUMN notes TEXT"); } catch(e){}
+  await tursoQuery("INSERT OR IGNORE INTO bpwt_roster (first_name,last_name,email,phone,tri_due,join_date,birthday,active,honor_hold,notes) VALUES (?,?,?,?,?,?,?,0,1,?)",
+    ["Debbie","Johnson","dsjohnson9798@gmail.com","507-475-3112","2","1987-10-01","07/25","Past State President — required to retain on roster"]);
     await tursoQuery("INSERT OR REPLACE INTO cc_meta (key,value) VALUES ('patch_emailme_links','done')");
   }
 
