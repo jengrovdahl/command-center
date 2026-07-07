@@ -473,6 +473,20 @@ async function initDB() {
   // add Debbie Johnson (honor hold) if not present — safe to run every load
   try { await tursoQuery("ALTER TABLE bpwt_roster ADD COLUMN honor_hold INTEGER DEFAULT 0"); } catch(e){}
   try { await tursoQuery("ALTER TABLE bpwt_roster ADD COLUMN notes TEXT"); } catch(e){}
+
+  // patch: fix Fast Start URLs to use correct per-position forms
+  const pfs = await tursoQuery("SELECT value FROM cc_meta WHERE key='patch_fast_start_urls'");
+  if (!pfs?.rows?.length) {
+    // President Fast Start
+    await tursoQuery("UPDATE command_center_items SET notes = REPLACE(notes, 'EmailMe form (LPM Fast Start): https://tinyurl.com/SPMFastStart', 'EmailMe form (Chapter President Fast Start): https://www.emailmeform.com/builder/form/4BFiaqZ0u9a9O3ImcV') WHERE org='bpwt' AND category='Fast Starts' AND title LIKE '%President Fast Start%'");
+    // Programming VP Fast Start
+    await tursoQuery("UPDATE command_center_items SET notes = REPLACE(notes, 'EmailMe form (LPM Fast Start): https://tinyurl.com/SPMFastStart', 'EmailMe form (Programming VP Fast Start): https://www.emailmeform.com/builder/form/tKLJZYw5kO3RWf13') WHERE org='bpwt' AND category='Fast Starts' AND title LIKE '%Programming VP Fast Start%'");
+    // Membership VP Fast Start
+    await tursoQuery("UPDATE command_center_items SET notes = REPLACE(notes, 'EmailMe form (LPM Fast Start): https://tinyurl.com/SPMFastStart', 'EmailMe form (Membership VP Fast Start): https://www.emailmeform.com/builder/form/EGkfi3a8ydbs') WHERE org='bpwt' AND category='Fast Starts' AND title LIKE '%Membership VP Fast Start%'");
+    // Secretary and Treasurer Fast Starts — remove the LPM link entirely, add correct resource page
+    await tursoQuery("UPDATE command_center_items SET notes = REPLACE(notes, '\nEmailMe form (LPM Fast Start): https://tinyurl.com/SPMFastStart', '\nChapter Management Resources: https://mnwt.org/chapter-management-resources/') WHERE org='bpwt' AND category='Fast Starts' AND (title LIKE '%Secretary Fast Start%' OR title LIKE '%Treasurer Fast Start%')");
+    await tursoQuery("INSERT OR REPLACE INTO cc_meta (key,value) VALUES ('patch_fast_start_urls','done')");
+  }
   await tursoQuery("INSERT OR IGNORE INTO bpwt_roster (first_name,last_name,email,phone,tri_due,join_date,birthday,active,honor_hold,notes) VALUES (?,?,?,?,?,?,?,0,1,?)",
     ["Debbie","Johnson","dsjohnson9798@gmail.com","507-475-3112","2","1987-10-01","07/25","Past State President — required to retain on roster"]);
     await tursoQuery("INSERT OR REPLACE INTO cc_meta (key,value) VALUES ('patch_emailme_links','done')");
