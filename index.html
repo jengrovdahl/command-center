@@ -940,6 +940,156 @@ const LEVEL_COLORS = {
   "USWT":   { bg:"#D1FAE5", text:"#065F46" },
 };
 
+
+// ── Filter Panel ──
+function FilterPanel({ org, items, filters, setFilters, onClose, color, people }) {
+  const isBpwt = org === "bpwt";
+  const TRI = [
+    { label:"Tri 1", from:"2026-06-01", to:"2026-08-25" },
+    { label:"Tri 2", from:"2026-09-01", to:"2026-12-25" },
+    { label:"Tri 3", from:"2027-01-01", to:"2027-05-01" },
+  ];
+  const LEVELS = ["LOCAL","MNWT","USWT"];
+  const STATUSES = ["open","done","won\'t do"];
+
+  const toggle = (key, val) => {
+    setFilters(f => {
+      const arr = f[key] || [];
+      return { ...f, [key]: arr.includes(val) ? arr.filter(x=>x!==val) : [...arr, val] };
+    });
+  };
+  const setDate = (key, val) => setFilters(f => ({ ...f, [key]: val || null }));
+  const setTri = (tri) => {
+    setFilters(f => {
+      const already = f.dateFrom===tri.from && f.dateTo===tri.to;
+      return { ...f, dateFrom: already?null:tri.from, dateTo: already?null:tri.to, activeTri: already?null:tri.label };
+    });
+  };
+  const clear = () => setFilters({ statuses:[], levels:[], assignees:[], dateFrom:null, dateTo:null, activeTri:null, overdue:false, unassigned:false });
+  const activeCount = [
+    (filters.statuses||[]).length,
+    (filters.levels||[]).length,
+    (filters.assignees||[]).length,
+    filters.dateFrom||filters.dateTo ? 1 : 0,
+    filters.overdue ? 1 : 0,
+    filters.unassigned ? 1 : 0,
+  ].reduce((a,b)=>a+b,0);
+
+  const pill = (active, onClick, label) => (
+    <button onClick={onClick} style={{
+      padding:"6px 12px",borderRadius:99,border:`1.5px solid ${active?color:"#E7E5E4"}`,
+      background:active?color:"#fff",color:active?"#fff":"#78716C",
+      fontSize:12,fontWeight:600,cursor:"pointer",transition:"all 0.15s"
+    }}>{label}</button>
+  );
+
+  return (
+    <div style={{position:"fixed",inset:0,zIndex:60,display:"flex",alignItems:"flex-end"}} onClick={e=>e.target===e.currentTarget&&onClose()}>
+      <div style={{background:"#fff",borderRadius:"22px 22px 0 0",width:"100%",maxHeight:"85vh",overflow:"auto",boxShadow:"0 -4px 24px rgba(0,0,0,0.15)"}}>
+        {/* Header */}
+        <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"20px 20px 0"}}>
+          <div style={{display:"flex",alignItems:"center",gap:10}}>
+            <h2 style={{margin:0,fontSize:17,fontWeight:800,color:"#1C1917"}}>Filter</h2>
+            {activeCount>0&&<span style={{fontSize:11,fontWeight:800,padding:"2px 8px",borderRadius:99,background:color,color:"#fff"}}>{activeCount} active</span>}
+          </div>
+          <div style={{display:"flex",gap:8}}>
+            {activeCount>0&&<button onClick={clear} style={{background:"#FEF2F2",border:"none",borderRadius:8,padding:"6px 12px",cursor:"pointer",fontSize:13,color:"#DC2626",fontWeight:600}}>Clear all</button>}
+            <button onClick={onClose} style={{background:"#F5F5F4",border:"none",borderRadius:8,padding:"6px 14px",cursor:"pointer",fontSize:14,color:"#78716C",fontWeight:600}}>Done</button>
+          </div>
+        </div>
+
+        <div style={{padding:"16px 20px 40px",display:"flex",flexDirection:"column",gap:20}}>
+
+          {/* Status */}
+          <div>
+            <p style={{fontSize:11,fontWeight:700,color:"#A8A29E",textTransform:"uppercase",letterSpacing:"0.08em",margin:"0 0 8px"}}>Status</p>
+            <div style={{display:"flex",gap:8,flexWrap:"wrap"}}>
+              {STATUSES.map(s=>pill((filters.statuses||[]).includes(s),()=>toggle("statuses",s),s.charAt(0).toUpperCase()+s.slice(1)))}
+              {pill(filters.overdue,()=>setFilters(f=>({...f,overdue:!f.overdue})),"⚠ Overdue")}
+            </div>
+          </div>
+
+          {/* Trimester (BPWT only) */}
+          {isBpwt&&<div>
+            <p style={{fontSize:11,fontWeight:700,color:"#A8A29E",textTransform:"uppercase",letterSpacing:"0.08em",margin:"0 0 8px"}}>Trimester</p>
+            <div style={{display:"flex",gap:8,flexWrap:"wrap"}}>
+              {TRI.map(t=>pill(filters.activeTri===t.label,()=>setTri(t),t.label+" (due "+(t.label==="Tri 1"?"Aug 25":t.label==="Tri 2"?"Dec 25":"May 1")+")"))}
+            </div>
+          </div>}
+
+          {/* Date range */}
+          <div>
+            <p style={{fontSize:11,fontWeight:700,color:"#A8A29E",textTransform:"uppercase",letterSpacing:"0.08em",margin:"0 0 8px"}}>Due date range</p>
+            <div style={{display:"flex",gap:10,alignItems:"center"}}>
+              <div style={{flex:1}}>
+                <label style={{fontSize:11,color:"#A8A29E",display:"block",marginBottom:4}}>From</label>
+                <input type="date" value={filters.dateFrom||""} onChange={e=>setDate("dateFrom",e.target.value)}
+                  style={{width:"100%",padding:"9px 12px",borderRadius:10,border:`1.5px solid ${filters.dateFrom?color:"#E7E5E4"}`,fontSize:13,color:"#1C1917"}}/>
+              </div>
+              <span style={{color:"#A8A29E",marginTop:18}}>→</span>
+              <div style={{flex:1}}>
+                <label style={{fontSize:11,color:"#A8A29E",display:"block",marginBottom:4}}>To</label>
+                <input type="date" value={filters.dateTo||""} onChange={e=>setDate("dateTo",e.target.value)}
+                  style={{width:"100%",padding:"9px 12px",borderRadius:10,border:`1.5px solid ${filters.dateTo?color:"#E7E5E4"}`,fontSize:13,color:"#1C1917"}}/>
+              </div>
+            </div>
+          </div>
+
+          {/* Level (BPWT only) */}
+          {isBpwt&&<div>
+            <p style={{fontSize:11,fontWeight:700,color:"#A8A29E",textTransform:"uppercase",letterSpacing:"0.08em",margin:"0 0 8px"}}>Level</p>
+            <div style={{display:"flex",gap:8,flexWrap:"wrap"}}>
+              {LEVELS.map(l=>pill((filters.levels||[]).includes(l),()=>toggle("levels",l),l))}
+            </div>
+          </div>}
+
+          {/* Assigned to */}
+          <div>
+            <p style={{fontSize:11,fontWeight:700,color:"#A8A29E",textTransform:"uppercase",letterSpacing:"0.08em",margin:"0 0 8px"}}>Assigned to</p>
+            <div style={{display:"flex",gap:8,flexWrap:"wrap"}}>
+              {pill(filters.unassigned,()=>setFilters(f=>({...f,unassigned:!f.unassigned})),"Unassigned")}
+              {(people||[]).map(p=>pill((filters.assignees||[]).includes(p),()=>toggle("assignees",p),p))}
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  );
+}
+
+
+function applyFilters(items, filters) {
+  if (!filters) return items;
+  return items.filter(item => {
+    const done = item.completed==="1"||item.completed===1;
+    const wd   = item.wont_do==="1"||item.wont_do===1;
+    // status
+    if ((filters.statuses||[]).length > 0) {
+      const match =
+        (filters.statuses.includes("open")      && !done && !wd) ||
+        (filters.statuses.includes("done")      && done) ||
+        (filters.statuses.includes("won\'t do") && wd);
+      if (!match) return false;
+    }
+    // overdue
+    if (filters.overdue && !(item.due_date && new Date(item.due_date+"T23:59:59") < new Date())) return false;
+    // date range
+    if (filters.dateFrom && item.due_date && item.due_date < filters.dateFrom) return false;
+    if (filters.dateTo   && item.due_date && item.due_date > filters.dateTo)   return false;
+    if (filters.dateFrom && !item.due_date) return false;
+    // level
+    if ((filters.levels||[]).length > 0) {
+      const lvl = item.level || getLevel(item);
+      if (!filters.levels.includes(lvl)) return false;
+    }
+    // assigned to
+    if (filters.unassigned && item.assigned_to) return false;
+    if ((filters.assignees||[]).length > 0 && !filters.assignees.includes(item.assigned_to)) return false;
+    return true;
+  });
+}
+
 // ── App ──
 function App() {
   const [org,setOrg]               = React.useState(()=>localStorage.getItem("cc_org")||"bpwt");
@@ -958,6 +1108,8 @@ function App() {
   const [form,setForm]             = React.useState({});
   const [saving,setSaving]         = React.useState(false);
   const [completeBy,setCompleteBy] = React.useState("");
+  const [filters,setFilters]       = React.useState({statuses:[],levels:[],assignees:[],dateFrom:null,dateTo:null,activeTri:null,overdue:false,unassigned:false});
+  const [showFilters,setShowFilters] = React.useState(false);
 
   const load = React.useCallback(async()=>{
     try { setLoading(true); await initDB();
@@ -1007,7 +1159,8 @@ function App() {
 
   // active page items
   const pageItems=orgItems.filter(i=>i.category===activeCat);
-  const displayed=filter==="all"?pageItems:filter==="open"?pageItems.filter(i=>!isDone(i.completed)&&!isWontDo(i.wont_do)):filter==="done"?pageItems.filter(i=>isDone(i.completed)):pageItems.filter(i=>isWontDo(i.wont_do));
+  const statusFiltered=filter==="all"?pageItems:filter==="open"?pageItems.filter(i=>!isDone(i.completed)&&!isWontDo(i.wont_do)):filter==="done"?pageItems.filter(i=>isDone(i.completed)):pageItems.filter(i=>isWontDo(i.wont_do));
+  const displayed=applyFilters(statusFiltered,filters);
   const pageOpen=pageItems.filter(i=>!isDone(i.completed)&&!isWontDo(i.wont_do)).length;
   const pageDone=pageItems.filter(i=> isDone(i.completed)).length;
   const pageUrgent=pageItems.filter(i=>!isDone(i.completed)&&!isWontDo(i.wont_do)&&(isOverdue(i.due_date)||isSoon(i.due_date))).length;
@@ -1077,7 +1230,15 @@ function App() {
             {["all","open","done","won't do"].map(f=>(
               <button key={f} onClick={()=>setFilter(f)} style={{padding:"5px 11px",borderRadius:99,border:`1.5px solid ${filter===f?oc.color:"#E7E5E4"}`,background:filter===f?oc.color:"#fff",color:filter===f?"#fff":"#78716C",fontSize:12,fontWeight:600,cursor:"pointer"}}>{f.charAt(0).toUpperCase()+f.slice(1)}</button>
             ))}
-            <button onClick={openAdd} style={{background:oc.color,color:"#fff",border:"none",borderRadius:9,padding:"8px 16px",fontSize:13,fontWeight:700,cursor:"pointer",marginLeft:4}}>+ Add</button>
+            <button onClick={()=>setShowFilters(true)} style={{position:"relative",background:"#F5F5F4",border:"1.5px solid #E7E5E4",borderRadius:9,padding:"8px 12px",fontSize:13,fontWeight:700,cursor:"pointer",color:"#78716C",display:"flex",alignItems:"center",gap:5}}>
+            ⚙ Filter
+            {[...(filters.statuses||[]),(filters.levels||[]).length&&"l",(filters.assignees||[]).length&&"a",filters.dateFrom&&"d",filters.overdue&&"o",filters.unassigned&&"u"].filter(Boolean).length>0&&(
+              <span style={{position:"absolute",top:-5,right:-5,background:"#DC2626",color:"#fff",borderRadius:99,width:16,height:16,fontSize:9,fontWeight:900,display:"flex",alignItems:"center",justifyContent:"center"}}>
+                {[...(filters.statuses||[]),(filters.levels||[]).length&&"l",(filters.assignees||[]).length&&"a",filters.dateFrom&&"d",filters.overdue&&"o",filters.unassigned&&"u"].filter(Boolean).length}
+              </span>
+            )}
+          </button>
+          <button onClick={openAdd} style={{background:oc.color,color:"#fff",border:"none",borderRadius:9,padding:"8px 16px",fontSize:13,fontWeight:700,cursor:"pointer",marginLeft:4}}>+ Add</button>
           </div>
         </div>
 
@@ -1164,6 +1325,15 @@ function App() {
       </main>
 
       {/* COMPLETE MODAL */}
+      {showFilters&&<FilterPanel
+        org={org}
+        items={orgItems}
+        filters={filters}
+        setFilters={setFilters}
+        onClose={()=>setShowFilters(false)}
+        color={oc.color}
+        people={PEOPLE[org]||[]}
+      />}
       {modal?.mode==="complete"&&(
         <div className="modal-backdrop" onClick={e=>e.target===e.currentTarget&&closeModal()}>
           <div className="modal-sheet">
