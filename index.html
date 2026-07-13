@@ -375,6 +375,7 @@ async function initDB() {
   }
   try { await tursoQuery("ALTER TABLE command_center_items ADD COLUMN completed_by TEXT"); } catch(e){}
   try { await tursoQuery("ALTER TABLE command_center_items ADD COLUMN completed_at TEXT"); } catch(e){}
+  try { await tursoQuery("ALTER TABLE command_center_items ADD COLUMN wont_do INTEGER DEFAULT 0"); } catch(e){}
   const presCheck = parseInt((await tursoQuery("SELECT COUNT(*) FROM command_center_items WHERE org='bpwt' AND category='President'"))?.rows?.[0]?.[0]?.value??"0");
   if (presCheck===0) {
     await tursoQuery("DELETE FROM command_center_items WHERE org='bpwt'");
@@ -528,6 +529,7 @@ function fmtDT(d)       { if(!d)return null; return new Date(d).toLocaleDateStri
 function isOverdue(d)   { return d && new Date(d+"T23:59:59") < new Date(); }
 function isSoon(d)      { if(!d)return false; const df=new Date(d+"T23:59:59")-new Date(); return df>0&&df<1000*60*60*24*7; }
 function isDone(v)      { return v==="1"||v===1; }
+function isWontDo(v)   { return v==="1"||v===1; }
 function nowISO()       { return new Date().toISOString(); }
 
 // ── Notes renderer — makes URLs clickable ──
@@ -584,12 +586,12 @@ function InlineAssignee({ value, org, onChange, color }) {
 }
 
 // ── Inline title ──
-function InlineTitle({ value, done, onChange }) {
+function InlineTitle({ value, done, wontDo, onChange }) {
   const [editing,setEditing]=React.useState(false);
   const [local,setLocal]=React.useState(value);
   const commit=()=>{setEditing(false);if(local.trim()&&local!==value)onChange(local.trim());else setLocal(value);};
   if(editing) return <input className="inline-title" value={local} onChange={e=>setLocal(e.target.value)} onBlur={commit} onKeyDown={e=>{if(e.key==="Enter")commit();if(e.key==="Escape"){setLocal(value);setEditing(false);}}} autoFocus/>;
-  return <p className="item-title" onClick={()=>!done&&setEditing(true)} style={{color:done?"#A8A29E":"#1C1917",textDecoration:done?"line-through":"none",cursor:done?"default":"text"}}>{value}</p>;
+  return <p className="item-title" onClick={()=>!done&&!wontDo&&setEditing(true)} style={{color:wontDo?"#FCA5A5":done?"#A8A29E":"#1C1917",textDecoration:(done||wontDo)?"line-through":"none",cursor:(done||wontDo)?"default":"text"}}>{value}</p>;
 }
 
 // ── AddCategoryBar ──
@@ -899,6 +901,11 @@ function App() {
   };
 
   const handleCheck=(item)=>{ if(isDone(item.completed))uncomplete(item); else{setCompleteBy(item.assigned_to||"");setModal({mode:"complete",item});} };
+  const toggleWontDo=async(item)=>{
+    const nv=(item.wont_do==="1"||item.wont_do===1)?0:1;
+    setItems(prev=>prev.map(i=>i.id===item.id?{...i,wont_do:nv}:i));
+    await tursoQuery("UPDATE command_center_items SET wont_do=? WHERE id=?",[String(nv),item.id]);
+  };
   const uncomplete=async(item)=>{ setItems(prev=>prev.map(i=>i.id===item.id?{...i,completed:0,completed_by:null,completed_at:null}:i)); await tursoQuery("UPDATE command_center_items SET completed=0,completed_by=NULL,completed_at=NULL WHERE id=?",[item.id]); };
   const confirmComplete=async()=>{ const item=modal.item,by=completeBy.trim()||null,at=nowISO(); setItems(prev=>prev.map(i=>i.id===item.id?{...i,completed:1,completed_by:by,completed_at:at}:i)); await tursoQuery("UPDATE command_center_items SET completed=1,completed_by=?,completed_at=? WHERE id=?",[by,at,item.id]); setModal(null); };
 
@@ -928,10 +935,10 @@ function App() {
 
   // active page items
   const pageItems=orgItems.filter(i=>i.category===activeCat);
-  const displayed=filter==="all"?pageItems:filter==="open"?pageItems.filter(i=>!isDone(i.completed)):pageItems.filter(i=>isDone(i.completed));
-  const pageOpen=pageItems.filter(i=>!isDone(i.completed)).length;
+  const displayed=filter==="all"?pageItems:filter==="open"?pageItems.filter(i=>!isDone(i.completed)&&!isWontDo(i.wont_do)):filter==="done"?pageItems.filter(i=>isDone(i.completed)):pageItems.filter(i=>isWontDo(i.wont_do));
+  const pageOpen=pageItems.filter(i=>!isDone(i.completed)&&!isWontDo(i.wont_do)).length;
   const pageDone=pageItems.filter(i=> isDone(i.completed)).length;
-  const pageUrgent=pageItems.filter(i=>!isDone(i.completed)&&(isOverdue(i.due_date)||isSoon(i.due_date))).length;
+  const pageUrgent=pageItems.filter(i=>!isDone(i.completed)&&!isWontDo(i.wont_do)&&(isOverdue(i.due_date)||isSoon(i.due_date))).length;
 
   const totalOpen=orgItems.filter(i=>!isDone(i.completed)).length;
   const formCats=CATEGORIES[form.org||org];
@@ -994,7 +1001,7 @@ function App() {
             </div>
           </div>
           <div style={{display:"flex",gap:8,alignItems:"center"}}>
-            {["all","open","done"].map(f=>(
+            {["all","open","done","won't do"].map(f=>(
               <button key={f} onClick={()=>setFilter(f)} style={{padding:"5px 11px",borderRadius:99,border:`1.5px solid ${filter===f?oc.color:"#E7E5E4"}`,background:filter===f?oc.color:"#fff",color:filter===f?"#fff":"#78716C",fontSize:12,fontWeight:600,cursor:"pointer"}}>{f.charAt(0).toUpperCase()+f.slice(1)}</button>
             ))}
             <button onClick={openAdd} style={{background:oc.color,color:"#fff",border:"none",borderRadius:9,padding:"8px 16px",fontSize:13,fontWeight:700,cursor:"pointer",marginLeft:4}}>+ Add</button>
@@ -1030,12 +1037,15 @@ function App() {
                     return (
                       <div key={item.id} className={`item-row${done?" done-row":""}`}>
                         {!NOMINATION_CATEGORIES.includes(item.category) && (
-                          <button className="check-btn" onClick={()=>handleCheck(item)} style={{border:`2px solid ${done?oc.color:"#D6D3D1"}`,background:done?oc.color:"transparent"}}>
-                            {done&&<span style={{color:"#fff",fontSize:11,fontWeight:900}}>✓</span>}
-                          </button>
+                          <div style={{display:"flex",flexDirection:"column",gap:4,flexShrink:0}}>
+                            <button className="check-btn" onClick={()=>handleCheck(item)} style={{border:`2px solid ${done?oc.color:"#D6D3D1"}`,background:done?oc.color:"transparent"}}>
+                              {done&&<span style={{color:"#fff",fontSize:11,fontWeight:900}}>✓</span>}
+                            </button>
+                            <button onClick={()=>toggleWontDo(item)} title="Won't do" style={{width:22,height:22,borderRadius:6,flexShrink:0,cursor:"pointer",border:`2px solid ${isWontDo(item.wont_do)?"#DC2626":"#E7E5E4"}`,background:isWontDo(item.wont_do)?"#FEF2F2":"transparent",display:"flex",alignItems:"center",justifyContent:"center",fontSize:11,fontWeight:900,color:isWontDo(item.wont_do)?"#DC2626":"#D6D3D1",lineHeight:1}}>✕</button>
+                          </div>
                         )}
                         <div className="item-body">
-                          <InlineTitle value={item.title} done={!NOMINATION_CATEGORIES.includes(item.category)&&done} onChange={v=>saveField(item.id,"title",v)}/>
+                          <InlineTitle value={item.title} done={!NOMINATION_CATEGORIES.includes(item.category)&&done} wontDo={isWontDo(item.wont_do)} onChange={v=>saveField(item.id,"title",v)}/>
                           {item.notes&&<NotesDisplay text={item.notes}/>}
                           {MEMBER_SELF_CATEGORIES.includes(item.category)&&(
                             <MemberTracker item={item} orgColor={oc.color}/>
@@ -1044,6 +1054,12 @@ function App() {
                             <div className="item-meta">
                               <InlineDate value={item.due_date} color={oc.color} onChange={v=>saveField(item.id,"due_date",v)}/>
                               <InlineAssignee value={item.assigned_to} org={item.org} color={oc.color} onChange={v=>saveField(item.id,"assigned_to",v)}/>
+                            </div>
+                          )}
+                          {!NOMINATION_CATEGORIES.includes(item.category)&&isWontDo(item.wont_do)&&(
+                            <div style={{display:"flex",alignItems:"center",gap:4,marginTop:4}}>
+                              <span style={{fontSize:11,fontWeight:700,color:"#DC2626"}}>✕</span>
+                              <span style={{fontSize:11,color:"#FCA5A5",fontWeight:500}}>Won't do</span>
                             </div>
                           )}
                           {!NOMINATION_CATEGORIES.includes(item.category)&&done&&(
