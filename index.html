@@ -868,6 +868,51 @@ function RosterView({ color }) {
   );
 }
 
+
+function getLevel(item) {
+  const cat = item.category || "";
+  const title = item.title || "";
+  const notes = item.notes || "";
+  // USWT items
+  if (title.includes("USWT") || notes.includes("USWT") || 
+      title.includes("WPD") || title.includes("STEP I") || title.includes("STEP II") || title.includes("STEP III") ||
+      title.includes("Friendship Day") || title.includes("Founders Day") ||
+      title.includes("Outstanding Achievement in Programming") ||
+      title.includes("All American") || title.includes("Fellowship Builder") ||
+      title.includes("Ambassador Award") || title.includes("uswomenoftoday")) {
+    return "USWT";
+  }
+  // LOCAL items
+  if (cat === "Convention" || cat === "District Secretary" || cat === "Roster" ||
+      title.includes("chapter") || title.includes("Chapter") ||
+      title.includes("BPWT") || title.includes("District") ||
+      title.includes("Tevyan") || title.includes("Wyndham") ||
+      title.includes("hotel") || title.includes("Hotel") ||
+      title.includes("chapter social") || title.includes("m-event") ||
+      title.includes("AT CONVENTION") || title.includes("Post-convention") ||
+      cat === "Blossom Thyme" || cat === "Home" || cat === "Personal Goals" ||
+      cat === "Health & Wellness" || cat === "Projects" || cat === "Errands") {
+    return "LOCAL";
+  }
+  // MNWT items — state-level
+  if (cat === "Fast Starts" || cat === "President" || cat === "Programming VP" ||
+      cat === "Membership VP" || cat === "Secretary" || cat === "Treasurer" ||
+      cat === "State Delegate" || cat === "Parliamentarian" || cat === "Future Directions" ||
+      title.includes("MNWT") || title.includes("SUCCESS") ||
+      title.includes("trimester report") || title.includes("Trimester Report") ||
+      title.includes("Fast Start") || title.includes("state president") ||
+      notes.includes("mnwt.org") || notes.includes("emailmeform")) {
+    return "MNWT";
+  }
+  return "LOCAL";
+}
+
+const LEVEL_COLORS = {
+  "LOCAL":  { bg:"#EDE9FE", text:"#5B21B6" },
+  "MNWT":   { bg:"#DBEAFE", text:"#1E40AF" },
+  "USWT":   { bg:"#D1FAE5", text:"#065F46" },
+};
+
 // ── App ──
 function App() {
   const [org,setOrg]               = React.useState(()=>localStorage.getItem("cc_org")||"bpwt");
@@ -931,7 +976,7 @@ function App() {
 
   // per-category counts for badges
   const catCounts={};
-  cats.forEach(c=>{ const ci=orgItems.filter(i=>i.category===c); catCounts[c]={ open:ci.filter(i=>!isDone(i.completed)).length, urgent:ci.some(i=>!isDone(i.completed)&&(isOverdue(i.due_date)||isSoon(i.due_date))) }; });
+  cats.forEach(c=>{ const ci=orgItems.filter(i=>i.category===c); catCounts[c]={ open:ci.filter(i=>!isDone(i.completed)&&!isWontDo(i.wont_do)).length, urgent:ci.some(i=>!isDone(i.completed)&&!isWontDo(i.wont_do)&&(isOverdue(i.due_date)||isSoon(i.due_date))) }; });
 
   // active page items
   const pageItems=orgItems.filter(i=>i.category===activeCat);
@@ -1046,7 +1091,10 @@ function App() {
                           </div>
                         )}
                         <div className="item-body">
-                          <InlineTitle value={item.title} done={!NOMINATION_CATEGORIES.includes(item.category)&&done} wontDo={isWontDo(item.wont_do)} onChange={v=>saveField(item.id,"title",v)}/>
+                          <div style={{display:"flex",alignItems:"flex-start",gap:6,flexWrap:"wrap"}}>
+                            <InlineTitle value={item.title} done={!NOMINATION_CATEGORIES.includes(item.category)&&done} wontDo={isWontDo(item.wont_do)} onChange={v=>saveField(item.id,"title",v)}/>
+                            {(()=>{const lvl=getLevel(item);const lc=LEVEL_COLORS[lvl];return<span style={{fontSize:9,fontWeight:800,padding:"2px 6px",borderRadius:4,background:lc.bg,color:lc.text,flexShrink:0,marginTop:2,letterSpacing:"0.06em"}}>{lvl}</span>;})()}
+                          </div>
                           {item.notes&&<NotesDisplay text={item.notes}/>}
                           {MEMBER_SELF_CATEGORIES.includes(item.category)&&(
                             <MemberTracker item={item} orgColor={oc.color}/>
