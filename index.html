@@ -376,6 +376,7 @@ async function initDB() {
   try { await tursoQuery("ALTER TABLE command_center_items ADD COLUMN completed_by TEXT"); } catch(e){}
   try { await tursoQuery("ALTER TABLE command_center_items ADD COLUMN completed_at TEXT"); } catch(e){}
   try { await tursoQuery("ALTER TABLE command_center_items ADD COLUMN wont_do INTEGER DEFAULT 0"); } catch(e){}
+  try { await tursoQuery("ALTER TABLE command_center_items ADD COLUMN level TEXT"); } catch(e){}
   const presCheck = parseInt((await tursoQuery("SELECT COUNT(*) FROM command_center_items WHERE org='bpwt' AND category='President'"))?.rows?.[0]?.[0]?.value??"0");
   if (presCheck===0) {
     await tursoQuery("DELETE FROM command_center_items WHERE org='bpwt'");
@@ -869,7 +870,33 @@ function RosterView({ color }) {
 }
 
 
+
+function LevelBadge({ item, saveField }) {
+  const LEVELS = ["LOCAL","MNWT","USWT"];
+  const LEVEL_COLORS = {
+    "LOCAL": { bg:"#EDE9FE", text:"#5B21B6" },
+    "MNWT":  { bg:"#DBEAFE", text:"#1E40AF" },
+    "USWT":  { bg:"#D1FAE5", text:"#065F46" },
+  };
+  const current = item.level || getLevel(item);
+  const cycle = async (e) => {
+    e.stopPropagation();
+    const next = LEVELS[(LEVELS.indexOf(current) + 1) % LEVELS.length];
+    await saveField(item.id, "level", next);
+  };
+  const lc = LEVEL_COLORS[current] || LEVEL_COLORS["LOCAL"];
+  return (
+    <span onClick={cycle} title="Tap to change level" style={{
+      fontSize:9,fontWeight:800,padding:"2px 6px",borderRadius:4,
+      background:lc.bg,color:lc.text,flexShrink:0,marginTop:2,
+      letterSpacing:"0.06em",cursor:"pointer",userSelect:"none",
+      border:"1px solid transparent",transition:"opacity 0.15s"
+    }}>{current}</span>
+  );
+}
+
 function getLevel(item) {
+  if (item.level) return item.level;
   const cat = item.category || "";
   const title = item.title || "";
   const notes = item.notes || "";
@@ -1093,7 +1120,7 @@ function App() {
                         <div className="item-body">
                           <div style={{display:"flex",alignItems:"flex-start",gap:6,flexWrap:"wrap"}}>
                             <InlineTitle value={item.title} done={!NOMINATION_CATEGORIES.includes(item.category)&&done} wontDo={isWontDo(item.wont_do)} onChange={v=>saveField(item.id,"title",v)}/>
-                            {(()=>{const lvl=getLevel(item);const lc=LEVEL_COLORS[lvl];return<span style={{fontSize:9,fontWeight:800,padding:"2px 6px",borderRadius:4,background:lc.bg,color:lc.text,flexShrink:0,marginTop:2,letterSpacing:"0.06em"}}>{lvl}</span>;})()}
+                            <LevelBadge item={item} saveField={saveField}/>
                           </div>
                           {item.notes&&<NotesDisplay text={item.notes}/>}
                           {MEMBER_SELF_CATEGORIES.includes(item.category)&&(
