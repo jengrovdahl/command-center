@@ -939,6 +939,7 @@ function App() {
   const pageOpen=pageItems.filter(i=>!isDone(i.completed)&&!isWontDo(i.wont_do)).length;
   const pageDone=pageItems.filter(i=> isDone(i.completed)).length;
   const pageUrgent=pageItems.filter(i=>!isDone(i.completed)&&!isWontDo(i.wont_do)&&(isOverdue(i.due_date)||isSoon(i.due_date))).length;
+  const pageWontDo=pageItems.filter(i=>isWontDo(i.wont_do)).length;
 
   const totalOpen=orgItems.filter(i=>!isDone(i.completed)).length;
   const formCats=CATEGORIES[form.org||org];
@@ -1012,7 +1013,7 @@ function App() {
         <div className="content">
           {/* Stats */}
           {!ROSTER_CATEGORIES.includes(activeCat)&&<div className="stats-row">
-            {[["Open",pageOpen,oc.color],["Done",pageDone,"#16A34A"],["Urgent",pageUrgent,"#DC2626"]].map(([lbl,val,clr])=>(
+            {[["Open",pageOpen,oc.color],["Done",pageDone,"#16A34A"],["Urgent",pageUrgent,"#DC2626"],["Won't Do",pageWontDo,"#9CA3AF"]].map(([lbl,val,clr])=>(
               <div key={lbl} className="stat-card">
                 <p className="stat-num" style={{color:clr}}>{val}</p>
                 <p className="stat-lbl">{lbl}</p>
